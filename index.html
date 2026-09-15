@@ -480,7 +480,7 @@ const PROCESS_PAGES = {
   perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Gabungkan 5 komponen. Rangka Jadi = minimum dari Las Kaki, Las Palang, Las Sandaran, Las U, dan Las Kupingan.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
   coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing rangka jadi. Pilih tepat satu: Coating atau Nickel.', sub: [] },
   nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing rangka jadi. Pilih tepat satu: Nickel atau Coating.', sub: [] },
-  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari output Coating.', sub: [] }
+  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari hasil Chemical: Coating atau Nickel.', sub: [] }
 };
 
 const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
@@ -1346,6 +1346,31 @@ function applyAssemblyUX() {
   });
 }
 
+function applyDopUX(ctx) {
+  if (APP.procKey !== 'dop') return;
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const sourceBox = $('ppSourceBox');
+  const availableQty = Number(ctx && ctx.availableQty || 0);
+  const sourceLabel = ctx && ctx.sourceLabel ? ctx.sourceLabel : 'Hasil Chemical';
+  const ok = !!(ctx && ctx.available) && availableQty > 0;
+  if (sourceBox) {
+    sourceBox.style.display = 'block';
+    sourceBox.innerHTML = '<div class="stage-info"><b>Sumber Pemasangan Dop:</b> ' + esc(sourceLabel) +
+      (availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS' : '') +
+      '<br><b>Catatan:</b> Dop mengikuti hasil branch Chemical yang dipilih (Coating atau Nickel).</div>';
+  }
+  if (qty) {
+    if (availableQty > 0) qty.max = String(availableQty);
+    else qty.removeAttribute('max');
+    if (!APP.editingTrxId && availableQty > 0) qty.value = availableQty;
+  }
+  if (save && !APP.editingTrxId) {
+    save.disabled = !ok;
+    save.title = ok ? '' : 'Hasil Coating/Nickel belum tersedia untuk dipasang Dop.';
+  }
+}
+
 function applyChemicalUX(ctx) {
   if (APP.procKey !== 'coating' && APP.procKey !== 'nickel') return;
   const batchSel = $('ppBatch');
@@ -1415,6 +1440,9 @@ function refreshProcessContext() {
     }
     if (APP.procKey === 'coating' || APP.procKey === 'nickel') {
       applyChemicalUX(ctx);
+    }
+    if (APP.procKey === 'dop') {
+      applyDopUX(ctx);
     }
   });
 }

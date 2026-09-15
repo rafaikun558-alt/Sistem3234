@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Manufaktur</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;font-family:"Segoe UI",Arial,Helvetica,sans-serif;background:#f5f7fb;color:#17233d}
+body{overflow-x:hidden}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:255px;background:#0b1c3f;color:#fff;z-index:1000;overflow-y:auto;padding:20px 10px 25px;scrollbar-width:thin}
+.company{height:60px;display:flex;align-items:center;gap:12px;padding:0 12px 18px;margin-bottom:13px;border-bottom:1px solid rgba(255,255,255,.14)}
+.company-logo{width:42px;height:42px;border-radius:50%;background:#4f6fdc;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff}
+.company-logo svg{width:24px;height:24px}
+.company-text{font-size:14px;font-weight:700;color:#fff}
+.company-subtitle{font-size:9px;color:#8fa2c4;margin-top:2px}
+.menu-section{margin:19px 11px 7px;font-size:10px;color:#7f93b1;text-transform:uppercase;letter-spacing:.6px;font-weight:500;cursor:pointer}
+.menu-section:hover,.menu-section.active{color:#c8d6ef}
+.menu-item{min-height:37px;width:100%;display:flex;align-items:center;gap:10px;padding:8px 11px;border-radius:6px;color:#cfdaf0;font-size:13px;font-weight:600;cursor:pointer;transition:background .18s ease,color .18s ease}
+.menu-item:hover{background:rgba(255,255,255,.07)}
+.menu-item.active{background:#2e5bd7;color:#fff}
+.menu-icon{width:20px;height:20px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#d5e1f1}
+.menu-icon svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.menu-arrow{margin-left:auto;color:#9aabc1;font-size:15px}
+.submenu{margin:0 0 3px 31px;padding-left:11px;border-left:1px solid rgba(255,255,255,.12);display:block;overflow:hidden;transition:max-height .2s ease,opacity .2s ease}.submenu.collapsed{max-height:0!important;opacity:0;margin-bottom:0}.menu-item.has-submenu .menu-arrow{transition:transform .18s ease}.menu-item.has-submenu.collapsed .menu-arrow{transform:rotate(90deg)}
+.submenu-item{padding:5px 0;color:#9fb1cf;font-size:12px;font-weight:500;cursor:pointer}
+.submenu-item:hover{color:#fff}
+
+.submenu.nested{margin-left:14px;border-left:1px solid rgba(255,255,255,.08)}
+.set-section{margin-top:22px}
+.set-group-title{padding:5px 0;color:#b7c4dc;font-size:11px;font-weight:600;cursor:pointer}
+.main{margin-left:255px;min-height:100vh;background:#f5f7fb}
+.topbar{height:72px;background:#fff;border-bottom:1px solid #e5e9f0;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:100}
+.page-title{font-size:21px;font-weight:700;color:#14233f;letter-spacing:.1px}
+.top-right{display:flex;align-items:center;gap:13px}
+.filter-box{height:36px;min-width:145px;padding:0 11px;background:#fff;border:1px solid #dce2eb;border-radius:6px;display:flex;align-items:center;gap:8px;color:#34435b;font-size:12px}
+.filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}
+.profile{display:flex;align-items:center;gap:9px;margin-left:8px}
+.profile-circle{width:29px;height:29px;border-radius:50%;background:#1b355a;display:flex;align-items:center;justify-content:center;color:#fff}
+.profile-circle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
+.profile-name{font-size:12px;font-weight:700;color:#1e2d46;line-height:1.2}
+.profile-role{font-size:10px;color:#7c899c;margin-top:2px}
+.content{padding:12px 20px 20px}
+.app-page.hidden{display:none!important}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.kpi-card{height:130px;background:#fff;border:1px solid #e5e9f0;border-radius:8px;padding:18px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(35,50,80,.035)}
+.kpi-icon{width:55px;height:55px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kpi-icon svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.icon-green{background:#dcf6e6;color:#1fa35d}
+.icon-blue{background:#e1ecff;color:#2877dc}
+.icon-purple{background:#eee7ff;color:#7654d6}
+.icon-orange{background:#fff0d8;color:#ec941a}
+.kpi-info{min-width:0}
+.kpi-title{font-size:10px;font-weight:700;color:#526078;text-transform:uppercase;margin-bottom:6px;white-space:nowrap}
+.kpi-value{font-size:21px;font-weight:700;color:#162540;line-height:1}
+.kpi-unit{font-size:9px;font-weight:500;color:#7e8b9e;margin-left:3px}
+.kpi-change{margin-top:8px;font-size:10px;color:#21a45e}
+.dashboard-card,.process-panel,.erp-card{background:#fff;border:1px solid #e4e8ef;border-radius:8px;box-shadow:0 2px 6px rgba(35,50,80,.03)}
+.card-title{font-size:15px;font-weight:700;color:#172641;margin-bottom:16px}
+.process-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.process-card{padding:17px 17px 14px;min-height:350px;overflow:hidden}
+.flow{width:100%;display:flex;align-items:flex-start;justify-content:center;gap:4px;padding:1px 0 14px;border-bottom:1px solid #edf0f4;margin-bottom:10px;overflow:hidden}
+.flow-item{min-width:55px;text-align:center;flex:0 1 auto;cursor:pointer}
+.flow-circle{width:38px;height:38px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;color:#fff}
+.flow-circle svg{width:19px;height:19px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.flow-green{background:#2bad68}.flow-orange{background:#ee9a1c}.flow-blue{background:#297cdf}.flow-cyan{background:#23b8c7}.flow-purple{background:#8059d8}.flow-pink{background:#c85f8c}
+.flow-label{font-size:8px;line-height:1.15;color:#34425a;white-space:nowrap}
+.flow-arrow{color:#a9b4c4;font-size:18px;line-height:38px;flex-shrink:0}
+.process-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.process-table th{height:24px;text-align:left;font-size:9px;color:#66748a;font-weight:600;border-bottom:1px solid #e8ecf2;white-space:nowrap}
+.process-table td{height:24px;font-size:9px;color:#3d4b62;border-bottom:1px solid #f0f2f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.process-table th:nth-child(1),.process-table td:nth-child(1){width:40%}
+.process-table th:nth-child(2),.process-table td:nth-child(2){width:18%}
+.process-table th:nth-child(3),.process-table td:nth-child(3){width:18%}
+.process-table th:nth-child(4),.process-table td:nth-child(4){width:24%}
+.process-table tr:last-child td{border-bottom:none}
+.total-row td{font-weight:700;color:#182741;padding-top:6px}
+.achievement{display:flex;align-items:center;gap:4px}
+.achievement-value{width:32px;font-weight:600}
+.small-progress{width:55px;height:5px;border-radius:10px;background:#e8edf3;overflow:hidden}
+.small-progress-fill{height:100%;border-radius:10px;background:#2dbb72}
+.bottom-grid{display:grid;grid-template-columns:1.08fr .92fr;gap:14px}
+.bottom-card{min-height:285px;padding:17px}
+.chart-wrapper{height:210px;position:relative;padding:10px 10px 26px 40px}
+.chart-y-label{position:absolute;left:0;width:35px;display:flex;flex-direction:column;justify-content:space-between;top:9px;bottom:27px;font-size:8px;color:#78869b;text-align:right}
+.chart-grid{position:absolute;left:40px;right:10px;top:9px;bottom:27px;display:flex;flex-direction:column;justify-content:space-between}
+.chart-grid-line{width:100%;border-top:1px dashed #e1e6ed}
+.chart-svg{position:absolute;left:40px;right:10px;top:9px;bottom:27px;width:calc(100% - 50px);height:calc(100% - 36px);overflow:visible}
+.chart-x-label{position:absolute;left:40px;right:10px;bottom:3px;display:flex;justify-content:space-between;font-size:8px;color:#78869b}
+.chart-legend{display:flex;align-items:center;gap:18px;font-size:9px;color:#657289;margin:0 0 0 40px}
+.legend{display:flex;align-items:center;gap:5px}
+.legend-line{width:17px;height:3px;border-radius:4px;background:#287ce0}
+.legend-line.green{background:#2dbb72}
+.efficiency-layout{min-height:215px;display:flex;align-items:center;justify-content:center;gap:28px}
+.donut{width:150px;height:150px;border-radius:50%;background:conic-gradient(#2dbb72 0deg,#2dbb72 142deg,#287ce0 142deg,#287ce0 246deg,#23b8c7 246deg,#23b8c7 318deg,#8059d8 318deg,#8059d8 322deg,#e1e5eb 322deg,#e1e5eb 360deg);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.donut-inner{width:112px;height:112px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-value{font-size:22px;font-weight:700;color:#182640}
+.donut-caption{font-size:8px;color:#7c899c;margin-top:4px}
+.efficiency-list{flex:1;max-width:225px}
+.eff-group-title{font-size:9px;color:#657289;margin-bottom:8px;text-transform:uppercase}
+.efficiency-row{margin-bottom:9px}
+.efficiency-name{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#59677d;margin-bottom:4px}
+.efficiency-name b{color:#334159;font-weight:600}
+.efficiency-progress{height:5px;width:100%;background:#e7ebf1;border-radius:10px;overflow:hidden}
+.efficiency-progress span{display:block;height:100%;border-radius:10px;background:#2dbb72}
+.footer{height:38px;display:flex;align-items:center;justify-content:center;color:#7f8ca0;font-size:9px}
+.process-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:14px}
+.process-page-title{font-size:20px;font-weight:700;color:#14233f;margin-bottom:4px}
+.process-page-subtitle{font-size:11px;color:#7b899d}
+.process-actions{display:flex;gap:8px;align-items:center}
+.btn-primary,.btn-secondary{height:36px;padding:0 14px;border-radius:6px;border:1px solid transparent;font-size:11px;font-weight:700;cursor:pointer;transition:.18s ease}
+.btn-primary{background:#2e5bd7;color:#fff;box-shadow:0 2px 5px rgba(46,91,215,.18)}
+.btn-primary:hover{background:#244dbd}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed}
+.btn-secondary{background:#fff;color:#40506a;border-color:#dce2eb}
+.btn-secondary:hover{background:#f7f9fc}
+.process-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.process-kpi{background:#fff;border:1px solid #e4e8ef;border-radius:8px;padding:14px 15px;min-height:86px;box-shadow:0 2px 6px rgba(35,50,80,.025)}
+.process-kpi-label{font-size:9px;text-transform:uppercase;color:#748198;font-weight:700;margin-bottom:7px}
+.process-kpi-value{font-size:20px;font-weight:700;color:#162540}
+.process-kpi-unit{font-size:9px;color:#7e8b9e;margin-left:3px;font-weight:500}
+.process-kpi-note{font-size:9px;color:#8a96a8;margin-top:5px}
+.process-layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1.95fr);gap:14px;align-items:start}
+.process-panel-head{padding:15px 17px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.process-panel-title{font-size:14px;font-weight:700;color:#172641}
+.process-panel-caption{font-size:9px;color:#8a96a8;margin-top:3px}
+.process-panel-body{padding:16px 17px}
+.process-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field.full{grid-column:1/-1}
+.field label{font-size:9px;color:#657289;font-weight:700;text-transform:uppercase;letter-spacing:.15px}
+.field input,.field select,.field textarea{width:100%;border:1px solid #dce2eb;background:#fff;border-radius:6px;outline:none;height:35px;padding:0 10px;font-size:11px;color:#34435b;font-family:inherit}
+.field textarea{height:70px;padding:9px 10px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#6f8de4;box-shadow:0 0 0 2px rgba(46,91,215,.08)}
+.form-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;padding-top:13px;border-top:1px solid #edf0f4}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border-radius:20px;font-size:8px;font-weight:700}
+.status-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
+.status-good{color:#218c58;background:#e5f7ed}
+.status-warn{color:#b77913;background:#fff4dc}
+.status-bad{color:#c04c55;background:#fdebed}
+.table-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:11px}
+.table-search{height:32px;width:190px;border:1px solid #dce2eb;border-radius:6px;padding:0 9px;font-size:10px;outline:none;color:#34435b}
+.table-wrap{overflow:auto;max-height:420px}
+.data-table{width:100%;border-collapse:collapse;min-width:650px}
+.data-table th{height:31px;background:#f8f9fc;border-bottom:1px solid #e7ebf1;text-align:left;font-size:8px;color:#6b7890;font-weight:700;text-transform:uppercase;padding:0 9px;white-space:nowrap}
+.data-table td{height:36px;border-bottom:1px solid #eef1f5;font-size:9px;color:#3d4b62;padding:0 9px;white-space:nowrap}
+.data-table tr:hover td{background:#fbfcfe}
+.empty-state{padding:48px 20px;text-align:center;color:#8995a7;font-size:10px}
+.empty-icon{width:40px;height:40px;border-radius:50%;background:#eef3fb;color:#5671ad;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px}
+.process-flow-strip{display:flex;align-items:center;gap:7px;margin-bottom:14px;overflow:auto;padding-bottom:3px}
+.process-step{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.process-step-badge{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;flex-shrink:0}
+.process-step-label{font-size:8px;color:#46546b;font-weight:600}
+.process-step-arrow{color:#a9b4c4;font-size:14px}
+.material-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.summary-box{border:1px solid #e7ebf1;border-radius:7px;padding:11px 12px;background:#fafbfd}
+.summary-label{font-size:8px;color:#78869b;text-transform:uppercase;font-weight:700}
+.summary-value{font-size:16px;font-weight:700;color:#1a2944;margin-top:4px}
+.erp-page-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.erp-stat-card{background:#fff;border:1px solid #e4e8ef;border-radius:8px;padding:14px 15px;min-height:90px;box-shadow:0 2px 6px rgba(35,50,80,.025)}
+.erp-stat-label{font-size:9px;text-transform:uppercase;color:#748198;font-weight:700;letter-spacing:.2px;margin-bottom:7px}
+.erp-stat-value{font-size:21px;font-weight:700;color:#162540;line-height:1.1}
+.erp-stat-note{font-size:9px;color:#8a96a8;margin-top:5px}
+.erp-module-tabs{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.erp-tab{height:34px;padding:0 12px;border:1px solid #dce2eb;background:#fff;color:#46556d;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;transition:.18s ease}
+.erp-tab:hover{background:#f7f9fc}
+.erp-tab.active{background:#2e5bd7;border-color:#2e5bd7;color:#fff;box-shadow:0 2px 5px rgba(46,91,215,.15)}
+.erp-card-head{min-height:58px;padding:14px 17px;border-bottom:1px solid #edf0f4;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.erp-card-title{font-size:14px;font-weight:700;color:#172641}
+.erp-card-caption{font-size:9px;color:#8a96a8;margin-top:3px}
+.erp-card-body{padding:15px 17px}
+.erp-columns{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr);gap:14px;align-items:start}
+.erp-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.erp-form-grid .field.full{grid-column:1/-1}
+.erp-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:11px}
+.erp-toolbar-left,.erp-toolbar-right{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.erp-search{height:32px;min-width:210px;border:1px solid #dce2eb;border-radius:6px;padding:0 9px;font-size:10px;outline:none;color:#34435b;background:#fff}
+.erp-mini-select{height:32px;border:1px solid #dce2eb;border-radius:6px;padding:0 8px;font-size:10px;outline:none;background:#fff;color:#34435b}
+.erp-date{height:32px;border:1px solid #dce2eb;border-radius:6px;padding:0 8px;font-size:10px;outline:none;background:#fff;color:#34435b}
+.erp-table-wrap{width:100%;overflow:auto;max-height:460px;border:1px solid #eef1f5;border-radius:6px}
+.erp-table{width:100%;min-width:720px;border-collapse:collapse}
+.erp-table th{height:32px;padding:0 9px;text-align:left;white-space:nowrap;background:#f8f9fc;border-bottom:1px solid #e7ebf1;color:#6b7890;font-size:8px;font-weight:700;text-transform:uppercase}
+.erp-table td{min-height:34px;padding:8px 9px;border-bottom:1px solid #eef1f5;color:#3d4b62;font-size:9px;vertical-align:middle}
+.erp-table tr:last-child td{border-bottom:none}
+.erp-table tr:hover td{background:#fbfcfe}
+.erp-action-row{display:flex;gap:7px;align-items:center;justify-content:flex-end}
+.erp-icon-btn{width:28px;height:28px;border-radius:6px;border:1px solid #dce2eb;background:#fff;color:#526078;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.erp-icon-btn:hover{background:#f5f7fb}
+.erp-empty{padding:45px 20px;text-align:center;color:#8995a7;font-size:10px}
+.erp-empty strong{display:block;color:#4d5d76;font-size:11px;margin-bottom:4px}
+.erp-info-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.erp-chip{display:inline-flex;align-items:center;min-height:26px;padding:0 8px;border-radius:20px;background:#f4f7fb;color:#66748a;font-size:9px;font-weight:700}
+.erp-chip.good{background:#e5f7ed;color:#218c58}
+.erp-chip.warn{background:#fff4dc;color:#b77913}
+.erp-chip.bad{background:#fdebed;color:#c04c55}
+.erp-info-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.erp-system-list{display:grid;gap:8px}
+.erp-system-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid #eef1f5}
+.erp-system-row:last-child{border-bottom:none}
+.erp-system-name{font-size:10px;font-weight:700;color:#34435b}
+.erp-system-meta{font-size:9px;color:#8a96a8;margin-top:3px}
+.erp-process-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.erp-process-card{padding:15px;border:1px solid #e4e8ef;background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(35,50,80,.025);cursor:pointer;transition:.18s ease}
+.erp-process-card:hover{transform:translateY(-1px);border-color:#cdd8ee;box-shadow:0 5px 14px rgba(35,50,80,.06)}
+.erp-process-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}
+.erp-process-number{width:31px;height:31px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;flex-shrink:0}
+.erp-process-name{font-size:12px;font-weight:700;color:#1b2a44;flex:1}
+.erp-process-value{font-size:18px;font-weight:700;color:#162540}
+.erp-process-meta{font-size:9px;color:#8491a4;margin-top:4px}
+.erp-progress{height:6px;border-radius:10px;background:#e9edf3;overflow:hidden;margin-top:9px}
+.erp-progress span{display:block;height:100%;border-radius:10px;background:#2dbb72}
+.stage-warning{background:#fff4dc;border:1px solid #f0d48a;color:#8a6410;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.4}.stage-info{background:#eef5ff;border:1px solid #cfe0ff;color:#315783;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.5}
+@media(max-width:1250px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.process-grid{grid-template-columns:1fr}.bottom-grid{grid-template-columns:1fr}}
+@media(max-width:1100px){.process-layout{grid-template-columns:1fr}.process-kpi-grid{grid-template-columns:repeat(2,1fr)}.erp-columns{grid-template-columns:1fr}.erp-process-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:900px){.sidebar{width:72px;padding-left:8px;padding-right:8px}.main{margin-left:72px}.company{justify-content:center;padding:0}.company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:none}.menu-item{justify-content:center}.menu-arrow{display:none}.topbar{padding:0 15px}.page-title{font-size:17px}.profile-name,.profile-role{display:none}}
+@media(max-width:650px){.kpi-grid,.erp-page-grid,.erp-process-grid{grid-template-columns:1fr}.top-right{display:none}.content{padding:12px}.efficiency-layout{flex-direction:column;padding-bottom:15px}.process-form-grid,.erp-form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.process-page-head{flex-direction:column}.process-actions{width:100%}.btn-primary,.btn-secondary{flex:1}.material-summary{grid-template-columns:1fr}.erp-search{min-width:100%;width:100%}}
+</style>
+</head>
+<body>
+
+<!-- ================= SIDEBAR ================= -->
+<aside class="sidebar" id="sidebar">
+  <div class="company">
+    <div class="company-logo">
+      <svg viewBox="0 0 48 48"><path d="M5 42V24h9v18M14 42V17h9v25M23 42V8h9v34M32 42V22h11v20" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linejoin="round"/><path d="M4 42h40" stroke="currentColor" fill="none" stroke-width="2.5"/><path d="M27 8l5-5 5 5" stroke="currentColor" fill="none" stroke-width="2.5" stroke-linejoin="round"/></svg>
+    </div>
+    <div>
+      <div class="company-text">PT. Manufaktur Indonesia</div>
+      <div class="company-subtitle">Manufacturing Management</div>
+    </div>
+  </div>
+
+  <div class="menu-item active" data-route="dashboard"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg></span><span>Dashboard</span></div>
+  <div class="menu-item" data-route="master"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>Master Data</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" data-route="stock"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg></span><span>Stok Material</span><span class="menu-arrow">›</span></div>
+  <div class="menu-item" data-route="input-produksi"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Input Produksi</span></div>
+
+  <div class="menu-section" data-route="material-overview">1# Proses Material</div>
+  <div class="menu-item" data-menu-toggle="cutting" data-route="cutting"><span class="menu-icon">✂</span><span>Cutting Proses</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="cutting">
+    <div class="submenu-item" data-route="cutting" data-sub="Kaki-kaki">› Kaki-kaki</div>
+    <div class="submenu-item" data-route="cutting" data-sub="Palang">› Palang</div>
+    <div class="submenu-item" data-route="cutting" data-sub="Sandaran">› Sandaran</div>
+    <div class="submenu-item" data-route="cutting" data-sub="U">› U</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="bending" data-route="bending"><span class="menu-icon">⌒</span><span>Bending Proses</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="bending">
+    <div class="submenu-item" data-route="bending" data-sub="Bending Kaki">› Bending Kaki</div>
+    <div class="submenu-item" data-route="bending" data-sub="Bor">› Bor</div>
+    <div class="submenu-item" data-route="bending" data-sub="Bending Sandaran">› Bending Sandaran</div>
+    <div class="submenu-item" data-route="bending" data-sub="Bending U">› Bending U</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="pond"><span class="menu-icon">▣</span><span>Pond</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="pond">
+    <div class="submenu-item" data-route="kupingan" data-sub="">› Kupingan</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="las" data-route="las"><span class="menu-icon">⚡</span><span>Las Proses</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="las">
+    <div class="submenu-item" data-route="las" data-sub="Las Robot">› Las Robot</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="perakitan" data-route="perakitan"><span class="menu-icon">⊞</span><span>Perakitan Rangka</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="perakitan">
+    <div class="submenu-item" data-route="perakitan" data-sub="Las Kaki">› Las Kaki</div>
+    <div class="submenu-item" data-route="perakitan" data-sub="Las Palang">› Las Palang</div>
+    <div class="submenu-item" data-route="perakitan" data-sub="Las Sandaran">› Las Sandaran</div>
+    <div class="submenu-item" data-route="perakitan" data-sub="Las U">› Las U</div>
+    <div class="submenu-item" data-route="perakitan" data-sub="Las Kupingan">› Las Kupingan</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="chemical"><span class="menu-icon">◉</span><span>Chemical</span><span class="menu-arrow">›</span></div>
+  <div class="submenu" data-submenu="chemical">
+    <div class="submenu-item" data-route="coating">› Coating</div>
+    <div class="submenu-item" data-route="nickel">› Nickel</div>
+  </div>
+  <div class="menu-item" data-route="dop"><span class="menu-icon">●</span><span>Pemasangan Dop</span></div>
+  <div class="menu-item" data-route="total-material"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg></span><span>Total Produksi Material</span></div>
+  <div class="menu-section set-section" data-route="set-overview">2# Proses Set</div>
+  <div class="menu-item" data-menu-toggle="set-pemilihan"><span class="menu-icon">◈</span><span>Pemilihan Material</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="set-pemilihan">
+    <div class="submenu-item" data-menu-set-group="papan">› Papan</div>
+    <div class="submenu nested" data-submenu="set-papan">
+      <div class="submenu-item" data-route="set-papan-jok">› Papan Jok</div>
+      <div class="submenu-item" data-route="set-papan-sandaran">› Papan Sandaran</div>
+      <div class="submenu-item" data-route="set-papan-tutupan">› Papan Tutupan</div>
+    </div>
+    <div class="submenu-item" data-menu-set-group="kain">› Kain</div>
+    <div class="submenu nested" data-submenu="set-kain">
+      <div class="submenu-item" data-route="set-pola-jok">› Pola Jok</div>
+      <div class="submenu-item" data-route="set-pola-sandaran">› Pola Sandaran</div>
+      <div class="submenu-item" data-route="set-tutupa">› Tutupa</div>
+    </div>
+    <div class="submenu-item" data-menu-set-group="busa">› Busa</div>
+    <div class="submenu nested" data-submenu="set-busa">
+      <div class="submenu-item" data-route="set-busa-jok">› Busa Jok</div>
+      <div class="submenu-item" data-route="set-busa-sandaran">› Busa Sandaran</div>
+    </div>
+  </div>
+  <div class="menu-item" data-menu-toggle="set-rakitan"><span class="menu-icon">⊞</span><span>Set</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="set-rakitan">
+    <div class="submenu-item" data-route="set-jok">› Set Jok</div>
+    <div class="submenu-item" data-route="set-sandaran">› Set Sandaran</div>
+    <div class="submenu-item" data-route="set-tutupan">› Set Tutupan</div>
+  </div>
+  <div class="menu-item" data-menu-toggle="set-hasil"><span class="menu-icon">✓</span><span>Hasil Set</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="set-hasil">
+    <div class="submenu-item" data-route="set-jok-siap">› Jok siap pakai</div>
+    <div class="submenu-item" data-route="set-sandaran-siap">› Sandaran siap pakai</div>
+    <div class="submenu-item" data-route="set-tutupan-siap">› Tutupan siap pakai</div>
+  </div>
+  <div class="menu-section set-section" data-route="kursi-susun-overview">3# Proses Set Kursi Susun</div>
+  <div class="menu-item" data-route="kursi-susun"><span class="menu-icon">▣</span><span>Set Kursi Susun</span></div>
+</aside>
+
+<!-- ================= MAIN ================= -->
+<main class="main">
+  <header class="topbar">
+    <div class="page-title" id="pageTitle">DASHBOARD MANUFAKTUR</div>
+    <div class="top-right">
+      <div class="filter-box" id="topDateBox"></div>
+      <div class="filter-box">
+        <select id="plantFilter"><option value="ALL">Semua Plant</option></select>
+      </div>
+      <div class="profile">
+        <div class="profile-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg></div>
+        <div>
+          <div class="profile-name" id="profileName">Memuat...</div>
+          <div class="profile-role" id="profileRole">-</div>
+        </div>
+        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px;margin-left:10px" onclick="doLogout()">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="content">
+    <!-- ============ DASHBOARD ============ -->
+    <div id="dashboardPage" class="app-page">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-icon icon-green"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/><path d="M12 11v10"/></svg></div>
+          <div class="kpi-info">
+            <div class="kpi-title">Stok Material</div>
+            <div class="kpi-value"><span id="kpiStock">0</span><span class="kpi-unit" id="kpiStockUnit">PCS</span></div>
+            <div class="kpi-change">Total seluruh plant</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon icon-blue"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M7 15l4-5 3 3 5-7"/><path d="M16 6h3v3"/></svg></div>
+          <div class="kpi-info">
+            <div class="kpi-title">Rangka Jadi Hari Ini</div>
+            <div class="kpi-value"><span id="kpiMaterial">0</span><span class="kpi-unit">PCS</span></div>
+            <div class="kpi-change">Output Perakitan Rangka</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-icon icon-orange"><svg viewBox="0 0 24 24"><path d="M5 16a8 8 0 1 1 14 0"/><path d="M12 12l4-4"/><path d="M12 20v1"/><path d="M5 19h14"/></svg></div>
+          <div class="kpi-info">
+            <div class="kpi-title">Pencapaian Rangka</div>
+            <div class="kpi-value"><span id="kpiEfficiency">0</span>%</div>
+            <div class="kpi-change">Rangka jadi / target</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="process-grid">
+        <div class="dashboard-card process-card">
+          <div class="card-title">PROSES MATERIAL</div>
+          <div class="flow" id="materialFlow"></div>
+          <table class="process-table">
+            <thead><tr><th>PROSES</th><th>TARGET RANGKA</th><th>OUTPUT</th><th>PENCAPAIAN</th></tr></thead>
+            <tbody id="materialTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="dashboard-card bottom-card">
+          <div class="card-title">TREN PRODUKSI <span style="font-size:10px;color:#8a96a8;font-weight:400">(6 BULAN TERAKHIR)</span></div>
+          <div class="chart-wrapper">
+            <div class="chart-y-label" id="chartYLabel"></div>
+            <div class="chart-grid"><div class="chart-grid-line"></div><div class="chart-grid-line"></div><div class="chart-grid-line"></div><div class="chart-grid-line"></div><div class="chart-grid-line"></div></div>
+            <svg id="productionChart" class="chart-svg" viewBox="0 0 600 160" preserveAspectRatio="none"></svg>
+            <div id="chartXLabel" class="chart-x-label"></div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend"><span class="legend-line"></span>Produksi Material</div>
+          </div>
+        </div>
+        <div class="dashboard-card bottom-card">
+          <div class="card-title">RINGKASAN EFISIENSI PER PROSES</div>
+          <div class="efficiency-layout">
+            <div class="donut"><div class="donut-inner"><div class="donut-value" id="donutValue">0%</div><div class="donut-caption">Rata-rata Efisiensi</div></div></div>
+            <div id="efficiencyList" class="efficiency-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">Data diperbarui terakhir: <span id="lastUpdate" style="margin-left:4px">-</span></div>
+    </div>
+
+    <!-- ============ HALAMAN DINAMIS (panel lain) ============ -->
+    <div id="processPage" class="app-page hidden"></div>
+  </section>
+</main>
+
+<script>
+'use strict';
+const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
+const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
+let ERP_SESSION = loadSession();
+const SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
+const SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
+const SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
+
+function loadSession() {
+  try { return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || 'null'); } catch (e) { return null; }
+}
+function saveSession(data) {
+  ERP_SESSION = data;
+  try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function clearSession() {
+  ERP_SESSION = null;
+  try { localStorage.removeItem(SESSION_STORAGE_KEY); } catch (e) {}
+}
+function apiRequest(action, args, token) {
+  return fetch(API_BASE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: Array.isArray(args) ? args : [] })
+  }).then(function (response) {
+    return response.text().then(function (raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch (e) { throw new Error('Respons API bukan JSON yang valid.'); }
+      if (!response.ok || !data.success) throw new Error(data.error || 'Request API gagal.');
+      return data.data;
+    });
+  });
+}
+
+/* =====================================================================
+   HELPER DASAR
+===================================================================== */
+function $(id) { return document.getElementById(id); }
+function fmt(n) { return Number(n || 0).toLocaleString('id-ID'); }
+function esc(v) {
+  return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c];
+  });
+}
+function pct(target, actual) { return target ? (actual / target) * 100 : 0; }
+function todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+/** Pemanggil REST API. Signature lama gs() dipertahankan agar modul v13 tidak perlu dirombak. */
+function gs(fnName, args, onOk, onErr) {
+  apiRequest(fnName, args || [], ERP_SESSION ? ERP_SESSION.token : '')
+    .then(onOk)
+    .catch(function (e) {
+      if (e && /Sesi (tidak ditemukan|habis)/i.test(e.message || '')) {
+        clearSession();
+        window.location.href = 'login.html';
+        return;
+      }
+      (onErr || function (err) { alert('Terjadi kesalahan: ' + ((err && err.message) ? err.message : err)); })(e);
+    });
+}
+function doLogout() {
+  apiRequest('apiLogout', [], ERP_SESSION ? ERP_SESSION.token : '')
+    .catch(function () {})
+    .finally(function () { clearSession(); window.location.href = 'login.html'; });
+}
+
+/* =====================================================================
+   KONFIGURASI HALAMAN PROSES
+===================================================================== */
+const PROCESS_PAGES = {
+  cutting:            { code: 'CUTTING',            title: 'Cutting Proses',        subtitle: 'Material bahan baku menjadi 4 komponen: Kaki-kaki, Palang, Sandaran, dan U.', sub: ['Kaki-kaki', 'Palang', 'Sandaran', 'U'], stockInput: true },
+  bending:            { code: 'BENDING',            title: 'Bending Proses',        subtitle: 'Setiap sub proses menerima output dari komponen Cutting yang sesuai.', sub: ['Bending Kaki', 'Bor', 'Bending Sandaran', 'Bending U'] },
+  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Penginputan panel/kupingan langsung dari stok material. Proses ini independen dari Cutting dan Bending.', sub: [], stockInput: true },
+  las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menggunakan output Bending Kaki.', sub: ['Las Robot'] },
+  perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Lima komponen dirakit. Total rangka jadi = minimum dari lima komponen.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
+  coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
+  nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing Nickel pada total rangka jadi. Pilih salah satu finishing: Nickel atau Coating.', sub: [] },
+  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari output Coating.', sub: [] }
+};
+
+const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
+const MATERIAL_ACCENT = { CUTTING: 'green', BENDING: 'orange', KUPINGAN: 'cyan', LAS: 'blue', PERAKITAN_RANGKA: 'pink', COATING: 'orange', PEMASANGAN_DOP: 'green' };
+
+const APP = { route: 'dashboard', sub: '', plant: 'ALL', masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
+
+/* =====================================================================
+   ROUTER — SATU-SATUNYA PINTU NAVIGASI
+===================================================================== */
+function navigate(route, sub) {
+  APP.route = route;
+  APP.sub = sub || '';
+  renderRoute();
+}
+
+function renderRoute() {
+  const dash = $('dashboardPage'), pp = $('processPage');
+  document.querySelectorAll('.menu-item').forEach(function (mi) {
+    mi.classList.toggle('active', mi.getAttribute('data-route') === APP.route && !mi.getAttribute('data-sub'));
+  });
+  document.querySelectorAll('.menu-section').forEach(function (ms) {
+    ms.classList.toggle('active', ms.getAttribute('data-route') === APP.route);
+  });
+
+  if (APP.route === 'dashboard') {
+    dash.classList.remove('hidden'); pp.classList.add('hidden');
+    $('pageTitle').innerText = 'DASHBOARD MANUFAKTUR';
+    loadDashboard();
+    return;
+  }
+  dash.classList.add('hidden'); pp.classList.remove('hidden');
+
+  if (APP.route === 'master') return renderMasterPage();
+  if (APP.route === 'stock') return renderStockPage();
+  if (APP.route === 'material-overview') return renderMaterialHub();
+  if (APP.route === 'input-produksi') return renderInputHub();
+  if (APP.route === 'total-material') return renderTotalMaterialPage();
+  if (APP.route === 'set-overview') return renderSetOverview();
+  if (APP.route === 'kursi-susun') return renderKursiSusunPage();
+  if (SET_PAGES[APP.route]) return renderSetPage(APP.route);
+  if (PROCESS_PAGES[APP.route]) return renderProcessPage(APP.route);
+}
+
+function renderPlaceholder(title, msg) {
+  $('pageTitle').innerText = title.toUpperCase();
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">' + esc(title) + '</div><div class="process-page-subtitle">' + esc(msg) + '</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div class="dashboard-card" style="padding:40px;text-align:center;color:#8995a7;font-size:11px">' + esc(msg) + '</div>';
+}
+
+/* =====================================================================
+   DASHBOARD
+===================================================================== */
+const FLOW_ICONS = {
+  cutting: '<svg viewBox="0 0 24 24"><circle cx="6" cy="18" r="2"/><circle cx="18" cy="6" r="2"/><path d="M8 16l8-8"/><path d="M8 8l8 8"/></svg>',
+  bending: '<svg viewBox="0 0 24 24"><path d="M4 18c4-12 12-12 16 0"/><path d="M4 18h16"/></svg>',
+  las: '<svg viewBox="0 0 24 24"><path d="M8 4h8v5H8z"/><path d="M6 9h12v10H6z"/><path d="M9 19v2M15 19v2"/></svg>',
+  chemical: '<svg viewBox="0 0 24 24"><path d="M9 3h6"/><path d="M10 3v7l-5 8a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-8V3"/><path d="M8 16h8"/></svg>',
+  total: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>'
+};
+
+function flowItemHTML(accent, iconKey, label, route) {
+  return '<div class="flow-item" onclick="navigate(\'' + route + '\')">' +
+    '<div class="flow-circle flow-' + accent + '">' + FLOW_ICONS[iconKey] + '</div>' +
+    '<div class="flow-label">' + label + '</div></div>';
+}
+
+function renderDashboardFlows() {
+  $('materialFlow').innerHTML =
+    flowItemHTML('green', 'cutting', 'Cutting', 'cutting') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('orange', 'bending', 'Bending', 'bending') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('cyan', 'chemical', 'Kupingan', 'kupingan') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('blue', 'las', 'Las Robot', 'las') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('pink', 'total', 'Perakitan', 'perakitan') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('orange', 'chemical', 'Chemical: Coating / Nickel', 'coating') + '<div class="flow-arrow">→</div>' +
+    flowItemHTML('green', 'total', 'Dop', 'dop');
+  var setFlow = $('setFlow');
+  if (setFlow) setFlow.innerHTML = '';
+}
+
+function processTableRows(rows, totalLabel) {
+  let html = '';
+  rows.forEach(function (it) {
+    const p = pct(it.target, it.actual);
+    html += '<tr><td title="' + esc(it.name) + '">' + esc(it.name) + '</td>' +
+      '<td>' + fmt(it.target) + '</td><td>' + fmt(it.actual) + '</td>' +
+      '<td><div class="achievement"><span class="achievement-value">' + p.toFixed(1) + '%</span>' +
+      '<span class="small-progress"><span class="small-progress-fill" style="width:' + Math.min(p, 100) + '%"></span></span></div></td></tr>';
+  });
+  const finalRow = rows.find(function (x) { return x.code === 'PERAKITAN_RANGKA'; }) || rows[rows.length - 1] || { target: 0, actual: 0 };
+  html += '<tr class="total-row"><td>' + totalLabel + '</td><td>' + fmt(finalRow.target) + '</td><td>' + fmt(finalRow.actual) + '</td><td>' + pct(finalRow.target, finalRow.actual).toFixed(1) + '%</td></tr>';
+  return html;
+}
+
+function renderChart(trend) {
+  const svg = $('productionChart'), x = $('chartXLabel'), y = $('chartYLabel');
+  svg.innerHTML = ''; x.innerHTML = ''; y.innerHTML = '';
+  const w = 600, h = 160;
+  const vals = trend.material || [];
+  const maxRaw = Math.max(100, Math.max.apply(null, vals.length ? vals : [0]));
+  const maxVal = Math.ceil(maxRaw / 5000) * 5000 || 5000;
+  for (let i = 5; i >= 0; i--) y.innerHTML += '<span>' + fmt(Math.round(maxVal * i / 5)) + '</span>';
+  trend.labels.forEach(function (l) { x.innerHTML += '<span>' + esc(l) + '</span>'; });
+  function pathFor(values) {
+    let d = '';
+    values.forEach(function (v, i) {
+      const px = i * (w / Math.max(values.length - 1, 1));
+      const py = h - (v / maxVal) * h;
+      d += (i === 0 ? 'M ' : ' L ') + px + ' ' + py;
+    });
+    return d;
+  }
+  if (!vals.length) return;
+  const NS = 'http://www.w3.org/2000/svg';
+  const p = document.createElementNS(NS, 'path');
+  p.setAttribute('d', pathFor(vals)); p.setAttribute('fill', 'none'); p.setAttribute('stroke', '#287ce0');
+  p.setAttribute('stroke-width', '3'); p.setAttribute('stroke-linecap', 'round'); p.setAttribute('stroke-linejoin', 'round'); svg.appendChild(p);
+  vals.forEach(function (v, i) {
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', i * (w / Math.max(vals.length - 1, 1))); c.setAttribute('cy', h - (v / maxVal) * h);
+    c.setAttribute('r', 4); c.setAttribute('fill', '#287ce0'); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', '2'); svg.appendChild(c);
+  });
+}
+
+function loadDashboard() {
+  gs('apiGetDashboard', [], function (d) {
+    $('kpiStock').innerText = fmt(d.stockMaterial);
+    $('kpiMaterial').innerText = fmt(d.produksiMaterial);
+    $('kpiEfficiency').innerText = Number(d.efficiency).toFixed(1).replace('.', ',');
+    $('donutValue').innerText = Number(d.efficiency).toFixed(1).replace('.', ',') + '%';
+    $('materialTable').innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
+    var t2 = $('materialTable2');
+    if (t2) t2.innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
+    renderChart(d.trend);
+    $('efficiencyList').innerHTML = '<div class="eff-group-title">PROSES MATERIAL</div>' +
+      d.efficiencyProcess.map(function (it) {
+        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + Number(it.value).toFixed(1) + '%</b></div>' +
+          '<div class="efficiency-progress"><span style="width:' + Math.min(Number(it.value), 100) + '%"></span></div></div>';
+      }).join('');
+    $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+  });
+}
+
+/* =====================================================================
+   MASTER DATA
+===================================================================== */
+const MASTER_TABS = { plant: 'Plant', proses: 'Proses', batch: 'Batch', operator: 'Operator' };
+
+function renderMasterPage() {
+  $('pageTitle').innerText = 'MASTER DATA';
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div>' +
+    '<div class="process-page-title">Master Data</div>' +
+    '<div class="process-page-subtitle">Kelola referensi utama: plant, proses, batch, dan operator.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div id="masterStats" class="erp-page-grid"></div>' +
+    '<div class="erp-module-tabs" id="masterTabs"></div>' +
+    '<div id="masterPanel"></div>';
+
+  gs('apiGetOverview', [], function (o) {
+    $('masterStats').innerHTML = [
+      ['Plant', o.plant, 'referensi lokasi produksi'],
+      ['Proses', o.proses, 'alur proses terdaftar'],
+      ['Batch', o.batch, 'batch produksi'],
+      ['Operator', o.operator, 'operator terdaftar']
+    ].map(function (x) {
+      return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + fmt(x[1]) + '</div><div class="erp-stat-note">' + x[2] + '</div></div>';
+    }).join('');
+  });
+  renderMasterTabs();
+  renderMasterEntity(APP.masterEntity);
+}
+
+function renderMasterTabs() {
+  $('masterTabs').innerHTML = Object.keys(MASTER_TABS).map(function (k) {
+    return '<button class="erp-tab ' + (k === APP.masterEntity ? 'active' : '') + '" onclick="switchMaster(\'' + k + '\')">' + MASTER_TABS[k] + '</button>';
+  }).join('');
+}
+
+function switchMaster(entity) {
+  APP.masterEntity = entity;
+  renderMasterTabs();
+  renderMasterEntity(entity);
+}
+
+function masterFieldHTML(f, value, plants) {
+  const v = value == null ? '' : value;
+  const req = f.required ? ' required' : '';
+  if (f.type === 'select' || f.type === 'plant') {
+    const opts = f.type === 'plant'
+      ? plants.map(function (p) { return '<option value="' + esc(p.plant_id) + '"' + (String(v) === String(p.plant_id) ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>'; }).join('')
+      : (f.options || []).map(function (o) { return '<option value="' + esc(o) + '"' + (String(v) === String(o) ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('');
+    return '<select data-field="' + esc(f.key) + '"' + req + '><option value="">Pilih...</option>' + opts + '</select>';
+  }
+  const type = f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : 'text';
+  const step = f.type === 'number' ? ' step="0.01" min="0"' : '';
+  return '<input data-field="' + esc(f.key) + '" type="' + type + '"' + step + ' value="' + esc(v) + '"' + req + '>';
+}
+
+function renderMasterEntity(entity, editId) {
+  const panel = $('masterPanel');
+  panel.innerHTML = '<div class="erp-card"><div class="erp-card-body"><div class="erp-empty">Memuat ' + esc(MASTER_TABS[entity]) + '...</div></div></div>';
+
+  gs('apiGetMaster', [entity], function (data) {
+    gs('apiGetPlants', [], function (plants) {
+      const targetRow = editId ? data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); }) : null;
+      const mode = targetRow ? 'Edit' : 'Tambah';
+      panel.innerHTML =
+        '<div class="erp-columns">' +
+        '<div class="erp-card">' +
+        '<div class="erp-card-head"><div><div class="erp-card-title">' + mode + ' ' + esc(data.title) + '</div>' +
+        '<div class="erp-card-caption">Data dipakai lintas modul ERP.</div></div>' +
+        '<span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div>' +
+        '<div class="erp-card-body"><form onsubmit="submitMaster(event,\'' + entity + '\')">' +
+        '<div class="erp-form-grid">' +
+        data.fields.map(function (f) {
+          return '<div class="field"><label>' + esc(f.label) + '</label>' + masterFieldHTML(f, targetRow ? targetRow[f.key] : '', plants) + '</div>';
+        }).join('') +
+        '</div>' +
+        '<div class="form-footer"><button class="btn-secondary" type="button" onclick="renderMasterEntity(\'' + entity + '\')">Reset</button>' +
+        '<button class="btn-primary" type="submit" id="masterSaveBtn">Simpan ' + esc(data.title) + '</button></div>' +
+        '</form></div></div>' +
+        '<div class="erp-card">' +
+        '<div class="erp-card-head"><div><div class="erp-card-title">Daftar ' + esc(data.title) + '</div>' +
+        '<div class="erp-card-caption">' + esc(data.sheet) + (data.missingSheet ? ' (sheet baru dibuat otomatis)' : '') + '</div></div>' +
+        '<span class="erp-chip">' + fmt(data.rows.length) + ' data</span></div>' +
+        '<div class="erp-card-body">' +
+        '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="masterSearch" class="erp-search" placeholder="Cari data..."></div></div>' +
+        '<div class="erp-table-wrap"><table class="erp-table" id="masterTable"><thead><tr></tr></thead><tbody id="masterTableBody"></tbody></table></div>' +
+        '</div></div></div>';
+
+      const shownHeaders = (data.headers || []).filter(Boolean).slice(0, 7);
+      document.querySelector('#masterTable thead tr').innerHTML =
+        shownHeaders.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '<th>Aksi</th>';
+      const body = $('masterTableBody');
+      body.innerHTML = data.rows.length ? data.rows.map(function (r) {
+        return '<tr>' + shownHeaders.map(function (h) { return '<td>' + (r[h] === '' || r[h] == null ? '—' : esc(r[h])) + '</td>'; }).join('') +
+          '<td><div class="erp-action-row">' +
+          '<button class="erp-icon-btn" title="Edit" onclick="renderMasterEntity(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">✎</button>' +
+          '<button class="erp-icon-btn" title="Hapus" onclick="deleteMaster(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">🗑</button>' +
+          '</div></td></tr>';
+      }).join('') : '<tr><td colspan="8"><div class="erp-empty"><strong>Belum ada data</strong>Tambahkan melalui form di sebelah kiri.</div></td></tr>';
+
+      $('masterSearch').oninput = function () {
+        const q = this.value.toLowerCase();
+        Array.from(body.querySelectorAll('tr')).forEach(function (tr) {
+          tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+        });
+      };
+    });
+  });
+}
+
+function submitMaster(event, entity) {
+  event.preventDefault();
+  const btn = $('masterSaveBtn');
+  const payload = {};
+  document.querySelectorAll('[data-field]').forEach(function (el) { payload[el.getAttribute('data-field')] = el.value; });
+  btn.disabled = true; btn.innerText = 'Menyimpan...';
+  gs('apiSaveMaster', [entity, payload], function (res) {
+    alert('Data ' + MASTER_TABS[entity] + ' berhasil disimpan (' + res.mode + '). ID: ' + res.id);
+    renderMasterPage();
+  }, function (e) {
+    alert('Gagal menyimpan: ' + ((e && e.message) ? e.message : e));
+    btn.disabled = false; btn.innerText = 'Simpan ' + MASTER_TABS[entity];
+  });
+}
+function deleteMaster(entity, id) {
+  if (!confirm('Yakin hapus data ini? Tindakan tidak bisa dibatalkan.')) return;
+  gs('apiDeleteMaster', [entity, id], function () {
+    renderMasterEntity(entity);
+  }, function (e) {
+    alert('Gagal menghapus: ' + ((e && e.message) ? e.message : e));
+  });
+}
+
+/* =====================================================================
+   STOK MATERIAL
+===================================================================== */
+function renderStockPage() {
+  $('pageTitle').innerText = 'STOK MATERIAL';
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div>' +
+    '<div class="process-page-title">Stok Material</div>' +
+    '<div class="process-page-subtitle">Pantau saldo material, batas minimum, lokasi, dan status.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button>' +
+    '<button class="btn-primary" onclick="focusStockForm()">+ Material</button></div></div>' +
+    '<div id="stockSummary" class="erp-page-grid"></div>' +
+    '<div class="erp-columns">' +
+    '<div class="erp-card" id="stockFormCard">' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">Kosongkan ID untuk material baru (otomatis MAT-001).</div></div></div>' +
+    '<div class="erp-card-body"><form id="stockForm" onsubmit="submitStock(event)">' +
+    '<div class="erp-form-grid">' +
+    '<div class="field"><label>ID Material</label><input id="stId" type="text" placeholder="MAT-001"></div>' +
+    '<div class="field"><label>Nama Material</label><input id="stName" required type="text" placeholder="Contoh: Pipa 1 inch"></div>' +
+    '<div class="field"><label>Kategori</label><input id="stCat" type="text" placeholder="Besi / Papan / Busa"></div>' +
+    '<div class="field"><label>Satuan</label><input id="stUnit" type="text" placeholder="PCS / KG / LTR"></div>' +
+    '<div class="field"><label>Saldo Stok</label><input id="stQty" required type="number" step="0.01" min="0" placeholder="0"></div>' +
+    '<div class="field"><label>Minimum Stok</label><input id="stMin" type="number" step="0.01" min="0" placeholder="0"></div>' +
+    '<div class="field"><label>Plant</label><select id="stPlant"><option value="">Pilih plant</option></select></div>' +
+    '<div class="field"><label>Lokasi</label><input id="stLoc" type="text" placeholder="Gudang A"></div>' +
+    '<div class="field full"><label>Status</label><select id="stStatus"><option>Aktif</option><option>Tidak Aktif</option></select></div>' +
+    '</div>' +
+    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'stockForm\').reset()">Reset</button>' +
+    '<button class="btn-primary" id="stockSaveBtn" type="submit">Simpan Stok</button></div>' +
+    '</form></div></div>' +
+    '<div class="erp-card">' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div></div>' +
+    '<div class="erp-card-body">' +
+    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div></div>' +
+    '<div class="erp-table-wrap"><table class="erp-table"><thead><tr>' +
+    '<th>ID</th><th>NAMA</th><th>KATEGORI</th><th>PLANT</th><th>SATUAN</th><th>STOK</th><th>MIN</th><th>LOKASI</th><th>STATUS</th><th>AKSI</th>' +
+    '</tr></thead><tbody id="stockTableBody"></tbody></table></div>' +
+    '</div></div></div>';
+
+  gs('apiGetPlants', [], function (plants) {
+    $('stPlant').innerHTML = '<option value="">Pilih plant</option>' + plants.map(function (p) {
+      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    }).join('');
+  });
+  loadStockTable();
+}
+
+function loadStockTable() {
+  gs('apiGetStock', [APP.plant], function (d) {
+    APP.stockCache = d;
+    $('stockSheetInfo').innerText = (d.missingSheet ? 'Sheet Stok_Material dibuat otomatis saat simpan pertama' : 'Sheet: ' + d.sheet) + ' • ' + fmt(d.totalItems) + ' item';
+    $('stockSummary').innerHTML = [
+      ['Total Item', fmt(d.totalItems), 'item material', ''],
+      ['Total Qty', fmt(d.totalQty), 'saldo gabungan', ''],
+      ['Stok Minimum', fmt(d.lowStock), 'item perlu perhatian', d.lowStock ? 'warn' : 'good'],
+      ['Filter Plant', d.plantId, 'plant aktif', '']
+    ].map(function (x) {
+      return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + esc(x[1]) + '</div><div class="erp-stat-note">' + esc(x[2]) + '</div></div>';
+    }).join('');
+
+    const body = $('stockTableBody');
+    body.innerHTML = d.rows.length ? d.rows.map(function (r, idx) {
+      const qty = Number(r.stok || 0), min = Number(r.minimum_stok || 0);
+      const low = min > 0 && qty <= min;
+      return '<tr>' +
+        '<td>' + esc(r.material_id) + '</td><td><b>' + esc(r.material_name) + '</b></td>' +
+        '<td>' + esc(r.kategori || '—') + '</td><td>' + esc(r.plant_id || '—') + '</td>' +
+        '<td>' + esc(r.satuan || '—') + '</td>' +
+        '<td><span class="status-pill ' + (low ? 'status-warn' : 'status-good') + '"><span class="status-dot"></span>' + fmt(qty) + '</span></td>' +
+        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td><td>' + esc(r.status || 'Aktif') + '</td>' +
+        '<td><div class="erp-action-row">' +
+        '<button class="erp-icon-btn" title="Edit" onclick="editStock(' + idx + ')">✎</button>' +
+        '<button class="erp-icon-btn" title="Hapus" onclick="deleteStock(' + idx + ')">🗑</button>' +
+        '</div></td></tr>';
+    }).join('') : '<tr><td colspan="10"><div class="erp-empty"><strong>Belum ada data stok</strong>Tambahkan material pertama melalui form.</div></td></tr>';
+
+    $('stockSearch').oninput = function () {
+      const q = this.value.toLowerCase();
+      Array.from(body.querySelectorAll('tr')).forEach(function (tr) {
+        tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+      });
+    };
+  });
+}
+
+function editStock(idx) {
+  const r = (APP.stockCache.rows || [])[idx];
+  if (!r) return;
+  $('stId').value = r.material_id || '';
+  $('stName').value = r.material_name || '';
+  $('stCat').value = r.kategori || '';
+  $('stUnit').value = r.satuan || '';
+  $('stQty').value = Number(r.stok || 0);
+  $('stMin').value = Number(r.minimum_stok || 0);
+  $('stPlant').value = r.plant_id || '';
+  $('stLoc').value = r.lokasi || '';
+  $('stStatus').value = r.status || 'Aktif';
+  focusStockForm();
+}
+
+function deleteStock(idx) {
+  const r = (APP.stockCache.rows || [])[idx];
+  if (!r) return;
+  if (!confirm('Yakin hapus material "' + r.material_name + '"? Tindakan tidak bisa dibatalkan.')) return;
+  gs('apiDeleteStock', [r.material_id], function () {
+    loadStockTable();
+  }, function (e) {
+    alert('Gagal menghapus: ' + ((e && e.message) ? e.message : e));
+  });
+}
+
+function focusStockForm() {
+  $('stockFormCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('stName').focus();
+}
+
+function submitStock(event) {
+  event.preventDefault();
+  const btn = $('stockSaveBtn');
+  btn.disabled = true; btn.innerText = 'Menyimpan...';
+  const payload = {
+    material_id: $('stId').value.trim(),
+    material_name: $('stName').value.trim(),
+    kategori: $('stCat').value.trim(),
+    satuan: $('stUnit').value.trim(),
+    stok: Number($('stQty').value || 0),
+    minimum_stok: Number($('stMin').value || 0),
+    plant_id: $('stPlant').value,
+    lokasi: $('stLoc').value.trim(),
+    status: $('stStatus').value
+  };
+  gs('apiSaveStock', [payload], function (res) {
+    alert('Stok berhasil disimpan (' + res.mode + '). ID: ' + res.id);
+    $('stockForm').reset();
+    btn.disabled = false; btn.innerText = 'Simpan Stok';
+    loadStockTable();
+  }, function (e) {
+    alert('Gagal menyimpan stok: ' + ((e && e.message) ? e.message : e));
+    btn.disabled = false; btn.innerText = 'Simpan Stok';
+  });
+}
+function renderInputHub() {
+  $('pageTitle').innerText = 'INPUT PRODUKSI MATERIAL';
+  const items = Object.keys(PROCESS_PAGES);
+  function cardHTML(key, i) {
+    const cfg = PROCESS_PAGES[key];
+    return '<div class="erp-process-card" onclick="navigate(\'' + key + '\')">' +
+      '<div class="erp-process-top"><div class="erp-process-number" style="background:' + ACCENTS[MATERIAL_ACCENT[cfg.code] || ['green','orange','purple','cyan','blue','pink'][i%6]] + '">' + (i+1) + '</div>' +
+      '<div class="erp-process-name">' + esc(cfg.title) + '</div><span class="menu-arrow">›</span></div>' +
+      '<div class="erp-process-meta">' + esc(cfg.subtitle) + '</div></div>';
+  }
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">Input Produksi Material</div>' +
+    '<div class="process-page-subtitle">Pilih titik proses material untuk mencatat hasil produksi ke Spreadsheet.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div class="erp-process-grid">' + items.map(cardHTML).join('') + '</div>';
+}
+/* =====================================================================
+   HUB PROSES MATERIAL
+===================================================================== */
+function renderMaterialHub() {
+  $('pageTitle').innerText = '1# PROSES MATERIAL';
+  const items = [
+    ['cutting', 'Cutting Proses', 'green', 'Pipa/plat menjadi komponen: Kaki-kaki, Palang, Sandaran, U.'],
+    ['bending', 'Bending Proses', 'orange', 'Bending Kaki, Bor, Bending Sandaran, Bending U.'],
+    ['kupingan', 'Kupingan', 'cyan', 'Input panel/kupingan langsung dari stok. Proses independen.'],
+    ['las', 'Las Proses', 'blue', 'Las Robot dari Bending Kaki.'],
+    ['perakitan', 'Perakitan Rangka', 'pink', '5 jalur komponen bertemu menjadi 1 rangka jadi.'],
+    ['coating', 'Chemical', 'orange', 'Pilih salah satu finishing: Coating atau Nickel setelah rangka jadi.'],
+    ['nickel', 'Nickel', 'orange', 'Finishing Nickel setelah rangka jadi.'],
+    ['dop', 'Pemasangan Dop', 'green', 'Proses akhir setelah Coating atau Nickel.'],
+    ['total-material', 'Total Produksi Material', 'purple', 'Ringkasan seluruh proses material.']
+  ];
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">1# Proses Material</div>' +
+    '<div class="process-page-subtitle">Pusat kontrol alur material dari stok sampai output produksi.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div class="erp-process-grid">' +
+    items.map(function (x, i) {
+      return '<div class="erp-process-card" onclick="navigate(\'' + x[0] + '\')">' +
+        '<div class="erp-process-top"><div class="erp-process-number" style="background:' + ACCENTS[x[2]] + '">' + (i + 1) + '</div>' +
+        '<div class="erp-process-name">' + x[1] + '</div><span class="menu-arrow">›</span></div>' +
+        '<div class="erp-process-meta">' + x[3] + '</div></div>';
+    }).join('') + '</div>';
+}
+
+function renderTotalMaterialPage() {
+  $('pageTitle').innerText = 'TOTAL PRODUKSI MATERIAL';
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">Total Produksi Material</div>' +
+    '<div class="process-page-subtitle">Ringkasan alur produksi material hari ini.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'material-overview\')">← Proses Material</button></div></div>' +
+    '<div class="material-summary">' +
+    '<div class="summary-box"><div class="summary-label">Target Rangka Hari Ini</div><div class="summary-value" id="tmTarget">0 PCS</div></div>' +
+    '<div class="summary-box"><div class="summary-label">Rangka Jadi</div><div class="summary-value" id="tmActual">0 PCS</div></div>' +
+    '<div class="summary-box"><div class="summary-label">Pencapaian</div><div class="summary-value" id="tmAchievement">0%</div></div></div>' +
+    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Output Per Jalur</div>' +
+    '<div class="process-panel-caption">Setiap baris menunjukkan output unit sesuai jalur komponen. Total akhir = Rangka Jadi.</div></div></div>' +
+    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table">' +
+    '<thead><tr><th>PROSES</th><th>TARGET RANGKA</th><th>OUTPUT</th><th>REJECT</th><th>PENCAPAIAN</th></tr></thead>' +
+    '<tbody id="tmTable"></tbody></table></div></div></div>';
+
+  gs('apiGetProcessPage', ['TOTAL_MATERIAL', APP.plant, ''], function (d) {
+    $('tmTarget').innerText = fmt(d.summary.target) + ' PCS';
+    $('tmActual').innerText = fmt(d.summary.actual) + ' PCS';
+    $('tmAchievement').innerText = Number(d.summary.achievement).toFixed(1) + '%';
+    $('tmTable').innerHTML = d.processes.map(function (x) {
+      return '<tr><td>' + esc(x.name) + '</td><td>' + fmt(x.target) + '</td><td>' + fmt(x.actual) + '</td><td>' + fmt(x.reject) + '</td><td>' + Number(x.achievement).toFixed(1) + '%</td></tr>';
+    }).join('') || '<tr><td colspan="5"><div class="empty-state">Belum ada transaksi hari ini.</div></td></tr>';
+  });
+}
+
+/* =====================================================================
+   HALAMAN PROSES (form + riwayat) — MATERIAL
+===================================================================== */
+function renderProcessPage(key) {
+  const cfg = PROCESS_PAGES[key];
+  APP.procKey = key;
+  APP.editingTrxId = null;
+  const subField = cfg.sub && cfg.sub.length ? '<div class="field full"><label>Sub Proses</label><select id="ppSub" required>' +
+    '<option value="">Pilih sub proses</option>' + cfg.sub.map(function (s) { return '<option value="' + esc(s) + '"' + (APP.sub === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></div>' : '';
+  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select></div>' : '';
+
+  const accent = MATERIAL_ACCENT[cfg.code] || 'purple';
+
+  $('pageTitle').innerText = cfg.title.toUpperCase();
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div>' +
+    '<div class="process-page-title">' + esc(cfg.title) + '</div>' +
+    '<div class="process-page-subtitle">' + esc(cfg.subtitle) + '</div></div>' +
+    '<div class="process-actions">' +
+    '<button class="btn-secondary" onclick="navigate(\'material-overview\')">← Proses Material</button>' +
+    '<button class="btn-primary" onclick="$(\'ppFormCard\').scrollIntoView({behavior:\'smooth\'})">+ Input Produksi</button></div></div>' +
+
+    '<div class="process-kpi-grid">' +
+    '<div class="process-kpi"><div class="process-kpi-label">Target Hari Ini</div><div class="process-kpi-value" id="ppTarget">0</div><div class="process-kpi-note">PCS</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Realisasi Hari Ini</div><div class="process-kpi-value" id="ppActual">0</div><div class="process-kpi-note">Good qty</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="ppReject">0</div><div class="process-kpi-note">PCS</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Pencapaian</div><div class="process-kpi-value" id="ppAchievement">0%</div><div class="process-kpi-note">realisasi / target</div></div></div>' +
+
+    '<div class="process-flow-strip">' +
+    '<div class="process-step"><div class="process-step-badge" style="background:#2bad68">1</div><div class="process-step-label">Input</div></div><div class="process-step-arrow">→</div>' +
+    '<div class="process-step"><div class="process-step-badge" style="background:' + ACCENTS[accent] + '">2</div><div class="process-step-label">' + esc(cfg.title) + '</div></div><div class="process-step-arrow">→</div>' +
+    '<div class="process-step"><div class="process-step-badge" style="background:#8059d8">3</div><div class="process-step-label">Proses Berikutnya</div></div></div>' +
+
+    '<div class="process-layout">' +
+    '<div class="process-panel" id="ppFormCard">' +
+    '<div class="process-panel-head"><div><div class="process-panel-title">Input ' + esc(cfg.title) + '</div>' +
+    '<div class="process-panel-caption">Tersimpan ke Transaksi_Proses. ' + 'Tahap batch mengikuti jalur komponen. Total rangka tidak dijumlah dari seluruh sub proses.' + '</div></div></div>' +
+    '<div class="process-panel-body"><form id="ppForm" onsubmit="submitProcess(event,\'' + key + '\')">' +
+    '<div class="process-form-grid">' +
+    '<div class="field"><label>Tanggal</label><input id="ppDate" type="date" value="' + todayISO() + '" required></div>' +
+    '<div class="field"><label>Plant</label><select id="ppPlant" required><option value="">Memuat...</option></select></div>' +
+    '<div class="field"><label>Batch</label><select id="ppBatch" required><option value="">Memuat...</option></select></div>' +
+    '<div class="field"><label>Operator</label><select id="ppOperator" required><option value="">Memuat...</option></select></div>' +
+    materialField + subField +
+    '<div class="field full" id="ppStageBox" style="display:none"></div>' +
+    '<div class="field full" id="ppSourceBox" style="display:none"></div>' +
+    '<div class="field"><label>Qty Input / Pemakaian</label><input id="ppQtyInput" type="number" min="0" step="0.01" placeholder="0" required></div>' +
+    '<div class="field"><label>Target Produksi</label><input id="ppQtyTarget" type="number" min="0" step="0.01" placeholder="0" required></div>' +
+    '<div class="field"><label>Qty Good / Realisasi</label><input id="ppQtyGood" type="number" min="0" step="0.01" placeholder="0" required></div>' +
+    '<div class="field"><label>Qty Reject</label><input id="ppQtyReject" type="number" min="0" step="0.01" value="0"></div>' +
+    '<div class="field full"><label>Catatan</label><textarea id="ppNote" placeholder="Keterangan produksi, kendala mesin, QC..."></textarea></div>' +
+    '</div>' +
+    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="resetProcessForm()">Reset</button>' +
+    '<button class="btn-primary" type="submit" id="ppSaveBtn">Simpan Produksi</button></div>' +
+    '</form></div></div>' +
+
+    '<div class="process-panel">' +
+    '<div class="process-panel-head"><div><div class="process-panel-title">Riwayat ' + esc(cfg.title) + '</div>' +
+    '<div class="process-panel-caption">' + (APP.sub ? 'Sub proses: ' + esc(APP.sub) + ' • ' : '') + '100 transaksi terakhir.</div></div>' +
+    '<span id="ppStatus" class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div>' +
+    '<div class="process-panel-body">' +
+    '<div class="table-toolbar"><div class="summary-label">TRANSAKSI TERBARU</div>' +
+    '<input class="table-search" id="ppSearch" placeholder="Cari batch / operator..."></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>OPERATOR</th><th>SUB</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead>' +
+    '<tbody id="ppTable"></tbody></table></div></div></div></div>';
+
+  loadProcessOptions(key);
+  loadProcessData(key);
+}
+
+function resetProcessForm() {
+  $('ppForm').reset();
+  $('ppDate').value = todayISO();
+  $('ppStageBox').style.display = 'none';
+  if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
+}
+
+function loadProcessOptions(key) {
+  const cfg = PROCESS_PAGES[key];
+  gs('apiGetProcessOptions', [cfg.code], function (d) {
+    const plantSel = $('ppPlant');
+    plantSel.innerHTML = '<option value="">Pilih plant</option>' + d.plants.map(function (p) {
+      return '<option value="' + esc(p.plant_id) + '"' + (APP.plant !== 'ALL' && p.plant_id === APP.plant ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    }).join('');
+
+    const batches = d.batches || [];
+    $('ppBatch').innerHTML = '<option value="">Pilih batch</option>' + batches.map(function (b) {
+      const disabled = APP.plant !== 'ALL' && b.plant_id !== APP.plant ? ' disabled' : '';
+      return '<option value="' + esc(b.batch_id) + '"' + disabled + '>' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
+    }).join('');
+
+    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + (d.operators || []).map(function (o) {
+      return '<option value="' + esc(o.telegram_user_id) + '">' + esc(o.nama_operator || o.telegram_user_id) + '</option>';
+    }).join('');
+
+    const m = $('ppMaterial');
+    if (m) {
+      m.innerHTML = '<option value="">Pilih material stok</option>' + (d.materials || []).map(function (r) {
+        return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
+      }).join('');
+    }
+    if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
+  }, function (e) {
+    const st = $('ppStatus');
+    if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
+  });
+
+  $('ppBatch').addEventListener('change', refreshProcessContext);
+  if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+}
+
+function refreshProcessContext() {
+  const key = APP.procKey;
+  const cfg = PROCESS_PAGES[key];
+  if (!$('ppBatch') || !$('ppBatch').value) return;
+  gs('apiGetBatchContext', [$('ppBatch').value, cfg.code, $('ppSub') ? $('ppSub').value : ''], function (ctx) {
+    if ($('ppQtyInput')) $('ppQtyInput').value = ctx.suggestedQtyInput || (cfg.stockInput ? $('ppQtyInput').value : 0);
+    if ($('ppQtyTarget') && ctx.batchTarget != null) $('ppQtyTarget').value = ctx.batchTarget;
+
+    const box = $('ppStageBox');
+    const sourceBox = $('ppSourceBox');
+    if (!ctx.available) {
+      box.style.display = 'block';
+      box.innerHTML = '<div class="stage-warning">Proses belum tersedia. Tahap berikutnya: <b>' + esc(ctx.tahapSaatIni) + '</b>. ' + (ctx.missing && ctx.missing.length ? 'Yang belum lengkap: ' + esc(ctx.missing.join(', ')) : '') + '</div>';
+    } else {
+      box.style.display = 'none';
+      box.innerHTML = '';
+    }
+
+    if (sourceBox && ctx.sourceLabel) {
+      sourceBox.style.display = 'block';
+      sourceBox.innerHTML = '<div class="stage-info"><b>Sumber:</b> ' + esc(ctx.sourceLabel) +
+        (ctx.availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
+        (ctx.code === 'PERAKITAN_RANGKA' ? ' &nbsp;•&nbsp; Total rangka jadi dihitung dari minimum 5 komponen.' : '') +
+        '</div>';
+    }
+  });
+}
+
+function loadProcessData(key) {
+  const cfg = PROCESS_PAGES[key];
+  gs('apiGetProcessPage', [cfg.code, APP.plant, APP.sub], function (d) {
+    $('ppTarget').innerText = fmt(d.summary.target);
+    $('ppActual').innerText = fmt(d.summary.actual);
+    $('ppReject').innerText = fmt(d.summary.reject);
+    $('ppAchievement').innerText = Number(d.summary.achievement).toFixed(1) + '%';
+    APP.processRowsCache = d.rows || [];
+    const body = $('ppTable');
+    body.innerHTML = (d.rows || []).map(function (x) {
+      return '<tr><td>' + esc(x.tanggal || '-') + '</td><td><b>' + esc(x.batch_id || '-') + '</b></td>' +
+        '<td>' + esc(x.operator_name || '-') + '</td><td>' + esc(x.sub_proses || '—') + '</td>' +
+        '<td>' + fmt(x.qty_input) + '</td><td>' + fmt(x.qty_good) + '</td><td>' + fmt(x.qty_reject) + '</td>' +
+        '<td><span class="status-pill ' + (x.status === 'Selesai' ? 'status-good' : 'status-warn') + '"><span class="status-dot"></span>' + esc(x.status) + '</span></td>' +
+        '<td><div class="erp-action-row"><button class="erp-icon-btn" title="Edit" onclick="editTransaksi(\'' + esc(x.transaksi_id) + '\')">✎</button>' +
+        '<button class="erp-icon-btn" title="Hapus" onclick="deleteTransaksi(\'' + esc(x.transaksi_id) + '\')">🗑</button></div></td></tr>';
+    }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✓</div>Belum ada transaksi.</div></td></tr>';
+    $('ppSearch').oninput = function () {
+      const q = this.value.toLowerCase();
+      Array.from(body.querySelectorAll('tr')).forEach(function (tr) {
+        tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
+      });
+    };
+  }, function (e) {
+    const st = $('ppStatus');
+    if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Gagal membaca data'; }
+  });
+}
+
+function editTransaksi(id) {
+  const row = (APP.processRowsCache || []).find(function (r) { return String(r.transaksi_id) === String(id); });
+  if (!row) return;
+  APP.editingTrxId = id;
+  $('ppQtyInput').value = row.qty_input;
+  $('ppQtyTarget').value = row.qty_target;
+  $('ppQtyGood').value = row.qty_good;
+  $('ppQtyReject').value = row.qty_reject;
+  $('ppNote').value = row.catatan || '';
+  const sub = $('ppSub');
+  if (sub) sub.value = row.sub_proses || '';
+  ['ppPlant', 'ppBatch', 'ppOperator'].forEach(function (fid) { const el = $(fid); if (el) el.disabled = true; });
+  $('ppSaveBtn').innerText = 'Update Transaksi';
+  if (!$('ppCancelEditBtn')) {
+    const cancelBtn = document.createElement('button');
+    cancelBtn.type = 'button';
+    cancelBtn.id = 'ppCancelEditBtn';
+    cancelBtn.className = 'btn-secondary';
+    cancelBtn.innerText = 'Batal Edit';
+    cancelBtn.onclick = cancelEditTransaksi;
+    $('ppSaveBtn').insertAdjacentElement('beforebegin', cancelBtn);
+  }
+  $('ppFormCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function cancelEditTransaksi() {
+  APP.editingTrxId = null;
+  ['ppPlant', 'ppBatch', 'ppOperator'].forEach(function (fid) { const el = $(fid); if (el) el.disabled = false; });
+  $('ppSaveBtn').innerText = 'Simpan Produksi';
+  const cancelBtn = $('ppCancelEditBtn');
+  if (cancelBtn) cancelBtn.remove();
+  resetProcessForm();
+}
+
+function deleteTransaksi(id) {
+  if (!confirm('Yakin hapus transaksi ini? Tindakan tidak bisa dibatalkan.')) return;
+  gs('apiDeleteTransaksi', [id], function () {
+    loadProcessData(APP.procKey);
+  }, function (e) {
+    alert('Gagal menghapus: ' + ((e && e.message) ? e.message : e));
+  });
+}
+
+function submitProcess(event, key) {
+  event.preventDefault();
+  const cfg = PROCESS_PAGES[key];
+  const btn = $('ppSaveBtn');
+  const sub = $('ppSub');
+  const qtyInput = Number($('ppQtyInput').value || 0);
+  const qtyGood = Number($('ppQtyGood').value || 0);
+  const qtyReject = Number($('ppQtyReject').value || 0);
+  if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
+    alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
+    return;
+  }
+
+  if (APP.editingTrxId) {
+    const updatePayload = {
+      qty_input: qtyInput,
+      qty_target: Number($('ppQtyTarget').value || 0),
+      qty_good: qtyGood,
+      qty_reject: qtyReject,
+      catatan: $('ppNote').value || '',
+      sub_proses: sub ? (sub.value || '') : ''
+    };
+    btn.disabled = true; btn.innerText = 'Menyimpan...';
+    gs('apiUpdateTransaksi', [APP.editingTrxId, updatePayload], function () {
+      alert('Transaksi berhasil diperbarui.');
+      cancelEditTransaksi();
+      loadProcessData(key);
+    }, function (e) {
+      alert('Gagal memperbarui: ' + ((e && e.message) ? e.message : e));
+      btn.disabled = false; btn.innerText = 'Update Transaksi';
+    });
+    return;
+  }
+
+  const payload = {
+    tanggal: $('ppDate').value,
+    plant_id: $('ppPlant').value,
+    batch_id: $('ppBatch').value,
+    operator_id: $('ppOperator').value,
+    proses_code: cfg.code,
+    material_id: $('ppMaterial') ? $('ppMaterial').value : '',
+    qty_input: qtyInput,
+    qty_target: Number($('ppQtyTarget').value || 0),
+    qty_good: qtyGood,
+    qty_reject: qtyReject,
+    status: 'Selesai',
+    catatan: $('ppNote').value || ''
+  };
+  if (sub) payload.sub_proses = sub.value || '';
+  btn.disabled = true; btn.innerText = 'Menyimpan...';
+  gs('apiSaveTransaksi', [payload], function (res) {
+    alert('Transaksi berhasil disimpan. ID: ' + res.transaksi_id);
+    resetProcessForm();
+    if (sub) sub.value = payload.sub_proses;
+    loadProcessData(key);
+  }, function (e) {
+    alert('Gagal menyimpan: ' + ((e && e.message) ? e.message : e));
+    btn.disabled = false; btn.innerText = 'Simpan Produksi';
+  });
+}
+
+function applySubmenuState(name, open) {
+  const menu = document.querySelector('[data-menu-toggle="' + name + '"]');
+  const submenu = document.querySelector('[data-submenu="' + name + '"]');
+  if (!menu || !submenu) return;
+  menu.classList.toggle('collapsed', !open);
+  if (open) {
+    submenu.classList.remove('collapsed');
+    submenu.style.maxHeight = submenu.scrollHeight + 'px';
+  } else {
+    submenu.style.maxHeight = '0px';
+    submenu.classList.add('collapsed');
+  }
+  try { localStorage.setItem('erp_submenu_' + name, open ? '1' : '0'); } catch (err) {}
+}
+
+function toggleSubmenu(name) {
+  const submenu = document.querySelector('[data-submenu="' + name + '"]');
+  const open = submenu ? !submenu.classList.contains('collapsed') : true;
+  applySubmenuState(name, !open);
+}
+
+function setupSidebarCollapsibles() {
+  document.querySelectorAll('[data-menu-toggle]').forEach(function (menu) {
+    const name = menu.getAttribute('data-menu-toggle');
+    menu.classList.add('has-submenu');
+    let open = true;
+    try {
+      const saved = localStorage.getItem('erp_submenu_' + name);
+      if (saved !== null) open = saved === '1';
+    } catch (err) {}
+    applySubmenuState(name, open);
+  });
+  document.querySelectorAll('.submenu').forEach(function (submenu) {
+    if (!submenu.hasAttribute('data-submenu')) {
+      const key = 'legacy_' + Array.prototype.indexOf.call(document.querySelectorAll('.submenu'), submenu);
+      const trigger = submenu.previousElementSibling;
+      if (trigger && trigger.classList.contains('menu-item')) {
+        trigger.classList.add('has-submenu');
+        trigger.setAttribute('data-menu-toggle', key);
+        submenu.setAttribute('data-submenu', key);
+        applySubmenuState(key, true);
+      }
+    }
+  });
+}
+
+
+
+/* =====================================================================
+   2# PROSES SET — UI
+===================================================================== */
+const SET_PAGES = {
+  'set-papan-jok': { code:'PAPAN_JOK', title:'Papan Jok', group:'Papan', stock:true },
+  'set-papan-sandaran': { code:'PAPAN_SANDARAN', title:'Papan Sandaran', group:'Papan', stock:true },
+  'set-papan-tutupan': { code:'PAPAN_TUTUPAN', title:'Papan Tutupan', group:'Papan', stock:true },
+  'set-pola-jok': { code:'KAIN_POLA_JOK', title:'Pola Jok', group:'Kain', stock:true },
+  'set-pola-sandaran': { code:'KAIN_POLA_SANDARAN', title:'Pola Sandaran', group:'Kain', stock:true },
+  'set-tutupa': { code:'KAIN_TUTUPA', title:'Tutupa', group:'Kain', stock:true },
+  'set-busa-jok': { code:'BUSA_JOK', title:'Busa Jok', group:'Busa', stock:true },
+  'set-busa-sandaran': { code:'BUSA_SANDARAN', title:'Busa Sandaran', group:'Busa', stock:true },
+  'set-jok': { code:'SET_JOK', title:'Set Jok', group:'Set', stock:false },
+  'set-sandaran': { code:'SET_SANDARAN', title:'Set Sandaran', group:'Set', stock:false },
+  'set-tutupan': { code:'SET_TUTUPAN', title:'Set Tutupan', group:'Set', stock:false },
+  'set-jok-siap': { code:'JOK_SIAP_PAKAI', title:'Jok siap pakai', group:'Hasil Akhir', stock:false },
+  'set-sandaran-siap': { code:'SANDARAN_SIAP_PAKAI', title:'Sandaran siap pakai', group:'Hasil Akhir', stock:false },
+  'set-tutupan-siap': { code:'TUTUPAN_SIAP_PAKAI', title:'Tutupan siap pakai', group:'Hasil Akhir', stock:false }
+};
+const SET_APP = { page:null, options:null };
+
+function renderSetOverview() {
+  $('pageTitle').innerText = '2# PROSES SET';
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">2# Proses Set</div><div class="process-page-subtitle">Pemilihan material → Set Jok / Set Sandaran / Set Tutupan → produk siap pakai.</div></div>'+
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>'+
+    '<div class="erp-process-grid">'+[
+      ['set-papan-jok','Papan','Papan Jok','Memilih material Papan Jok dari stok.'],
+      ['set-pola-jok','Kain','Pola Jok','Memilih material Kain untuk pola jok.'],
+      ['set-busa-jok','Busa','Busa Jok','Memilih material Busa Jok dari stok.'],
+      ['set-jok','Set Jok','Set Jok','Papan Jok + Pola Jok + Busa Jok + bahan tambahan.'],
+      ['set-sandaran','Set Sandaran','Set Sandaran','Papan Sandaran + Pola Sandaran + Busa Sandaran + bahan tambahan.'],
+      ['set-tutupan','Set Tutupan','Set Tutupan','Papan Tutupan + Tutupa + Lem.'],
+      ['set-jok-siap','Hasil Akhir','Jok siap pakai','Hasil dari Set Jok.'],
+      ['set-sandaran-siap','Hasil Akhir','Sandaran siap pakai','Hasil dari Set Sandaran.'],
+      ['set-tutupan-siap','Hasil Akhir','Tutupan siap pakai','Hasil dari Set Tutupan.']
+    ].map(function(x,i){
+      return '<div class="erp-process-card" onclick="navigate(\''+x[0]+'\')"><div class="erp-process-top"><div class="erp-process-number" style="background:'+['#7b57d9','#23a8be','#e7971b','#c85f8c','#c85f8c','#c85f8c','#2bad68','#2bad68','#2bad68'][i]+'">'+(i+1)+'</div><div class="erp-process-name">'+esc(x[2])+'</div><span class="menu-arrow">›</span></div><div class="erp-process-meta">'+esc(x[3])+'</div></div>';
+    }).join('')+'</div>';
+}
+
+function setStockOptionsHtml(materials, labelHint) {
+  return '<option value="">Pilih material'+(labelHint ? ' untuk '+esc(labelHint) : '')+'</option>'+materials.map(function(m){ return '<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'; }).join('');
+}
+
+function renderSetPage(key) {
+  const cfg = SET_PAGES[key];
+  SET_APP.page = key;
+  $('pageTitle').innerText = cfg.title.toUpperCase();
+  const isStock = !!cfg.stock;
+  const processCode = cfg.code;
+  let stockLines = '';
+  // Material tambahan untuk Set menggunakan pilihan material stok secara eksplisit.
+  if (['SET_JOK','SET_SANDARAN','SET_TUTUPAN'].indexOf(processCode) >= 0) {
+    const labels = processCode === 'SET_JOK' ? ['Lem','Mika','Puring','Stapples'] : processCode === 'SET_SANDARAN' ? ['Lem','Mika','Stapples'] : ['Lem'];
+    stockLines = '<div class="field full"><label>Bahan Tambahan</label><div id="setMaterialLines" class="erp-system-list">'+labels.map(function(l,i){
+      return '<div class="erp-system-row" style="align-items:flex-end"><div style="flex:1"><div class="erp-system-name">'+l+'</div><select id="setMat_'+i+'" class="erp-mini-select" style="width:100%;margin-top:5px"><option value="">Pilih material stok</option></select></div><div style="width:110px"><div class="erp-system-name">Qty</div><input id="setMatQty_'+i+'" class="erp-date" type="number" min="0" step="0.01" placeholder="0" style="width:100%;margin-top:5px"></div></div>';
+    }).join('')+'</div></div>';
+  }
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
+    '<div class="process-kpi-grid"><div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="setTarget">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Output Tersedia</div><div class="process-kpi-value" id="setAvailable">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Realisasi</div><div class="process-kpi-value" id="setActual">0</div><div class="process-kpi-note">Good qty</div></div><div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="setReject">0</div><div class="process-kpi-note">PCS</div></div></div>'+ 
+    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+
+    (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select></div>' : '')+
+    '<div class="field full" id="setSourceBox"></div>'+stockLines+
+    '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'setForm\').reset();refreshSetContext()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+
+    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="setTable"></tbody></table></div></div></div></div>';
+  loadSetOptions().then(function(){ refreshSetContext(); loadSetHistory(); });
+}
+
+function loadSetOptions() {
+  return new Promise(function(resolve,reject){
+    gs('apiGetSetOptions', [], function(d){ SET_APP.options=d; const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
+      if(!plant) return resolve();
+      plant.innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
+      batch.innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
+      op.innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
+      if(mat) mat.innerHTML=setStockOptionsHtml(d.materials);
+      d.processes.filter(function(p){return ['SET_JOK','SET_SANDARAN','SET_TUTUPAN'].indexOf(p.code)>=0;}).forEach(function(){ });
+      if(batch) batch.addEventListener('change',refreshSetContext);
+      if(plant) plant.addEventListener('change',function(){ Array.from(batch.options).forEach(function(o){ if(o.value) o.hidden = o.getAttribute('data-plant') !== plant.value; }); refreshSetContext(); });
+      resolve();
+    }, reject);
+  });
+}
+
+function refreshSetContext() {
+  const cfg=SET_PAGES[SET_APP.page]; if(!cfg || !$('setBatch') || !$('setBatch').value) return;
+  gs('apiGetSetContext',[$('setBatch').value,cfg.code],function(d){
+    $('setTarget').innerText=fmt(d.batchTarget); $('setAvailable').innerText=fmt(d.suggestedQtyInput);
+    $('setQtyInput').value=d.suggestedQtyInput>0?d.suggestedQtyInput:''; $('setQtyTarget').value=d.suggestedQtyInput>0?d.suggestedQtyInput:d.batchTarget;
+    const box=$('setSourceBox');
+    box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '';
+    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!sel.querySelector('option[value="'+m.material_id+'"]')) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
+  });
+}
+
+function loadSetHistory(){ const cfg=SET_PAGES[SET_APP.page]; if(!cfg) return; gs('apiGetSetProcessPage',[cfg.code,APP.plant,''],function(d){ $('setActual').innerText=fmt(d.summary.actual); $('setReject').innerText=fmt(d.summary.reject); $('setTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status)+'</td></tr>';}).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>'; }); }
+
+function submitSetProcess(event,key){
+  event.preventDefault();
+  const cfg=SET_PAGES[key], btn=$('setSaveBtn');
+  const lines=[]; const selects=document.querySelectorAll('#setMaterialLines select');
+  selects.forEach(function(sel,i){ if(sel.value){ lines.push({material_id:sel.value,qty:Number(($('setMatQty_'+i)||{}).value||0)}); } });
+  const mat=$('setMaterial');
+  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:Number($('setQtyInput').value||0),qty_target:Number($('setQtyTarget').value||0),qty_good:Number($('setQtyGood').value||0),qty_reject:Number($('setQtyReject').value||0),material_lines:JSON.stringify(lines),catatan:$('setNote').value};
+  btn.disabled=true; btn.innerText='Menyimpan...';
+  gs('apiSaveSetTransaksi',[payload],function(res){ alert('Proses Set berhasil disimpan. ID: '+res.transaksi_id); renderSetPage(key); },function(e){ alert('Gagal menyimpan Proses Set: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Proses Set'; });
+}
+
+
+/* =====================================================================
+   3# SET KURSI SUSUN — UI
+===================================================================== */
+const KURSI_SUSUN_PAGES = {
+  'Pemasangan Jok': { code:'PEMASANGAN_JOK', source:'Jok siap pakai' },
+  'Pemasangan Sandaran': { code:'PEMASANGAN_SANDARAN', source:'Sandaran siap pakai' },
+  'Pemasangan Tutupan': { code:'PEMASANGAN_TUTUPAN', source:'Tutupan siap pakai' }
+};
+const KURSI_SUSUN_APP = { active:'Pemasangan Jok', options:null };
+
+function renderKursiSusunPage() {
+  $('pageTitle').innerText = 'SET KURSI SUSUN';
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">Set Kursi Susun</div>' +
+    '<div class="process-page-subtitle">1 rangka utuh setelah Dop dipasangkan dengan Jok, Sandaran, dan Tutupan.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div class="process-kpi-grid">' +
+    '<div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="ksTarget">0</div><div class="process-kpi-note">PCS</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Rangka Setelah Dop</div><div class="process-kpi-value" id="ksDop">0</div><div class="process-kpi-note">PCS</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Finish</div><div class="process-kpi-value" id="ksFinish">0</div><div class="process-kpi-note">PCS</div></div>' +
+    '<div class="process-kpi"><div class="process-kpi-label">Status</div><div class="process-kpi-value" id="ksStatus" style="font-size:14px">Belum lengkap</div><div class="process-kpi-note">3 pemasangan wajib</div></div></div>' +
+    '<div class="erp-module-tabs" id="ksTabs">' + Object.keys(KURSI_SUSUN_PAGES).map(function(name){ return '<button class="erp-tab ' + (name===KURSI_SUSUN_APP.active?'active':'') + '" onclick="switchKursiSusun(\''+esc(name)+'\')">'+esc(name)+'</button>'; }).join('') + '</div>' +
+    '<div id="ksPanel"></div>';
+  renderKursiSusunForm(KURSI_SUSUN_APP.active);
+}
+
+function switchKursiSusun(name) {
+  KURSI_SUSUN_APP.active = name;
+  Array.from(document.querySelectorAll('#ksTabs .erp-tab')).forEach(function(btn){ btn.classList.toggle('active', btn.innerText===name); });
+  renderKursiSusunForm(name);
+}
+
+function renderKursiSusunForm(name) {
+  const cfg = KURSI_SUSUN_PAGES[name];
+  $('ksPanel').innerHTML =
+    '<div class="process-layout">' +
+    '<div class="process-panel" id="ksFormCard"><div class="process-panel-head"><div><div class="process-panel-title">'+esc(name)+'</div><div class="process-panel-caption">Sumber: '+esc(cfg.source)+' + 1 rangka setelah Dop.</div></div></div>' +
+    '<div class="process-panel-body"><form id="ksForm" onsubmit="submitKursiSusun(event,\''+esc(name)+'\')"><div class="process-form-grid">' +
+    '<div class="field"><label>Tanggal</label><input id="ksDate" type="date" value="'+todayISO()+'" required></div>' +
+    '<div class="field"><label>Plant</label><select id="ksPlant" required></select></div>' +
+    '<div class="field"><label>Batch</label><select id="ksBatch" required></select></div>' +
+    '<div class="field"><label>Operator</label><select id="ksOperator" required></select></div>' +
+    '<div class="field full" id="ksSourceBox"></div>' +
+    '<div class="field"><label>Qty Input</label><input id="ksQtyInput" type="number" min="0" step="0.01" required></div>' +
+    '<div class="field"><label>Target Produksi</label><input id="ksQtyTarget" type="number" min="0" step="0.01" required></div>' +
+    '<div class="field"><label>Qty Good / Realisasi</label><input id="ksQtyGood" type="number" min="0" step="0.01" required></div>' +
+    '<div class="field"><label>Qty Reject</label><input id="ksQtyReject" type="number" min="0" step="0.01" value="0"></div>' +
+    '<div class="field full"><label>Catatan</label><textarea id="ksNote" placeholder="Keterangan pemasangan..."></textarea></div>' +
+    '</div><div class="form-footer"><button class="btn-secondary" type="button" onclick="document.getElementById(\'ksForm\').reset(); refreshKursiSusunContext()">Reset</button>' +
+    '<button class="btn-primary" id="ksSaveBtn" type="submit">Simpan Pemasangan</button></div></form></div></div>' +
+    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(name)+'</div><div class="process-panel-caption">Data 3# Set Kursi Susun.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div>' +
+    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="ksTable"></tbody></table></div></div></div></div>';
+  loadKursiSusunOptions();
+}
+
+function loadKursiSusunOptions() {
+  gs('apiGetKursiSusunOptions', [], function(d){
+    KURSI_SUSUN_APP.options=d;
+    $('ksPlant').innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
+    $('ksBatch').innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
+    $('ksOperator').innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
+    $('ksBatch').addEventListener('change',refreshKursiSusunContext);
+    $('ksPlant').addEventListener('change',function(){ Array.from($('ksBatch').options).forEach(function(o){if(o.value)o.hidden=o.getAttribute('data-plant')!==$('ksPlant').value;}); refreshKursiSusunContext(); });
+    refreshKursiSusunContext();
+    loadKursiSusunHistory();
+  });
+}
+
+function refreshKursiSusunContext() {
+  const cfg=KURSI_SUSUN_PAGES[KURSI_SUSUN_APP.active];
+  if (!$('ksBatch') || !$('ksBatch').value) return;
+  gs('apiGetKursiSusunContext',[$('ksBatch').value,cfg.code],function(d){
+    $('ksTarget').innerText=fmt(d.batchTarget);
+    $('ksDop').innerText=fmt(d.rangkaDop);
+    $('ksFinish').innerText=fmt(d.finishQty);
+    $('ksStatus').innerText=d.finishQty>0?'Finish tersedia':(d.rangkaDop>0?'Pemasangan belum lengkap':'Menunggu Rangka setelah Dop');
+    $('ksQtyInput').value=d.suggestedQtyInput>0?d.suggestedQtyInput:'';
+    $('ksQtyTarget').value=d.suggestedQtyInput>0?d.suggestedQtyInput:d.batchTarget;
+    $('ksSourceBox').innerHTML='<div class="stage-info"><b>Sumber:</b> '+esc(cfg.source)+' = '+fmt(d.sumberSet)+' PCS • Rangka setelah Dop = '+fmt(d.rangkaDop)+' PCS • Sudah terpasang = '+fmt(d.sudahTerpasang)+' PCS</div>';
+  });
+}
+
+function loadKursiSusunHistory(){
+  const cfg=KURSI_SUSUN_PAGES[KURSI_SUSUN_APP.active];
+  gs('apiGetKursiSusunPage',[cfg.code,APP.plant,''],function(d){
+    if ($('ksFinish')) $('ksFinish').innerText=fmt(d.finishQty);
+    $('ksTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td></tr>';}).join(''):'<tr><td colspan="6"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
+  });
+}
+
+function submitKursiSusun(event,name){
+  event.preventDefault();
+  const cfg=KURSI_SUSUN_PAGES[name], btn=$('ksSaveBtn');
+  const payload={
+    tanggal:$('ksDate').value,
+    plant_id:$('ksPlant').value,
+    batch_id:$('ksBatch').value,
+    operator_id:$('ksOperator').value,
+    proses_code:cfg.code,
+    qty_input:Number($('ksQtyInput').value||0),
+    qty_target:Number($('ksQtyTarget').value||0),
+    qty_good:Number($('ksQtyGood').value||0),
+    qty_reject:Number($('ksQtyReject').value||0),
+    catatan:$('ksNote').value
+  };
+  btn.disabled=true; btn.innerText='Menyimpan...';
+  gs('apiSaveKursiSusunTransaksi',[payload],function(res){alert('Pemasangan berhasil disimpan. ID: '+res.transaksi_id); renderKursiSusunPage();},function(e){alert('Gagal menyimpan: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Pemasangan';});
+}
+
+/* =====================================================================
+   INIT
+===================================================================== */
+function applySessionToUI() {
+  const pn = $('profileName'), pr = $('profileRole');
+  if (pn) pn.innerText = SESSION_NAME || '-';
+  if (pr) pr.innerText = SESSION_ROLE || '-';
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  if (!ERP_SESSION || !ERP_SESSION.token) { window.location.href = 'login.html'; return; }
+  applySessionToUI();
+  renderDashboardFlows();
+
+  setupSidebarCollapsibles();
+
+  $('sidebar').addEventListener('click', function (e) {
+    /* Parent menu dengan submenu: klik AREA MENU mana pun = toggle.
+       Ini diproses lebih dulu agar tidak tertangkap oleh data-route. */
+    const parent = e.target.closest('[data-menu-toggle]');
+    if (parent) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSubmenu(parent.getAttribute('data-menu-toggle'));
+      return;
+    }
+
+    const setGroup = e.target.closest('[data-menu-set-group]');
+    if (setGroup) {
+      e.preventDefault();
+      e.stopPropagation();
+      const name = 'set-' + setGroup.getAttribute('data-menu-set-group');
+      const submenu = document.querySelector('[data-submenu="' + name + '"]');
+      if (submenu) {
+        const open = !submenu.classList.contains('collapsed');
+        applySubmenuState(name, !open);
+      }
+      return;
+    }
+
+    /* Submenu item: klik = navigasi ke halaman proses. */
+    const t = e.target.closest('[data-route]');
+    if (t && t.getAttribute('data-route')) {
+      e.preventDefault();
+      e.stopPropagation();
+      navigate(t.getAttribute('data-route'), t.getAttribute('data-sub') || '');
+      return;
+    }
+  });
+
+  $('topDateBox').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  gs('apiGetPlants', [], function (plants) {
+    $('plantFilter').innerHTML = '<option value="ALL">Semua Plant</option>' + plants.map(function (p) {
+      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    }).join('');
+  });
+  $('plantFilter').addEventListener('change', function () {
+    APP.plant = this.value;
+    renderRoute();
+  });
+
+  navigate('dashboard');
+});
+</script>
+</body>
+</html>

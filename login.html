@@ -3,57 +3,155 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login — ERP Manufaktur</title>
+<title>Masuk — ERP Manufaktur</title>
+<meta name="theme-color" content="#07162f">
 <style>
+:root{
+  --navy:#07162f;
+  --navy-2:#0b2348;
+  --blue:#1769e0;
+  --blue-2:#2b82f6;
+  --ink:#17243a;
+  --muted:#66758c;
+  --line:#dce4ee;
+  --bg:#eef3f8;
+  --white:#fff;
+  --danger:#b42318;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;font-family:"Segoe UI",Arial,Helvetica,sans-serif;background:#f5f7fb;color:#17233d}
-body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.login-shell{width:100%;max-width:430px}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.logo{width:48px;height:48px;border-radius:12px;background:#0b1c3f;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 5px 18px rgba(11,28,63,.15)}
-.logo svg{width:27px;height:27px;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.brand-title{font-weight:800;font-size:18px;color:#14233f}
-.brand-sub{font-size:11px;color:#7b899d;margin-top:3px}
-.card{background:#fff;border:1px solid #e3e8f0;border-radius:12px;box-shadow:0 12px 30px rgba(35,50,80,.08);padding:25px}
-h1{font-size:22px;color:#14233f;margin-bottom:6px}
-.subtitle{font-size:11px;color:#7b899d;line-height:1.5;margin-bottom:22px}
-.field{margin-bottom:14px}
-label{display:block;font-size:10px;font-weight:700;color:#657289;text-transform:uppercase;letter-spacing:.2px;margin-bottom:6px}
-input{width:100%;height:42px;border:1px solid #d9e0ea;border-radius:7px;padding:0 12px;font-size:13px;color:#34435b;outline:none;font-family:inherit}
-input:focus{border-color:#6f8de4;box-shadow:0 0 0 3px rgba(46,91,215,.08)}
-button{width:100%;height:42px;border:0;border-radius:7px;background:#2e5bd7;color:#fff;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 3px 8px rgba(46,91,215,.22)}
-button:hover{background:#244dbd}
-button:disabled{opacity:.6;cursor:not-allowed}
-.status{display:none;margin-bottom:14px;padding:10px 12px;border-radius:7px;font-size:10px;line-height:1.4}
-.status.error{display:block;background:#fdebed;border:1px solid #f4cbd0;color:#a83e47}
-.status.info{display:block;background:#eef5ff;border:1px solid #cfe0ff;color:#315783}
-.note{margin-top:16px;text-align:center;font-size:9px;color:#8995a7;line-height:1.5}
-.footer{margin-top:14px;text-align:center;font-size:9px;color:#9aa5b5}
+html,body{min-height:100%;font-family:Inter,"Segoe UI",Arial,Helvetica,sans-serif}
+body{
+  min-height:100vh;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 15%,rgba(43,130,246,.18),transparent 28%),
+    radial-gradient(circle at 85% 75%,rgba(18,86,172,.16),transparent 30%),
+    linear-gradient(135deg,#06152f 0%,#0a2449 48%,#eaf1f7 48%,#f5f8fb 100%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:28px;
+}
+.page-shell{width:min(1180px,100%);display:grid;grid-template-columns:1.02fr .78fr;gap:0;overflow:hidden;border-radius:24px;background:rgba(255,255,255,.97);box-shadow:0 34px 90px rgba(3,18,44,.28);min-height:650px}
+.hero{
+  position:relative;padding:54px 58px;background:linear-gradient(160deg,var(--navy) 0%,#0a2851 63%,#103d72 100%);color:#fff;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between
+}
+.hero:before,.hero:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.08);border-radius:50%;pointer-events:none}
+.hero:before{width:470px;height:470px;right:-170px;top:-220px}
+.hero:after{width:340px;height:340px;left:-190px;bottom:-210px}
+.brand{position:relative;z-index:2;display:flex;align-items:center;gap:14px}
+.logo{width:54px;height:54px;border-radius:15px;background:linear-gradient(145deg,#2b82f6,#0f55b8);display:flex;align-items:center;justify-content:center;box-shadow:0 12px 28px rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.16)}
+.logo svg{width:31px;height:31px;stroke:#fff;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.brand-name{font-size:17px;font-weight:800;letter-spacing:.2px}
+.brand-desc{margin-top:4px;font-size:11px;color:rgba(255,255,255,.65);letter-spacing:.4px}
+.hero-main{position:relative;z-index:2;max-width:540px;margin-top:30px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 11px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.11);font-size:10px;font-weight:800;letter-spacing:1.15px;text-transform:uppercase;color:#d9e8ff}
+.eyebrow-dot{width:7px;height:7px;border-radius:50%;background:#52a3ff;box-shadow:0 0 0 5px rgba(82,163,255,.12)}
+.hero h1{font-size:43px;line-height:1.08;letter-spacing:-1.3px;margin:20px 0 17px;max-width:500px}
+.hero-copy{font-size:14px;line-height:1.75;color:rgba(255,255,255,.73);max-width:500px}
+.metrics{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:530px}
+.metric{padding:14px 15px;border:1px solid rgba(255,255,255,.10);border-radius:14px;background:rgba(255,255,255,.06);backdrop-filter:blur(8px)}
+.metric strong{display:block;font-size:13px;color:#fff;margin-bottom:4px}
+.metric span{display:block;font-size:10px;line-height:1.45;color:rgba(255,255,255,.55)}
+.form-panel{background:#fff;padding:54px 48px;display:flex;align-items:center}
+.form-wrap{width:100%;max-width:390px;margin:0 auto}
+.form-kicker{font-size:10px;font-weight:800;letter-spacing:1.25px;text-transform:uppercase;color:#7a879a;margin-bottom:11px}
+.form-wrap h2{font-size:31px;letter-spacing:-.7px;color:#12213a;margin-bottom:9px}
+.form-sub{font-size:12px;line-height:1.65;color:var(--muted);margin-bottom:28px}
+.status{display:none;margin-bottom:16px;padding:12px 13px;border-radius:12px;font-size:11px;line-height:1.5}
+.status.error{display:block;background:#fff2f1;border:1px solid #f4ccc9;color:var(--danger)}
+.status.info{display:block;background:#eff6ff;border:1px solid #cfe1ff;color:#21558f}
+.field{margin-bottom:17px}
+label{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:800;color:#536177;letter-spacing:.55px;text-transform:uppercase;margin-bottom:8px}
+.input-wrap{position:relative}
+.field input{width:100%;height:50px;border:1px solid var(--line);border-radius:12px;padding:0 15px;background:#fbfcfe;color:#24344d;font-size:13px;outline:none;transition:.18s ease;font-family:inherit}
+.field input::placeholder{color:#a0aabd}
+.field input:hover{border-color:#c8d2df;background:#fff}
+.field input:focus{border-color:#5c91dd;background:#fff;box-shadow:0 0 0 4px rgba(23,105,224,.09)}
+.password-toggle{position:absolute;right:10px;top:50%;transform:translateY(-50%);height:32px;min-width:44px;border:0;background:transparent;color:#7b8798;font-size:10px;font-weight:800;cursor:pointer;border-radius:8px}
+.password-toggle:hover{background:#f1f5f9;color:#335c91}
+.submit-btn{width:100%;height:51px;border:0;border-radius:12px;background:linear-gradient(135deg,var(--blue-2),#1357c4);color:#fff;font-size:12px;font-weight:800;letter-spacing:.2px;cursor:pointer;box-shadow:0 12px 24px rgba(23,105,224,.22);transition:.18s ease}
+.submit-btn:hover{transform:translateY(-1px);box-shadow:0 15px 28px rgba(23,105,224,.27)}
+.submit-btn:active{transform:translateY(0)}
+.submit-btn:disabled{opacity:.62;cursor:not-allowed;transform:none;box-shadow:none}
+.security-line{display:flex;align-items:center;gap:9px;margin-top:18px;padding:12px 13px;border:1px solid #e5eaf1;border-radius:12px;background:#f8fafc;color:#7b8797;font-size:10px;line-height:1.45}
+.security-line svg{width:17px;height:17px;flex:0 0 auto;stroke:#4f6e9a;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.form-foot{margin-top:22px;text-align:center;font-size:9px;color:#9aa5b5;line-height:1.55}
+.form-foot strong{color:#65738a}
+@media(max-width:920px){body{background:#07162f;padding:16px}.page-shell{grid-template-columns:1fr;min-height:auto;max-width:560px;border-radius:20px}.hero{display:none}.form-panel{padding:38px 24px;min-height:640px}.form-wrap{max-width:420px}}
+@media(max-width:430px){.form-panel{padding:28px 19px}.form-wrap h2{font-size:27px}.security-line{align-items:flex-start}}
 </style>
 </head>
 <body>
-<div class="login-shell">
-  <div class="brand">
-    <div class="logo"><svg viewBox="0 0 48 48"><path d="M5 42V24h9v18M14 42V17h9v25M23 42V8h9v34M32 42V22h11v20"/><path d="M4 42h40"/><path d="M27 8l5-5 5 5"/></svg></div>
-    <div><div class="brand-title">PT. Manufaktur Indonesia</div><div class="brand-sub">Manufacturing Management</div></div>
-  </div>
-  <div class="card">
-    <h1>Masuk ke ERP</h1>
-    <div class="subtitle">Gunakan akun yang terdaftar pada Master User untuk mengakses dashboard manufaktur.</div>
-    <div id="status" class="status"></div>
-    <form id="loginForm">
-      <div class="field"><label for="username">Username</label><input id="username" name="username" type="text" autocomplete="username" required autofocus placeholder="Masukkan username"></div>
-      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Masukkan password"></div>
-      <button id="loginBtn" type="submit">Masuk</button>
-    </form>
-    <div class="note">Kredensial diproses oleh server Apps Script. Password tidak disimpan di GitHub.</div>
-  </div>
-  <div class="footer">ERP Manufaktur • GitHub Pages Frontend</div>
-</div>
+<main class="page-shell" aria-label="Halaman masuk ERP Manufaktur">
+  <section class="hero" aria-label="Informasi perusahaan">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48">
+          <path d="M5 42V24h8v18M13 42V17h9v25M22 42V9h9v33M31 42V21h12v21"/>
+          <path d="M4 42h40M26 9l5-5 5 5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">PT. Manufaktur Indonesia</div>
+        <div class="brand-desc">Enterprise Manufacturing Management</div>
+      </div>
+    </div>
+
+    <div class="hero-main">
+      <div class="eyebrow"><span class="eyebrow-dot"></span> Production Management System</div>
+      <h1>Kelola produksi dengan satu sistem yang terintegrasi.</h1>
+      <p class="hero-copy">Akses terpusat untuk memantau proses manufaktur, material, persediaan, dan aktivitas produksi secara terstruktur melalui ERP perusahaan.</p>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><strong>Production</strong><span>Kontrol alur proses produksi</span></div>
+      <div class="metric"><strong>Inventory</strong><span>Visibilitas material & stok</span></div>
+      <div class="metric"><strong>Operations</strong><span>Data terpusat untuk operasional</span></div>
+    </div>
+  </section>
+
+  <section class="form-panel" aria-label="Form login">
+    <div class="form-wrap">
+      <div class="form-kicker">Secure access</div>
+      <h2>Selamat datang kembali</h2>
+      <p class="form-sub">Masuk menggunakan akun yang terdaftar untuk melanjutkan ke sistem ERP Manufaktur.</p>
+
+      <div id="status" class="status" role="alert" aria-live="polite"></div>
+
+      <form id="loginForm" autocomplete="on">
+        <div class="field">
+          <label for="username"><span>Username</span></label>
+          <div class="input-wrap">
+            <input id="username" name="username" type="text" autocomplete="username" required autofocus placeholder="Masukkan username">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password"><span>Password</span></label>
+          <div class="input-wrap">
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Masukkan password">
+            <button class="password-toggle" id="passwordToggle" type="button" aria-label="Tampilkan password">LIHAT</button>
+          </div>
+        </div>
+
+        <button id="loginBtn" class="submit-btn" type="submit">Masuk ke Sistem</button>
+      </form>
+
+      <div class="security-line">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.7-3 8.2-7 10-4-1.8-7-5.3-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+        <span>Akses dilindungi dan diverifikasi oleh sistem autentikasi perusahaan.</span>
+      </div>
+
+      <div class="form-foot"><strong>ERP Manufaktur</strong><br>Authorized users only</div>
+    </div>
+  </section>
+</main>
 <script>
 'use strict';
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
 const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
+
 function showStatus(message, type) {
   const el = document.getElementById('status');
   el.className = 'status ' + (type || 'error');
@@ -78,19 +176,31 @@ function apiLogin(username, password) {
     });
   });
 }
+
+document.getElementById('passwordToggle').addEventListener('click',function(){
+  const input=document.getElementById('password');
+  const visible=input.type==='text';
+  input.type=visible?'password':'text';
+  this.textContent=visible?'LIHAT':'SEMBUNYIKAN';
+  this.setAttribute('aria-label',visible?'Tampilkan password':'Sembunyikan password');
+});
+
 document.getElementById('loginForm').addEventListener('submit',function(e){
   e.preventDefault();
   clearStatus();
   const btn=document.getElementById('loginBtn');
   const username=document.getElementById('username').value.trim();
   const password=document.getElementById('password').value;
-  btn.disabled=true; btn.textContent='Memverifikasi...';
+  if(!username || !password){showStatus('Username dan password wajib diisi.','error');return;}
+  btn.disabled=true;
+  btn.textContent='Memverifikasi akses...';
   apiLogin(username,password).then(function(res){
     localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({token:res.token,username:res.username,role:res.role,nama:res.nama}));
     window.location.href='index.html';
   }).catch(function(err){
     showStatus(err && err.message ? err.message : String(err),'error');
-    btn.disabled=false; btn.textContent='Masuk';
+    btn.disabled=false;
+    btn.textContent='Masuk ke Sistem';
   });
 });
 </script>

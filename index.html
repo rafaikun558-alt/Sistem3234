@@ -475,7 +475,7 @@ function doLogout() {
 const PROCESS_PAGES = {
   cutting:            { code: 'CUTTING',            title: 'Cutting Proses',        subtitle: 'Material bahan baku menjadi 4 komponen: Kaki-kaki, Palang, Sandaran, dan U.', sub: ['Kaki-kaki', 'Palang', 'Sandaran', 'U'], stockInput: true },
   bending:            { code: 'BENDING',            title: 'Bending Proses',        subtitle: 'Setiap sub proses menerima output dari komponen Cutting yang sesuai.', sub: ['Bending Kaki', 'Bor', 'Bending Sandaran', 'Bending U'] },
-  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Penginputan panel/kupingan langsung dari stok material. Proses ini independen dari Cutting dan Bending.', sub: [], stockInput: true },
+  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Kupingan diproses langsung dari stok material dan independen dari Cutting serta Bending.', sub: [], stockInput: true },
   las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menggunakan output Bending Kaki.', sub: ['Las Robot'] },
   perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Lima komponen dirakit. Total rangka jadi = minimum dari lima komponen.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
   coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
@@ -987,7 +987,7 @@ function renderMaterialHub() {
   const items = [
     ['cutting', 'Cutting Proses', 'green', 'Pipa/plat menjadi komponen: Kaki-kaki, Palang, Sandaran, U.'],
     ['bending', 'Bending Proses', 'orange', 'Bending Kaki, Bor, Bending Sandaran, Bending U.'],
-    ['kupingan', 'Kupingan', 'cyan', 'Input panel/kupingan langsung dari stok. Proses independen.'],
+    ['kupingan', 'Kupingan', 'cyan', 'Input kupingan langsung dari stok material. Proses independen.'],
     ['las', 'Las Proses', 'blue', 'Las Robot dari Bending Kaki.'],
     ['perakitan', 'Perakitan Rangka', 'pink', '5 jalur komponen bertemu menjadi 1 rangka jadi.'],
     ['coating', 'Chemical', 'orange', 'Pilih salah satu finishing: Coating atau Nickel setelah rangka jadi.'],
@@ -1110,7 +1110,7 @@ function resetProcessForm() {
   $('ppStageBox').style.display = 'none';
   if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
   if ($('ppQtyInput')) $('ppQtyInput').removeAttribute('max');
-  if ($('ppSaveBtn')) $('ppSaveBtn').disabled = false;
+  if ($('ppSaveBtn')) $('ppSaveBtn').disabled = APP.procKey === 'kupingan';
 }
 
 function loadProcessOptions(key) {
@@ -1186,6 +1186,7 @@ function loadProcessOptions(key) {
           return;
         }
         hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
+        if (APP.procKey === 'kupingan') applyKupinganUX(materialRows);
       });
     }
 
@@ -1246,6 +1247,35 @@ function applyBendingUX(ctx) {
   }
 }
 
+
+function applyKupinganUX(materialRows) {
+  if (APP.procKey !== 'kupingan') return;
+  const plant = $('ppPlant') ? $('ppPlant').value : '';
+  const material = $('ppMaterial') ? $('ppMaterial').value : '';
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const sourceBox = $('ppSourceBox');
+  const row = (materialRows || []).find(function (r) {
+    return String(r.material_id) === String(material) && String(r.plant_id || '') === String(plant);
+  });
+  if (sourceBox) {
+    sourceBox.style.display = 'block';
+    sourceBox.innerHTML = row
+      ? '<div class="stage-info"><b>Sumber Kupingan:</b> Stok material' +
+        ' &nbsp;•&nbsp; <b>Material:</b> ' + esc(row.material_name || row.material_id) +
+        ' &nbsp;•&nbsp; <b>Saldo:</b> ' + fmt(row.stok) + ' ' + esc(row.satuan || 'PCS') + '</div>'
+      : '<div class="stage-warning">Pilih material stok untuk proses Kupingan. Proses ini independen dari Cutting dan Bending.</div>';
+  }
+  if (qty) {
+    if (row && Number(row.stok || 0) > 0) qty.max = String(row.stok);
+    else qty.removeAttribute('max');
+  }
+  if (save && !APP.editingTrxId) {
+    save.disabled = !row;
+    save.title = row ? '' : 'Pilih material stok terlebih dahulu.';
+  }
+}
+
 function refreshProcessContext() {
   const key = APP.procKey;
   const cfg = PROCESS_PAGES[key];
@@ -1272,6 +1302,9 @@ function refreshProcessContext() {
         '</div>';
     }
     applyBendingUX(ctx);
+    if (APP.procKey === 'kupingan') {
+      gs('apiGetProcessOptions', ['KUPINGAN'], function (opt) { applyKupinganUX(opt.materials || []); });
+    }
   });
 }
 
@@ -1360,6 +1393,20 @@ function submitProcess(event, key) {
     if (maxInput > 0 && qtyInput > maxInput) {
       alert('Qty Input Bending melebihi output Cutting yang tersedia: ' + fmt(maxInput) + ' PCS.');
       return;
+    }
+  }
+  if (key === 'kupingan') {
+    const selectedMaterial = $('ppMaterial') ? $('ppMaterial').value : '';
+    if (!selectedMaterial) {
+      alert('Material stok wajib dipilih untuk proses Kupingan.');
+      return;
+    }
+    if ($('ppQtyInput').max) {
+      const maxStock = Number($('ppQtyInput').max || 0);
+      if (maxStock > 0 && qtyInput > maxStock) {
+        alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
+        return;
+      }
     }
   }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {

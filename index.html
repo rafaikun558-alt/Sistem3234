@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Manufaktur</title>
+<title>Dashboard Manufaktur — 4D.8 Total Produksi Material</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;min-height:100%;font-family:"Segoe UI",Arial,Helvetica,sans-serif;background:#f5f7fb;color:#17233d}
@@ -480,7 +480,7 @@ const PROCESS_PAGES = {
   perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Gabungkan 5 komponen. Rangka Jadi = minimum dari Las Kaki, Las Palang, Las Sandaran, Las U, dan Las Kupingan.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
   coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing rangka jadi. Pilih tepat satu: Coating atau Nickel.', sub: [] },
   nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing rangka jadi. Pilih tepat satu: Nickel atau Coating.', sub: [] },
-  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari hasil Chemical: Coating atau Nickel.', sub: [] }
+  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari hasil Chemical: Coating atau Nickel.', sub: ['Coating', 'Nickel'] }
 };
 
 const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
@@ -1204,6 +1204,7 @@ function loadProcessOptions(key) {
     if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
     if ($('ppSub') && key === 'perakitan') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) applyAssemblyUX(); });
     if ($('ppSub') && key === 'bending') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
+    if ($('ppSub') && key === 'dop') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
 
     renderBatchOptions();
     renderMaterialOptions(false);
@@ -1351,14 +1352,16 @@ function applyDopUX(ctx) {
   const qty = $('ppQtyInput');
   const save = $('ppSaveBtn');
   const sourceBox = $('ppSourceBox');
+  const sub = $('ppSub');
+  const branch = sub ? sub.value : '';
   const availableQty = Number(ctx && ctx.availableQty || 0);
   const sourceLabel = ctx && ctx.sourceLabel ? ctx.sourceLabel : 'Hasil Chemical';
-  const ok = !!(ctx && ctx.available) && availableQty > 0;
+  const ok = !!(ctx && ctx.available) && availableQty > 0 && !!branch;
   if (sourceBox) {
     sourceBox.style.display = 'block';
     sourceBox.innerHTML = '<div class="stage-info"><b>Sumber Pemasangan Dop:</b> ' + esc(sourceLabel) +
       (availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS' : '') +
-      '<br><b>Catatan:</b> Dop mengikuti hasil branch Chemical yang dipilih (Coating atau Nickel).</div>';
+      '<br><b>Catatan:</b> Satu batch boleh dibagi antara Coating dan Nickel. Pilih branch sumber Dop.</div>';
   }
   if (qty) {
     if (availableQty > 0) qty.max = String(availableQty);
@@ -1367,7 +1370,7 @@ function applyDopUX(ctx) {
   }
   if (save && !APP.editingTrxId) {
     save.disabled = !ok;
-    save.title = ok ? '' : 'Hasil Coating/Nickel belum tersedia untuk dipasang Dop.';
+    save.title = ok ? '' : 'Pilih Coating/Nickel dan pastikan hasil branch masih tersedia.';
   }
 }
 
@@ -1390,7 +1393,7 @@ function applyChemicalUX(ctx) {
     sourceBox.style.display = 'block';
     let html = '<div class="stage-info"><b>Sumber Chemical:</b> Total Rangka Jadi';
     if (availableQty > 0) html += ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS';
-    html += '<br><b>Branch:</b> ' + esc(chosenName) + ' <span style="opacity:.7">atau</span> ' + esc(otherName) + ' — <b>hanya salah satu</b>.</div>';
+    html += '<br><b>Branch:</b> ' + esc(chosenName) + ' atau ' + esc(otherName) + ' — <b>batch boleh dibagi ke dua branch</b>.</div>';
     sourceBox.innerHTML = html;
   }
 
@@ -1400,7 +1403,7 @@ function applyChemicalUX(ctx) {
     if (!APP.editingTrxId && availableQty > 0) qty.value = availableQty;
   }
   if (save && !APP.editingTrxId) {
-    const ok = !!(ctx && ctx.available) && nextStage === 'CHEMICAL';
+    const ok = !!(ctx && ctx.available) && availableQty > 0;
     save.disabled = !ok;
     save.title = ok ? '' : 'Rangka Jadi belum tersedia atau finishing lain sudah dipilih.';
   }
@@ -1552,13 +1555,6 @@ function submitProcess(event, key) {
     const maxChemical = Number($('ppQtyInput').max || 0);
     if (maxChemical > 0 && qtyInput > maxChemical) {
       alert('Qty Input Chemical melebihi Rangka Jadi yang tersedia: ' + fmt(maxChemical) + ' PCS.');
-      return;
-    }
-  }
-  if (key === 'coating' || key === 'nickel') {
-    const otherKey = key === 'coating' ? 'nickel' : 'coating';
-    if (APP.procKey === otherKey) {
-      alert('Finishing batch hanya boleh memilih salah satu: Coating atau Nickel.');
       return;
     }
   }

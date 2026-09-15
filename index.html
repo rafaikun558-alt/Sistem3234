@@ -33,7 +33,7 @@ body{overflow-x:hidden}
 .page-title{font-size:21px;font-weight:700;color:#14233f;letter-spacing:.1px}
 .top-right{display:flex;align-items:center;gap:13px}
 .filter-box{height:36px;min-width:145px;padding:0 11px;background:#fff;border:1px solid #dce2eb;border-radius:6px;display:flex;align-items:center;gap:8px;color:#34435b;font-size:12px}
-.filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}
+.filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}.report-date-box{min-width:190px}.report-date-label{font-size:10px;color:#78869b;font-weight:700;text-transform:uppercase;white-space:nowrap}.report-date-box input{border:0;outline:none;background:transparent;color:#34435b;font-size:11px;font-family:inherit;width:130px;cursor:pointer}
 .profile{display:flex;align-items:center;gap:9px;margin-left:8px}
 .profile-circle{width:29px;height:29px;border-radius:50%;background:#1b355a;display:flex;align-items:center;justify-content:center;color:#fff}
 .profile-circle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
@@ -314,7 +314,7 @@ body{overflow-x:hidden}
   <header class="topbar">
     <div class="page-title" id="pageTitle">DASHBOARD MANUFAKTUR</div>
     <div class="top-right">
-      <div class="filter-box" id="topDateBox"></div>
+      <div class="filter-box report-date-box"><span class="report-date-label">Tanggal</span><input id="reportDateFilter" type="date" aria-label="Tanggal dashboard"></div>
       <div class="filter-box">
         <select id="plantFilter"><option value="ALL">Semua Plant</option></select>
       </div>
@@ -475,7 +475,7 @@ function doLogout() {
 const PROCESS_PAGES = {
   cutting:            { code: 'CUTTING',            title: 'Cutting Proses',        subtitle: 'Material bahan baku menjadi 4 komponen: Kaki-kaki, Palang, Sandaran, dan U.', sub: ['Kaki-kaki', 'Palang', 'Sandaran', 'U'], stockInput: true },
   bending:            { code: 'BENDING',            title: 'Bending Proses',        subtitle: 'Setiap sub proses menerima output dari komponen Cutting yang sesuai.', sub: ['Bending Kaki', 'Bor', 'Bending Sandaran', 'Bending U'] },
-  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Penginputan panel/kupingan langsung dari stok material. Proses ini independen dari Cutting dan Bending.', sub: [], stockInput: true },
+  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Kupingan diproses langsung dari stok material dan independen dari Cutting serta Bending.', sub: [], stockInput: true },
   las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menerima output Bending Kaki sebagai sumber proses.', sub: ['Las Robot'] },
   perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Lima komponen dirakit. Total rangka jadi = minimum dari lima komponen.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
   coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
@@ -486,7 +486,7 @@ const PROCESS_PAGES = {
 const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
 const MATERIAL_ACCENT = { CUTTING: 'green', BENDING: 'orange', KUPINGAN: 'cyan', LAS: 'blue', PERAKITAN_RANGKA: 'pink', COATING: 'orange', PEMASANGAN_DOP: 'green' };
 
-const APP = { route: 'dashboard', sub: '', plant: 'ALL', masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
+const APP = { route: 'dashboard', sub: '', plant: 'ALL', reportDate: todayISO(), masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
 
 /* =====================================================================
    ROUTER — SATU-SATUNYA PINTU NAVIGASI
@@ -607,22 +607,61 @@ function renderChart(trend) {
   });
 }
 
+let DASHBOARD_LOADING = false;
+
+function setDashboardLoading(isLoading) {
+  DASHBOARD_LOADING = !!isLoading;
+  const ids = ['kpiStock', 'kpiMaterial', 'kpiEfficiency', 'donutValue'];
+  if (isLoading) {
+    ids.forEach(function (id) { if ($(id)) $(id).innerText = '...'; });
+    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat data dashboard...</td></tr>';
+    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Memuat ringkasan efisiensi...</div>';
+  }
+}
+
+function renderDashboardData(d) {
+  d = d || {};
+  const efficiency = Number(d.efficiency || 0);
+  $('kpiStock').innerText = fmt(d.stockMaterial);
+  $('kpiMaterial').innerText = fmt(d.produksiMaterial);
+  $('kpiEfficiency').innerText = efficiency.toFixed(1).replace('.', ',');
+  $('donutValue').innerText = efficiency.toFixed(1).replace('.', ',') + '%';
+
+  const materialRows = Array.isArray(d.material) ? d.material : [];
+  $('materialTable').innerHTML = materialRows.length
+    ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL')
+    : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data produksi hari ini.</td></tr>';
+
+  const t2 = $('materialTable2');
+  if (t2) t2.innerHTML = materialRows.length ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL') : '';
+
+  renderChart(d.trend || { labels: [], material: [] });
+
+  const eff = Array.isArray(d.efficiencyProcess) ? d.efficiencyProcess : [];
+  $('efficiencyList').innerHTML = eff.length
+    ? '<div class="eff-group-title">PROSES MATERIAL</div>' + eff.map(function (it) {
+        const value = Math.max(0, Number(it.value || 0));
+        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + value.toFixed(1) + '%</b></div>' +
+          '<div class="efficiency-progress"><span style="width:' + Math.min(value, 100) + '%"></span></div></div>';
+      }).join('')
+    : '<div class="empty-state" style="padding:20px">Belum ada ringkasan efisiensi.</div>';
+
+  $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+}
+
 function loadDashboard() {
-  gs('apiGetDashboard', [], function (d) {
-    $('kpiStock').innerText = fmt(d.stockMaterial);
-    $('kpiMaterial').innerText = fmt(d.produksiMaterial);
-    $('kpiEfficiency').innerText = Number(d.efficiency).toFixed(1).replace('.', ',');
-    $('donutValue').innerText = Number(d.efficiency).toFixed(1).replace('.', ',') + '%';
-    $('materialTable').innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
-    var t2 = $('materialTable2');
-    if (t2) t2.innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
-    renderChart(d.trend);
-    $('efficiencyList').innerHTML = '<div class="eff-group-title">PROSES MATERIAL</div>' +
-      d.efficiencyProcess.map(function (it) {
-        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + Number(it.value).toFixed(1) + '%</b></div>' +
-          '<div class="efficiency-progress"><span style="width:' + Math.min(Number(it.value), 100) + '%"></span></div></div>';
-      }).join('');
-    $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+  if (DASHBOARD_LOADING) return;
+  setDashboardLoading(true);
+  const reportDate = APP.reportDate || todayISO();
+  const plantId = APP.plant || 'ALL';
+  gs('apiGetDashboard', [reportDate, plantId], function (d) {
+    setDashboardLoading(false);
+    renderDashboardData(d);
+  }, function (e) {
+    setDashboardLoading(false);
+    const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat dashboard.');
+    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
+    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
   });
 }
 
@@ -769,11 +808,12 @@ function renderStockPage() {
     '<div class="process-page-title">Stok Material</div>' +
     '<div class="process-page-subtitle">Pantau saldo material, batas minimum, lokasi, dan status.</div></div>' +
     '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button>' +
+    '<button class="btn-secondary" onclick="loadStockTable()">↻ Refresh</button>' +
     '<button class="btn-primary" onclick="focusStockForm()">+ Material</button></div></div>' +
     '<div id="stockSummary" class="erp-page-grid"></div>' +
     '<div class="erp-columns">' +
     '<div class="erp-card" id="stockFormCard">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">Kosongkan ID untuk material baru (otomatis MAT-001).</div></div></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">ID kosong = otomatis MAT-xxxx. Perubahan saldo menghasilkan mutasi stok.</div></div><span id="stockFormStatus" class="status-pill status-good"><span class="status-dot"></span>Siap</span></div>' +
     '<div class="erp-card-body"><form id="stockForm" onsubmit="submitStock(event)">' +
     '<div class="erp-form-grid">' +
     '<div class="field"><label>ID Material</label><input id="stId" type="text" placeholder="MAT-001"></div>' +
@@ -782,53 +822,70 @@ function renderStockPage() {
     '<div class="field"><label>Satuan</label><input id="stUnit" type="text" placeholder="PCS / KG / LTR"></div>' +
     '<div class="field"><label>Saldo Stok</label><input id="stQty" required type="number" step="0.01" min="0" placeholder="0"></div>' +
     '<div class="field"><label>Minimum Stok</label><input id="stMin" type="number" step="0.01" min="0" placeholder="0"></div>' +
-    '<div class="field"><label>Plant</label><select id="stPlant"><option value="">Pilih plant</option></select></div>' +
+    '<div class="field"><label>Plant</label><select id="stPlant" required><option value="">Pilih plant</option></select></div>' +
     '<div class="field"><label>Lokasi</label><input id="stLoc" type="text" placeholder="Gudang A"></div>' +
     '<div class="field full"><label>Status</label><select id="stStatus"><option>Aktif</option><option>Tidak Aktif</option></select></div>' +
     '</div>' +
-    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'stockForm\').reset()">Reset</button>' +
+    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="resetStockForm()">Reset</button>' +
     '<button class="btn-primary" id="stockSaveBtn" type="submit">Simpan Stok</button></div>' +
     '</form></div></div>' +
     '<div class="erp-card">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div><span id="stockListStatus" class="status-pill status-good"><span class="status-dot"></span>Memuat</span></div>' +
     '<div class="erp-card-body">' +
-    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div></div>' +
+    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div><div class="erp-toolbar-right"><span class="erp-chip" id="stockFilterChip">Plant: ALL</span></div></div>' +
     '<div class="erp-table-wrap"><table class="erp-table"><thead><tr>' +
     '<th>ID</th><th>NAMA</th><th>KATEGORI</th><th>PLANT</th><th>SATUAN</th><th>STOK</th><th>MIN</th><th>LOKASI</th><th>STATUS</th><th>AKSI</th>' +
     '</tr></thead><tbody id="stockTableBody"></tbody></table></div>' +
     '</div></div></div>';
 
   gs('apiGetPlants', [], function (plants) {
+    const preferred = APP.plant !== 'ALL' ? APP.plant : '';
     $('stPlant').innerHTML = '<option value="">Pilih plant</option>' + plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+      return '<option value="' + esc(p.plant_id) + '"' + (preferred === p.plant_id ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
   });
   loadStockTable();
 }
 
+function resetStockForm() {
+  $('stockForm').reset();
+  if (APP.plant !== 'ALL' && $('stPlant')) $('stPlant').value = APP.plant;
+  $('stockSaveBtn').disabled = false;
+  $('stockSaveBtn').innerText = 'Simpan Stok';
+  const st = $('stockFormStatus');
+  if (st) { st.className = 'status-pill status-good'; st.innerHTML = '<span class="status-dot"></span>Siap'; }
+}
+
 function loadStockTable() {
+  const status = $('stockListStatus');
+  if (status) { status.className = 'status-pill status-warn'; status.innerHTML = '<span class="status-dot"></span>Memuat'; }
+  const body = $('stockTableBody');
+  if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty">Memuat data stok...</div></td></tr>';
+
   gs('apiGetStock', [APP.plant], function (d) {
     APP.stockCache = d;
-    $('stockSheetInfo').innerText = (d.missingSheet ? 'Sheet Stok_Material dibuat otomatis saat simpan pertama' : 'Sheet: ' + d.sheet) + ' • ' + fmt(d.totalItems) + ' item';
+    $('stockSheetInfo').innerText = 'Sheet: ' + d.sheet + ' • ' + fmt(d.totalItems) + ' item • Diperbarui ' + new Date().toLocaleTimeString('id-ID');
+    $('stockFilterChip').innerText = 'Plant: ' + (d.plantId || 'ALL');
     $('stockSummary').innerHTML = [
       ['Total Item', fmt(d.totalItems), 'item material', ''],
       ['Total Qty', fmt(d.totalQty), 'saldo gabungan', ''],
       ['Stok Minimum', fmt(d.lowStock), 'item perlu perhatian', d.lowStock ? 'warn' : 'good'],
-      ['Filter Plant', d.plantId, 'plant aktif', '']
+      ['Filter Plant', d.plantId || 'ALL', 'plant aktif', '']
     ].map(function (x) {
       return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + esc(x[1]) + '</div><div class="erp-stat-note">' + esc(x[2]) + '</div></div>';
     }).join('');
 
-    const body = $('stockTableBody');
     body.innerHTML = d.rows.length ? d.rows.map(function (r, idx) {
       const qty = Number(r.stok || 0), min = Number(r.minimum_stok || 0);
       const low = min > 0 && qty <= min;
+      const statusClass = String(r.status || 'Aktif') === 'Aktif' ? 'status-good' : 'status-warn';
       return '<tr>' +
         '<td>' + esc(r.material_id) + '</td><td><b>' + esc(r.material_name) + '</b></td>' +
         '<td>' + esc(r.kategori || '—') + '</td><td>' + esc(r.plant_id || '—') + '</td>' +
         '<td>' + esc(r.satuan || '—') + '</td>' +
         '<td><span class="status-pill ' + (low ? 'status-warn' : 'status-good') + '"><span class="status-dot"></span>' + fmt(qty) + '</span></td>' +
-        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td><td>' + esc(r.status || 'Aktif') + '</td>' +
+        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td>' +
+        '<td><span class="status-pill ' + statusClass + '"><span class="status-dot"></span>' + esc(r.status || 'Aktif') + '</span></td>' +
         '<td><div class="erp-action-row">' +
         '<button class="erp-icon-btn" title="Edit" onclick="editStock(' + idx + ')">✎</button>' +
         '<button class="erp-icon-btn" title="Hapus" onclick="deleteStock(' + idx + ')">🗑</button>' +
@@ -841,6 +898,10 @@ function loadStockTable() {
         tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
       });
     };
+    if (status) { status.className = 'status-pill status-good'; status.innerHTML = '<span class="status-dot"></span>Terhubung'; }
+  }, function (e) {
+    if (status) { status.className = 'status-pill status-bad'; status.innerHTML = '<span class="status-dot"></span>Gagal'; }
+    if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty"><strong>Gagal membaca stok</strong>' + esc((e && e.message) ? e.message : e) + '</div></td></tr>';
   });
 }
 
@@ -878,7 +939,9 @@ function focusStockForm() {
 function submitStock(event) {
   event.preventDefault();
   const btn = $('stockSaveBtn');
+  const formStatus = $('stockFormStatus');
   btn.disabled = true; btn.innerText = 'Menyimpan...';
+  if (formStatus) { formStatus.className = 'status-pill status-warn'; formStatus.innerHTML = '<span class="status-dot"></span>Menyimpan'; }
   const payload = {
     material_id: $('stId').value.trim(),
     material_name: $('stName').value.trim(),
@@ -892,12 +955,12 @@ function submitStock(event) {
   };
   gs('apiSaveStock', [payload], function (res) {
     alert('Stok berhasil disimpan (' + res.mode + '). ID: ' + res.id);
-    $('stockForm').reset();
-    btn.disabled = false; btn.innerText = 'Simpan Stok';
+    resetStockForm();
     loadStockTable();
   }, function (e) {
     alert('Gagal menyimpan stok: ' + ((e && e.message) ? e.message : e));
     btn.disabled = false; btn.innerText = 'Simpan Stok';
+    if (formStatus) { formStatus.className = 'status-pill status-bad'; formStatus.innerHTML = '<span class="status-dot"></span>Gagal'; }
   });
 }
 function renderInputHub() {
@@ -924,7 +987,7 @@ function renderMaterialHub() {
   const items = [
     ['cutting', 'Cutting Proses', 'green', 'Pipa/plat menjadi komponen: Kaki-kaki, Palang, Sandaran, U.'],
     ['bending', 'Bending Proses', 'orange', 'Bending Kaki, Bor, Bending Sandaran, Bending U.'],
-    ['kupingan', 'Kupingan', 'cyan', 'Input panel/kupingan langsung dari stok. Proses independen.'],
+    ['kupingan', 'Kupingan', 'cyan', 'Input kupingan langsung dari stok material. Proses independen.'],
     ['las', 'Las Proses', 'blue', 'Las Robot dari Bending Kaki.'],
     ['perakitan', 'Perakitan Rangka', 'pink', '5 jalur komponen bertemu menjadi 1 rangka jadi.'],
     ['coating', 'Chemical', 'orange', 'Pilih salah satu finishing: Coating atau Nickel setelah rangka jadi.'],
@@ -980,7 +1043,7 @@ function renderProcessPage(key) {
   APP.editingTrxId = null;
   const subField = cfg.sub && cfg.sub.length ? '<div class="field full"><label>Sub Proses</label><select id="ppSub" required>' +
     '<option value="">Pilih sub proses</option>' + cfg.sub.map(function (s) { return '<option value="' + esc(s) + '"' + (APP.sub === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></div>' : '';
-  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select></div>' : '';
+  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select><div id="ppStockHint" class="process-panel-caption" style="margin-top:5px">Pilih material untuk melihat saldo stok.</div></div>' : '';
 
   const accent = MATERIAL_ACCENT[cfg.code] || 'purple';
 
@@ -1046,40 +1109,171 @@ function resetProcessForm() {
   $('ppDate').value = todayISO();
   $('ppStageBox').style.display = 'none';
   if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
+  if ($('ppQtyInput')) $('ppQtyInput').removeAttribute('max');
+  if ($('ppSaveBtn')) $('ppSaveBtn').disabled = APP.procKey === 'kupingan';
 }
 
 function loadProcessOptions(key) {
   const cfg = PROCESS_PAGES[key];
   gs('apiGetProcessOptions', [cfg.code], function (d) {
     const plantSel = $('ppPlant');
-    plantSel.innerHTML = '<option value="">Pilih plant</option>' + d.plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '"' + (APP.plant !== 'ALL' && p.plant_id === APP.plant ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    const allPlants = d.plants || [];
+    plantSel.innerHTML = '<option value="">Pilih plant</option>' + allPlants.map(function (p) {
+      const selected = APP.plant !== 'ALL' && String(p.plant_id) === String(APP.plant) ? ' selected' : '';
+      return '<option value="' + esc(p.plant_id) + '"' + selected + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
 
     const batches = d.batches || [];
-    $('ppBatch').innerHTML = '<option value="">Pilih batch</option>' + batches.map(function (b) {
-      const disabled = APP.plant !== 'ALL' && b.plant_id !== APP.plant ? ' disabled' : '';
-      return '<option value="' + esc(b.batch_id) + '"' + disabled + '>' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
-    }).join('');
+    const operators = d.operators || [];
+    const materialRows = d.materials || [];
 
-    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + (d.operators || []).map(function (o) {
+    function getSelectedPlant() {
+      return plantSel && plantSel.value ? String(plantSel.value) : '';
+    }
+
+    function renderBatchOptions() {
+      const selectedPlant = getSelectedPlant();
+      const batchSel = $('ppBatch');
+      const filtered = selectedPlant
+        ? batches.filter(function (b) { return String(b.plant_id || '') === selectedPlant; })
+        : [];
+
+      batchSel.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih batch' : 'Pilih plant terlebih dahulu') + '</option>' +
+        filtered.map(function (b) {
+          return '<option value="' + esc(b.batch_id) + '">' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
+        }).join('');
+    }
+
+    function renderMaterialOptions(keepValue) {
+      const m = $('ppMaterial');
+      if (!m) return;
+      const selectedPlant = getSelectedPlant();
+      const filtered = selectedPlant
+        ? materialRows.filter(function (r) {
+            return String(r.plant_id || '') === selectedPlant && String(r.status || 'Aktif') !== 'Tidak Aktif' && Number(r.stok || 0) > 0;
+          })
+        : [];
+      const oldValue = keepValue ? m.value : '';
+      m.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih material stok' : 'Pilih plant terlebih dahulu') + '</option>' +
+        filtered.map(function (r) {
+          return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
+        }).join('');
+      if (oldValue && filtered.some(function (r) { return String(r.material_id) === String(oldValue); })) m.value = oldValue;
+
+      const hint = $('ppStockHint');
+      if (hint) {
+        if (!selectedPlant) hint.innerText = 'Pilih plant terlebih dahulu.';
+        else if (!filtered.length) hint.innerText = 'Tidak ada material stok aktif pada plant ini.';
+      }
+    }
+
+    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + operators.map(function (o) {
       return '<option value="' + esc(o.telegram_user_id) + '">' + esc(o.nama_operator || o.telegram_user_id) + '</option>';
     }).join('');
 
     const m = $('ppMaterial');
-    if (m) {
-      m.innerHTML = '<option value="">Pilih material stok</option>' + (d.materials || []).map(function (r) {
-        return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
-      }).join('');
+    if (m && !m.dataset.stockHintBound) {
+      m.dataset.stockHintBound = '1';
+      m.addEventListener('change', function () {
+        const selectedPlant = getSelectedPlant();
+        const row = materialRows.find(function (r) {
+          return String(r.material_id) === String(m.value) && String(r.plant_id || '') === selectedPlant;
+        });
+        const hint = $('ppStockHint');
+        if (!hint) return;
+        if (!row) {
+          hint.innerText = selectedPlant ? 'Pilih material untuk melihat saldo stok.' : 'Pilih plant terlebih dahulu.';
+          return;
+        }
+        hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
+        if (APP.procKey === 'kupingan') applyKupinganUX(materialRows);
+      });
     }
+
+    // Plant menjadi sumber kebenaran untuk Batch dan Material.
+    plantSel.addEventListener('change', function () {
+      renderBatchOptions();
+      renderMaterialOptions(false);
+      if ($('ppBatch')) $('ppBatch').value = '';
+      if ($('ppQtyInput')) $('ppQtyInput').value = '';
+      if ($('ppStageBox')) { $('ppStageBox').style.display = 'none'; $('ppStageBox').innerHTML = ''; }
+      if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
+    });
+
+    $('ppBatch').addEventListener('change', refreshProcessContext);
+    if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+    if ($('ppSub') && key === 'bending') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
+
+    renderBatchOptions();
+    renderMaterialOptions(false);
     if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
   }, function (e) {
     const st = $('ppStatus');
     if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
   });
+}
 
-  $('ppBatch').addEventListener('change', refreshProcessContext);
-  if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+function getBendingSourceLabel(sub) {
+  const map = {
+    'Bending Kaki': 'Cutting Kaki-kaki',
+    'Bor': 'Cutting Palang',
+    'Bending Sandaran': 'Cutting Sandaran',
+    'Bending U': 'Cutting U'
+  };
+  return map[sub] || '';
+}
+
+function applyBendingUX(ctx) {
+  if (APP.procKey !== 'bending') return;
+  const sub = $('ppSub') ? $('ppSub').value : '';
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const source = getBendingSourceLabel(sub);
+  if (source && $('ppSourceBox')) {
+    $('ppSourceBox').style.display = 'block';
+    $('ppSourceBox').innerHTML = '<div class="stage-info"><b>Sumber Bending:</b> ' + esc(source) +
+      (ctx && Number(ctx.availableQty || 0) > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
+      '</div>';
+  }
+  if (qty) {
+    const av = Number(ctx && ctx.availableQty || 0);
+    if (av > 0) qty.max = String(av);
+    else qty.removeAttribute('max');
+  }
+  if (save && !APP.editingTrxId) {
+    const ok = !!(ctx && ctx.available);
+    save.disabled = !ok;
+    save.title = ok ? '' : 'Selesaikan sumber Cutting terlebih dahulu.';
+  }
+}
+
+
+function applyKupinganUX(materialRows) {
+  if (APP.procKey !== 'kupingan') return;
+  const plant = $('ppPlant') ? $('ppPlant').value : '';
+  const material = $('ppMaterial') ? $('ppMaterial').value : '';
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const sourceBox = $('ppSourceBox');
+  const row = (materialRows || []).find(function (r) {
+    return String(r.material_id) === String(material) && String(r.plant_id || '') === String(plant);
+  });
+  if (sourceBox) {
+    sourceBox.style.display = 'block';
+    sourceBox.innerHTML = row
+      ? '<div class="stage-info"><b>Sumber Kupingan:</b> Stok material' +
+        ' &nbsp;•&nbsp; <b>Material:</b> ' + esc(row.material_name || row.material_id) +
+        ' &nbsp;•&nbsp; <b>Saldo:</b> ' + fmt(row.stok) + ' ' + esc(row.satuan || 'PCS') + '</div>'
+      : '<div class="stage-warning">Pilih material stok untuk proses Kupingan. Proses ini independen dari Cutting dan Bending.</div>';
+  }
+  if (qty) {
+    if (row && Number(row.stok || 0) > 0) qty.max = String(row.stok);
+    else qty.removeAttribute('max');
+  }
+  if (save && !APP.editingTrxId) {
+    save.disabled = !row;
+    save.title = row ? '' : 'Pilih material stok terlebih dahulu.';
+  }
 }
 
 function refreshProcessContext() {
@@ -1106,6 +1300,10 @@ function refreshProcessContext() {
         (ctx.availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
         (ctx.code === 'PERAKITAN_RANGKA' ? ' &nbsp;•&nbsp; Total rangka jadi dihitung dari minimum 5 komponen.' : '') +
         '</div>';
+    }
+    applyBendingUX(ctx);
+    if (APP.procKey === 'kupingan') {
+      gs('apiGetProcessOptions', ['KUPINGAN'], function (opt) { applyKupinganUX(opt.materials || []); });
     }
   });
 }
@@ -1190,6 +1388,27 @@ function submitProcess(event, key) {
   const qtyInput = Number($('ppQtyInput').value || 0);
   const qtyGood = Number($('ppQtyGood').value || 0);
   const qtyReject = Number($('ppQtyReject').value || 0);
+  if (key === 'bending' && $('ppQtyInput').max) {
+    const maxInput = Number($('ppQtyInput').max || 0);
+    if (maxInput > 0 && qtyInput > maxInput) {
+      alert('Qty Input Bending melebihi output Cutting yang tersedia: ' + fmt(maxInput) + ' PCS.');
+      return;
+    }
+  }
+  if (key === 'kupingan') {
+    const selectedMaterial = $('ppMaterial') ? $('ppMaterial').value : '';
+    if (!selectedMaterial) {
+      alert('Material stok wajib dipilih untuk proses Kupingan.');
+      return;
+    }
+    if ($('ppQtyInput').max) {
+      const maxStock = Number($('ppQtyInput').max || 0);
+      if (maxStock > 0 && qtyInput > maxStock) {
+        alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
+        return;
+      }
+    }
+  }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
     alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
     return;
@@ -1561,7 +1780,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  $('topDateBox').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  $('reportDateFilter').value = APP.reportDate;
 
   gs('apiGetPlants', [], function (plants) {
     $('plantFilter').innerHTML = '<option value="ALL">Semua Plant</option>' + plants.map(function (p) {
@@ -1571,6 +1790,10 @@ document.addEventListener('DOMContentLoaded', function () {
   $('plantFilter').addEventListener('change', function () {
     APP.plant = this.value;
     renderRoute();
+  });
+  $('reportDateFilter').addEventListener('change', function () {
+    APP.reportDate = this.value || todayISO();
+    if (APP.route === 'dashboard') loadDashboard();
   });
 
   navigate('dashboard');

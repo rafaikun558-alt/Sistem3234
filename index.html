@@ -607,22 +607,59 @@ function renderChart(trend) {
   });
 }
 
+let DASHBOARD_LOADING = false;
+
+function setDashboardLoading(isLoading) {
+  DASHBOARD_LOADING = !!isLoading;
+  const ids = ['kpiStock', 'kpiMaterial', 'kpiEfficiency', 'donutValue'];
+  if (isLoading) {
+    ids.forEach(function (id) { if ($(id)) $(id).innerText = '...'; });
+    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat data dashboard...</td></tr>';
+    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Memuat ringkasan efisiensi...</div>';
+  }
+}
+
+function renderDashboardData(d) {
+  d = d || {};
+  const efficiency = Number(d.efficiency || 0);
+  $('kpiStock').innerText = fmt(d.stockMaterial);
+  $('kpiMaterial').innerText = fmt(d.produksiMaterial);
+  $('kpiEfficiency').innerText = efficiency.toFixed(1).replace('.', ',');
+  $('donutValue').innerText = efficiency.toFixed(1).replace('.', ',') + '%';
+
+  const materialRows = Array.isArray(d.material) ? d.material : [];
+  $('materialTable').innerHTML = materialRows.length
+    ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL')
+    : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data produksi hari ini.</td></tr>';
+
+  const t2 = $('materialTable2');
+  if (t2) t2.innerHTML = materialRows.length ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL') : '';
+
+  renderChart(d.trend || { labels: [], material: [] });
+
+  const eff = Array.isArray(d.efficiencyProcess) ? d.efficiencyProcess : [];
+  $('efficiencyList').innerHTML = eff.length
+    ? '<div class="eff-group-title">PROSES MATERIAL</div>' + eff.map(function (it) {
+        const value = Math.max(0, Number(it.value || 0));
+        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + value.toFixed(1) + '%</b></div>' +
+          '<div class="efficiency-progress"><span style="width:' + Math.min(value, 100) + '%"></span></div></div>';
+      }).join('')
+    : '<div class="empty-state" style="padding:20px">Belum ada ringkasan efisiensi.</div>';
+
+  $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+}
+
 function loadDashboard() {
+  if (DASHBOARD_LOADING) return;
+  setDashboardLoading(true);
   gs('apiGetDashboard', [], function (d) {
-    $('kpiStock').innerText = fmt(d.stockMaterial);
-    $('kpiMaterial').innerText = fmt(d.produksiMaterial);
-    $('kpiEfficiency').innerText = Number(d.efficiency).toFixed(1).replace('.', ',');
-    $('donutValue').innerText = Number(d.efficiency).toFixed(1).replace('.', ',') + '%';
-    $('materialTable').innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
-    var t2 = $('materialTable2');
-    if (t2) t2.innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
-    renderChart(d.trend);
-    $('efficiencyList').innerHTML = '<div class="eff-group-title">PROSES MATERIAL</div>' +
-      d.efficiencyProcess.map(function (it) {
-        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + Number(it.value).toFixed(1) + '%</b></div>' +
-          '<div class="efficiency-progress"><span style="width:' + Math.min(Number(it.value), 100) + '%"></span></div></div>';
-      }).join('');
-    $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
+    setDashboardLoading(false);
+    renderDashboardData(d);
+  }, function (e) {
+    setDashboardLoading(false);
+    const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat dashboard.');
+    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
+    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
   });
 }
 

@@ -1043,7 +1043,7 @@ function renderProcessPage(key) {
   APP.editingTrxId = null;
   const subField = cfg.sub && cfg.sub.length ? '<div class="field full"><label>Sub Proses</label><select id="ppSub" required>' +
     '<option value="">Pilih sub proses</option>' + cfg.sub.map(function (s) { return '<option value="' + esc(s) + '"' + (APP.sub === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></div>' : '';
-  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select></div>' : '';
+  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select><div id="ppStockHint" class="process-panel-caption" style="margin-top:5px">Pilih material untuk melihat saldo stok.</div></div>' : '';
 
   const accent = MATERIAL_ACCENT[cfg.code] || 'purple';
 
@@ -1131,9 +1131,24 @@ function loadProcessOptions(key) {
 
     const m = $('ppMaterial');
     if (m) {
-      m.innerHTML = '<option value="">Pilih material stok</option>' + (d.materials || []).map(function (r) {
+      const materialRows = d.materials || [];
+      m.innerHTML = '<option value="">Pilih material stok</option>' + materialRows.map(function (r) {
         return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
       }).join('');
+
+      if (m && !m.dataset.stockHintBound) {
+        m.dataset.stockHintBound = '1';
+        m.addEventListener('change', function () {
+          const row = materialRows.find(function (r) { return String(r.material_id) === String(m.value); });
+          const hint = $('ppStockHint');
+          if (!hint) return;
+          if (!row) {
+            hint.innerText = 'Pilih material untuk melihat saldo stok.';
+            return;
+          }
+          hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
+        });
+      }
     }
     if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
   }, function (e) {

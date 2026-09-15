@@ -1140,7 +1140,11 @@ function loadProcessOptions(key) {
 
       batchSel.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih batch' : 'Pilih plant terlebih dahulu') + '</option>' +
         filtered.map(function (b) {
-          return '<option value="' + esc(b.batch_id) + '">' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
+          let suffix = '[' + esc(b.tahap_saat_ini || '') + ']';
+          if (key === 'dop') {
+            suffix = '[Coating ' + fmt(b.dop_coating_available || 0) + ' • Nickel ' + fmt(b.dop_nickel_available || 0) + ']';
+          }
+          return '<option value="' + esc(b.batch_id) + '">' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' ' + suffix + '</option>';
         }).join('');
     }
 

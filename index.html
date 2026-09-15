@@ -1115,49 +1115,98 @@ function loadProcessOptions(key) {
   const cfg = PROCESS_PAGES[key];
   gs('apiGetProcessOptions', [cfg.code], function (d) {
     const plantSel = $('ppPlant');
-    plantSel.innerHTML = '<option value="">Pilih plant</option>' + d.plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '"' + (APP.plant !== 'ALL' && p.plant_id === APP.plant ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    const allPlants = d.plants || [];
+    plantSel.innerHTML = '<option value="">Pilih plant</option>' + allPlants.map(function (p) {
+      const selected = APP.plant !== 'ALL' && String(p.plant_id) === String(APP.plant) ? ' selected' : '';
+      return '<option value="' + esc(p.plant_id) + '"' + selected + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
 
     const batches = d.batches || [];
-    $('ppBatch').innerHTML = '<option value="">Pilih batch</option>' + batches.map(function (b) {
-      const disabled = APP.plant !== 'ALL' && b.plant_id !== APP.plant ? ' disabled' : '';
-      return '<option value="' + esc(b.batch_id) + '"' + disabled + '>' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
-    }).join('');
+    const operators = d.operators || [];
+    const materialRows = d.materials || [];
 
-    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + (d.operators || []).map(function (o) {
+    function getSelectedPlant() {
+      return plantSel && plantSel.value ? String(plantSel.value) : '';
+    }
+
+    function renderBatchOptions() {
+      const selectedPlant = getSelectedPlant();
+      const batchSel = $('ppBatch');
+      const filtered = selectedPlant
+        ? batches.filter(function (b) { return String(b.plant_id || '') === selectedPlant; })
+        : [];
+
+      batchSel.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih batch' : 'Pilih plant terlebih dahulu') + '</option>' +
+        filtered.map(function (b) {
+          return '<option value="' + esc(b.batch_id) + '">' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
+        }).join('');
+    }
+
+    function renderMaterialOptions(keepValue) {
+      const m = $('ppMaterial');
+      if (!m) return;
+      const selectedPlant = getSelectedPlant();
+      const filtered = selectedPlant
+        ? materialRows.filter(function (r) {
+            return String(r.plant_id || '') === selectedPlant && String(r.status || 'Aktif') !== 'Tidak Aktif' && Number(r.stok || 0) > 0;
+          })
+        : [];
+      const oldValue = keepValue ? m.value : '';
+      m.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih material stok' : 'Pilih plant terlebih dahulu') + '</option>' +
+        filtered.map(function (r) {
+          return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
+        }).join('');
+      if (oldValue && filtered.some(function (r) { return String(r.material_id) === String(oldValue); })) m.value = oldValue;
+
+      const hint = $('ppStockHint');
+      if (hint) {
+        if (!selectedPlant) hint.innerText = 'Pilih plant terlebih dahulu.';
+        else if (!filtered.length) hint.innerText = 'Tidak ada material stok aktif pada plant ini.';
+      }
+    }
+
+    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + operators.map(function (o) {
       return '<option value="' + esc(o.telegram_user_id) + '">' + esc(o.nama_operator || o.telegram_user_id) + '</option>';
     }).join('');
 
     const m = $('ppMaterial');
-    if (m) {
-      const materialRows = d.materials || [];
-      m.innerHTML = '<option value="">Pilih material stok</option>' + materialRows.map(function (r) {
-        return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
-      }).join('');
-
-      if (m && !m.dataset.stockHintBound) {
-        m.dataset.stockHintBound = '1';
-        m.addEventListener('change', function () {
-          const row = materialRows.find(function (r) { return String(r.material_id) === String(m.value); });
-          const hint = $('ppStockHint');
-          if (!hint) return;
-          if (!row) {
-            hint.innerText = 'Pilih material untuk melihat saldo stok.';
-            return;
-          }
-          hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
+    if (m && !m.dataset.stockHintBound) {
+      m.dataset.stockHintBound = '1';
+      m.addEventListener('change', function () {
+        const selectedPlant = getSelectedPlant();
+        const row = materialRows.find(function (r) {
+          return String(r.material_id) === String(m.value) && String(r.plant_id || '') === selectedPlant;
         });
-      }
+        const hint = $('ppStockHint');
+        if (!hint) return;
+        if (!row) {
+          hint.innerText = selectedPlant ? 'Pilih material untuk melihat saldo stok.' : 'Pilih plant terlebih dahulu.';
+          return;
+        }
+        hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
+      });
     }
+
+    // Plant menjadi sumber kebenaran untuk Batch dan Material.
+    plantSel.addEventListener('change', function () {
+      renderBatchOptions();
+      renderMaterialOptions(false);
+      if ($('ppBatch')) $('ppBatch').value = '';
+      if ($('ppQtyInput')) $('ppQtyInput').value = '';
+      if ($('ppStageBox')) { $('ppStageBox').style.display = 'none'; $('ppStageBox').innerHTML = ''; }
+      if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
+    });
+
+    $('ppBatch').addEventListener('change', refreshProcessContext);
+    if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+
+    renderBatchOptions();
+    renderMaterialOptions(false);
     if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
   }, function (e) {
     const st = $('ppStatus');
     if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
   });
-
-  $('ppBatch').addEventListener('change', refreshProcessContext);
-  if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
 }
 
 function refreshProcessContext() {

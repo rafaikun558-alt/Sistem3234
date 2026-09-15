@@ -808,11 +808,12 @@ function renderStockPage() {
     '<div class="process-page-title">Stok Material</div>' +
     '<div class="process-page-subtitle">Pantau saldo material, batas minimum, lokasi, dan status.</div></div>' +
     '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button>' +
+    '<button class="btn-secondary" onclick="loadStockTable()">↻ Refresh</button>' +
     '<button class="btn-primary" onclick="focusStockForm()">+ Material</button></div></div>' +
     '<div id="stockSummary" class="erp-page-grid"></div>' +
     '<div class="erp-columns">' +
     '<div class="erp-card" id="stockFormCard">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">Kosongkan ID untuk material baru (otomatis MAT-001).</div></div></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">ID kosong = otomatis MAT-xxxx. Perubahan saldo menghasilkan mutasi stok.</div></div><span id="stockFormStatus" class="status-pill status-good"><span class="status-dot"></span>Siap</span></div>' +
     '<div class="erp-card-body"><form id="stockForm" onsubmit="submitStock(event)">' +
     '<div class="erp-form-grid">' +
     '<div class="field"><label>ID Material</label><input id="stId" type="text" placeholder="MAT-001"></div>' +
@@ -821,53 +822,70 @@ function renderStockPage() {
     '<div class="field"><label>Satuan</label><input id="stUnit" type="text" placeholder="PCS / KG / LTR"></div>' +
     '<div class="field"><label>Saldo Stok</label><input id="stQty" required type="number" step="0.01" min="0" placeholder="0"></div>' +
     '<div class="field"><label>Minimum Stok</label><input id="stMin" type="number" step="0.01" min="0" placeholder="0"></div>' +
-    '<div class="field"><label>Plant</label><select id="stPlant"><option value="">Pilih plant</option></select></div>' +
+    '<div class="field"><label>Plant</label><select id="stPlant" required><option value="">Pilih plant</option></select></div>' +
     '<div class="field"><label>Lokasi</label><input id="stLoc" type="text" placeholder="Gudang A"></div>' +
     '<div class="field full"><label>Status</label><select id="stStatus"><option>Aktif</option><option>Tidak Aktif</option></select></div>' +
     '</div>' +
-    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'stockForm\').reset()">Reset</button>' +
+    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="resetStockForm()">Reset</button>' +
     '<button class="btn-primary" id="stockSaveBtn" type="submit">Simpan Stok</button></div>' +
     '</form></div></div>' +
     '<div class="erp-card">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div><span id="stockListStatus" class="status-pill status-good"><span class="status-dot"></span>Memuat</span></div>' +
     '<div class="erp-card-body">' +
-    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div></div>' +
+    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div><div class="erp-toolbar-right"><span class="erp-chip" id="stockFilterChip">Plant: ALL</span></div></div>' +
     '<div class="erp-table-wrap"><table class="erp-table"><thead><tr>' +
     '<th>ID</th><th>NAMA</th><th>KATEGORI</th><th>PLANT</th><th>SATUAN</th><th>STOK</th><th>MIN</th><th>LOKASI</th><th>STATUS</th><th>AKSI</th>' +
     '</tr></thead><tbody id="stockTableBody"></tbody></table></div>' +
     '</div></div></div>';
 
   gs('apiGetPlants', [], function (plants) {
+    const preferred = APP.plant !== 'ALL' ? APP.plant : '';
     $('stPlant').innerHTML = '<option value="">Pilih plant</option>' + plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+      return '<option value="' + esc(p.plant_id) + '"' + (preferred === p.plant_id ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
   });
   loadStockTable();
 }
 
+function resetStockForm() {
+  $('stockForm').reset();
+  if (APP.plant !== 'ALL' && $('stPlant')) $('stPlant').value = APP.plant;
+  $('stockSaveBtn').disabled = false;
+  $('stockSaveBtn').innerText = 'Simpan Stok';
+  const st = $('stockFormStatus');
+  if (st) { st.className = 'status-pill status-good'; st.innerHTML = '<span class="status-dot"></span>Siap'; }
+}
+
 function loadStockTable() {
+  const status = $('stockListStatus');
+  if (status) { status.className = 'status-pill status-warn'; status.innerHTML = '<span class="status-dot"></span>Memuat'; }
+  const body = $('stockTableBody');
+  if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty">Memuat data stok...</div></td></tr>';
+
   gs('apiGetStock', [APP.plant], function (d) {
     APP.stockCache = d;
-    $('stockSheetInfo').innerText = (d.missingSheet ? 'Sheet Stok_Material dibuat otomatis saat simpan pertama' : 'Sheet: ' + d.sheet) + ' • ' + fmt(d.totalItems) + ' item';
+    $('stockSheetInfo').innerText = 'Sheet: ' + d.sheet + ' • ' + fmt(d.totalItems) + ' item • Diperbarui ' + new Date().toLocaleTimeString('id-ID');
+    $('stockFilterChip').innerText = 'Plant: ' + (d.plantId || 'ALL');
     $('stockSummary').innerHTML = [
       ['Total Item', fmt(d.totalItems), 'item material', ''],
       ['Total Qty', fmt(d.totalQty), 'saldo gabungan', ''],
       ['Stok Minimum', fmt(d.lowStock), 'item perlu perhatian', d.lowStock ? 'warn' : 'good'],
-      ['Filter Plant', d.plantId, 'plant aktif', '']
+      ['Filter Plant', d.plantId || 'ALL', 'plant aktif', '']
     ].map(function (x) {
       return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + esc(x[1]) + '</div><div class="erp-stat-note">' + esc(x[2]) + '</div></div>';
     }).join('');
 
-    const body = $('stockTableBody');
     body.innerHTML = d.rows.length ? d.rows.map(function (r, idx) {
       const qty = Number(r.stok || 0), min = Number(r.minimum_stok || 0);
       const low = min > 0 && qty <= min;
+      const statusClass = String(r.status || 'Aktif') === 'Aktif' ? 'status-good' : 'status-warn';
       return '<tr>' +
         '<td>' + esc(r.material_id) + '</td><td><b>' + esc(r.material_name) + '</b></td>' +
         '<td>' + esc(r.kategori || '—') + '</td><td>' + esc(r.plant_id || '—') + '</td>' +
         '<td>' + esc(r.satuan || '—') + '</td>' +
         '<td><span class="status-pill ' + (low ? 'status-warn' : 'status-good') + '"><span class="status-dot"></span>' + fmt(qty) + '</span></td>' +
-        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td><td>' + esc(r.status || 'Aktif') + '</td>' +
+        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td>' +
+        '<td><span class="status-pill ' + statusClass + '"><span class="status-dot"></span>' + esc(r.status || 'Aktif') + '</span></td>' +
         '<td><div class="erp-action-row">' +
         '<button class="erp-icon-btn" title="Edit" onclick="editStock(' + idx + ')">✎</button>' +
         '<button class="erp-icon-btn" title="Hapus" onclick="deleteStock(' + idx + ')">🗑</button>' +
@@ -880,6 +898,10 @@ function loadStockTable() {
         tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
       });
     };
+    if (status) { status.className = 'status-pill status-good'; status.innerHTML = '<span class="status-dot"></span>Terhubung'; }
+  }, function (e) {
+    if (status) { status.className = 'status-pill status-bad'; status.innerHTML = '<span class="status-dot"></span>Gagal'; }
+    if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty"><strong>Gagal membaca stok</strong>' + esc((e && e.message) ? e.message : e) + '</div></td></tr>';
   });
 }
 
@@ -917,7 +939,9 @@ function focusStockForm() {
 function submitStock(event) {
   event.preventDefault();
   const btn = $('stockSaveBtn');
+  const formStatus = $('stockFormStatus');
   btn.disabled = true; btn.innerText = 'Menyimpan...';
+  if (formStatus) { formStatus.className = 'status-pill status-warn'; formStatus.innerHTML = '<span class="status-dot"></span>Menyimpan'; }
   const payload = {
     material_id: $('stId').value.trim(),
     material_name: $('stName').value.trim(),
@@ -931,12 +955,12 @@ function submitStock(event) {
   };
   gs('apiSaveStock', [payload], function (res) {
     alert('Stok berhasil disimpan (' + res.mode + '). ID: ' + res.id);
-    $('stockForm').reset();
-    btn.disabled = false; btn.innerText = 'Simpan Stok';
+    resetStockForm();
     loadStockTable();
   }, function (e) {
     alert('Gagal menyimpan stok: ' + ((e && e.message) ? e.message : e));
     btn.disabled = false; btn.innerText = 'Simpan Stok';
+    if (formStatus) { formStatus.className = 'status-pill status-bad'; formStatus.innerHTML = '<span class="status-dot"></span>Gagal'; }
   });
 }
 function renderInputHub() {

@@ -478,8 +478,8 @@ const PROCESS_PAGES = {
   kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Kupingan diproses langsung dari stok material dan independen dari Cutting serta Bending.', sub: [], stockInput: true },
   las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menerima output Bending Kaki sebagai sumber proses.', sub: ['Las Robot'] },
   perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Gabungkan 5 komponen. Rangka Jadi = minimum dari Las Kaki, Las Palang, Las Sandaran, Las U, dan Las Kupingan.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
-  coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
-  nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing Nickel pada total rangka jadi. Pilih salah satu finishing: Nickel atau Coating.', sub: [] },
+  coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing rangka jadi. Pilih tepat satu: Coating atau Nickel.', sub: [] },
+  nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing rangka jadi. Pilih tepat satu: Nickel atau Coating.', sub: [] },
   dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari output Coating.', sub: [] }
 };
 
@@ -1346,6 +1346,41 @@ function applyAssemblyUX() {
   });
 }
 
+function applyChemicalUX(ctx) {
+  if (APP.procKey !== 'coating' && APP.procKey !== 'nickel') return;
+  const batchSel = $('ppBatch');
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const sourceBox = $('ppSourceBox');
+  if (!batchSel || !batchSel.value) return;
+
+  const chosen = APP.procKey === 'coating' ? 'COATING' : 'NICKEL';
+  const other = chosen === 'COATING' ? 'NICKEL' : 'COATING';
+  const chosenName = chosen === 'COATING' ? 'Coating' : 'Nickel';
+  const otherName = other === 'COATING' ? 'Coating' : 'Nickel';
+  const availableQty = Number(ctx && ctx.availableQty || 0);
+  const nextStage = String(ctx && ctx.tahapSaatIni || '').toUpperCase();
+
+  if (sourceBox) {
+    sourceBox.style.display = 'block';
+    let html = '<div class="stage-info"><b>Sumber Chemical:</b> Total Rangka Jadi';
+    if (availableQty > 0) html += ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS';
+    html += '<br><b>Branch:</b> ' + esc(chosenName) + ' <span style="opacity:.7">atau</span> ' + esc(otherName) + ' — <b>hanya salah satu</b>.</div>';
+    sourceBox.innerHTML = html;
+  }
+
+  if (qty) {
+    if (availableQty > 0) qty.max = String(availableQty);
+    else qty.removeAttribute('max');
+    if (!APP.editingTrxId && availableQty > 0) qty.value = availableQty;
+  }
+  if (save && !APP.editingTrxId) {
+    const ok = !!(ctx && ctx.available) && nextStage === 'CHEMICAL';
+    save.disabled = !ok;
+    save.title = ok ? '' : 'Rangka Jadi belum tersedia atau finishing lain sudah dipilih.';
+  }
+}
+
 function refreshProcessContext() {
   const key = APP.procKey;
   const cfg = PROCESS_PAGES[key];
@@ -1377,6 +1412,9 @@ function refreshProcessContext() {
     }
     if (APP.procKey === 'perakitan') {
       applyAssemblyUX();
+    }
+    if (APP.procKey === 'coating' || APP.procKey === 'nickel') {
+      applyChemicalUX(ctx);
     }
   });
 }
@@ -1480,6 +1518,20 @@ function submitProcess(event, key) {
         alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
         return;
       }
+    }
+  }
+  if ((key === 'coating' || key === 'nickel') && $('ppQtyInput').max) {
+    const maxChemical = Number($('ppQtyInput').max || 0);
+    if (maxChemical > 0 && qtyInput > maxChemical) {
+      alert('Qty Input Chemical melebihi Rangka Jadi yang tersedia: ' + fmt(maxChemical) + ' PCS.');
+      return;
+    }
+  }
+  if (key === 'coating' || key === 'nickel') {
+    const otherKey = key === 'coating' ? 'nickel' : 'coating';
+    if (APP.procKey === otherKey) {
+      alert('Finishing batch hanya boleh memilih salah satu: Coating atau Nickel.');
+      return;
     }
   }
   if (key === 'perakitan' && $('ppQtyInput').max) {

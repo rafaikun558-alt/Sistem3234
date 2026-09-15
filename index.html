@@ -1109,6 +1109,8 @@ function resetProcessForm() {
   $('ppDate').value = todayISO();
   $('ppStageBox').style.display = 'none';
   if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
+  if ($('ppQtyInput')) $('ppQtyInput').removeAttribute('max');
+  if ($('ppSaveBtn')) $('ppSaveBtn').disabled = false;
 }
 
 function loadProcessOptions(key) {
@@ -1199,6 +1201,7 @@ function loadProcessOptions(key) {
 
     $('ppBatch').addEventListener('change', refreshProcessContext);
     if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+    if ($('ppSub') && key === 'bending') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
 
     renderBatchOptions();
     renderMaterialOptions(false);
@@ -1207,6 +1210,40 @@ function loadProcessOptions(key) {
     const st = $('ppStatus');
     if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
   });
+}
+
+function getBendingSourceLabel(sub) {
+  const map = {
+    'Bending Kaki': 'Cutting Kaki-kaki',
+    'Bor': 'Cutting Palang',
+    'Bending Sandaran': 'Cutting Sandaran',
+    'Bending U': 'Cutting U'
+  };
+  return map[sub] || '';
+}
+
+function applyBendingUX(ctx) {
+  if (APP.procKey !== 'bending') return;
+  const sub = $('ppSub') ? $('ppSub').value : '';
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const source = getBendingSourceLabel(sub);
+  if (source && $('ppSourceBox')) {
+    $('ppSourceBox').style.display = 'block';
+    $('ppSourceBox').innerHTML = '<div class="stage-info"><b>Sumber Bending:</b> ' + esc(source) +
+      (ctx && Number(ctx.availableQty || 0) > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
+      '</div>';
+  }
+  if (qty) {
+    const av = Number(ctx && ctx.availableQty || 0);
+    if (av > 0) qty.max = String(av);
+    else qty.removeAttribute('max');
+  }
+  if (save && !APP.editingTrxId) {
+    const ok = !!(ctx && ctx.available);
+    save.disabled = !ok;
+    save.title = ok ? '' : 'Selesaikan sumber Cutting terlebih dahulu.';
+  }
 }
 
 function refreshProcessContext() {
@@ -1234,6 +1271,7 @@ function refreshProcessContext() {
         (ctx.code === 'PERAKITAN_RANGKA' ? ' &nbsp;•&nbsp; Total rangka jadi dihitung dari minimum 5 komponen.' : '') +
         '</div>';
     }
+    applyBendingUX(ctx);
   });
 }
 
@@ -1317,6 +1355,13 @@ function submitProcess(event, key) {
   const qtyInput = Number($('ppQtyInput').value || 0);
   const qtyGood = Number($('ppQtyGood').value || 0);
   const qtyReject = Number($('ppQtyReject').value || 0);
+  if (key === 'bending' && $('ppQtyInput').max) {
+    const maxInput = Number($('ppQtyInput').max || 0);
+    if (maxInput > 0 && qtyInput > maxInput) {
+      alert('Qty Input Bending melebihi output Cutting yang tersedia: ' + fmt(maxInput) + ' PCS.');
+      return;
+    }
+  }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
     alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
     return;

@@ -477,7 +477,7 @@ const PROCESS_PAGES = {
   bending:            { code: 'BENDING',            title: 'Bending Proses',        subtitle: 'Setiap sub proses menerima output dari komponen Cutting yang sesuai.', sub: ['Bending Kaki', 'Bor', 'Bending Sandaran', 'Bending U'] },
   kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Kupingan diproses langsung dari stok material dan independen dari Cutting serta Bending.', sub: [], stockInput: true },
   las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menerima output Bending Kaki sebagai sumber proses.', sub: ['Las Robot'] },
-  perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Lima komponen dirakit. Total rangka jadi = minimum dari lima komponen.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
+  perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Gabungkan 5 komponen. Rangka Jadi = minimum dari Las Kaki, Las Palang, Las Sandaran, Las U, dan Las Kupingan.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
   coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
   nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing Nickel pada total rangka jadi. Pilih salah satu finishing: Nickel atau Coating.', sub: [] },
   dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari output Coating.', sub: [] }
@@ -1202,6 +1202,7 @@ function loadProcessOptions(key) {
 
     $('ppBatch').addEventListener('change', refreshProcessContext);
     if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
+    if ($('ppSub') && key === 'perakitan') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) applyAssemblyUX(); });
     if ($('ppSub') && key === 'bending') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
 
     renderBatchOptions();
@@ -1276,6 +1277,75 @@ function applyKupinganUX(materialRows) {
   }
 }
 
+
+function getAssemblySourceMap() {
+  return {
+    'Las Kaki': 'Las Robot',
+    'Las Palang': 'Bor',
+    'Las Sandaran': 'Bending Sandaran',
+    'Las U': 'Bending U',
+    'Las Kupingan': 'Kupingan'
+  };
+}
+
+function applyAssemblyUX() {
+  if (APP.procKey !== 'perakitan') return;
+  const batch = $('ppBatch') ? $('ppBatch').value : '';
+  const sub = $('ppSub') ? $('ppSub').value : '';
+  const sourceBox = $('ppSourceBox');
+  const qty = $('ppQtyInput');
+  const save = $('ppSaveBtn');
+  const map = getAssemblySourceMap();
+  const subs = Object.keys(map);
+
+  if (!batch) {
+    if (sourceBox) { sourceBox.style.display = 'none'; sourceBox.innerHTML = ''; }
+    if (qty) qty.removeAttribute('max');
+    if (save && !APP.editingTrxId) save.disabled = true;
+    return;
+  }
+
+  // Ambil ketersediaan kelima komponen dari batch yang sama.
+  Promise.all(subs.map(function (s) {
+    return new Promise(function (resolve) {
+      gs('apiGetBatchContext', [batch, 'PERAKITAN_RANGKA', s], function (ctx) {
+        resolve({ sub: s, label: map[s], qty: Number(ctx.availableQty || 0), available: !!ctx.available });
+      }, function () {
+        resolve({ sub: s, label: map[s], qty: 0, available: false });
+      });
+    });
+  })).then(function (items) {
+    const vals = items.map(function (x) { return x.qty; });
+    const complete = items.every(function (x) { return x.qty > 0 && x.available; });
+    const minQty = complete ? Math.min.apply(null, vals) : 0;
+
+    if (sourceBox) {
+      sourceBox.style.display = 'block';
+      sourceBox.innerHTML = '<div class="stage-info"><b>Sumber 5 Komponen Perakitan:</b><br>' +
+        items.map(function (x) {
+          const cls = x.qty > 0 ? 'status-good' : 'status-warn';
+          return '<span style="display:inline-block;margin:4px 10px 0 0" class="status-pill ' + cls + '">' +
+            esc(x.sub) + ' ← ' + esc(x.label) + ': ' + fmt(x.qty) + ' PCS</span>';
+        }).join('') +
+        '<br><b style="display:inline-block;margin-top:6px">Rangka Jadi tersedia: ' + fmt(minQty) + ' PCS (MIN 5 komponen)</b></div>';
+    }
+
+    if (qty) {
+      if (minQty > 0) qty.max = String(minQty);
+      else qty.removeAttribute('max');
+      if (!APP.editingTrxId) qty.value = minQty || '';
+    }
+    if ($('ppQtyTarget')) {
+      // target batch tetap mengikuti target asli; tidak diubah menjadi jumlah komponen.
+      if (!$('ppQtyTarget').value) refreshProcessContext();
+    }
+    if (save && !APP.editingTrxId) {
+      save.disabled = !complete || !sub;
+      save.title = complete ? '' : 'Lengkapi seluruh 5 komponen perakitan terlebih dahulu.';
+    }
+  });
+}
+
 function refreshProcessContext() {
   const key = APP.procKey;
   const cfg = PROCESS_PAGES[key];
@@ -1304,6 +1374,9 @@ function refreshProcessContext() {
     applyBendingUX(ctx);
     if (APP.procKey === 'kupingan') {
       gs('apiGetProcessOptions', ['KUPINGAN'], function (opt) { applyKupinganUX(opt.materials || []); });
+    }
+    if (APP.procKey === 'perakitan') {
+      applyAssemblyUX();
     }
   });
 }
@@ -1407,6 +1480,13 @@ function submitProcess(event, key) {
         alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
         return;
       }
+    }
+  }
+  if (key === 'perakitan' && $('ppQtyInput').max) {
+    const maxAssembly = Number($('ppQtyInput').max || 0);
+    if (maxAssembly > 0 && qtyInput > maxAssembly) {
+      alert('Qty Input Perakitan melebihi Rangka Jadi tersedia (MIN 5 komponen): ' + fmt(maxAssembly) + ' PCS.');
+      return;
     }
   }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {

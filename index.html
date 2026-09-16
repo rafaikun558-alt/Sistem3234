@@ -572,7 +572,7 @@ function renderDashboardFlows() {
   const setFlow = $('setFlow');
   if (setFlow) {
     setFlow.innerHTML =
-      flowItemHTML('blue', 'total', 'Cutting Material', 'set-overview') + '<div class="flow-arrow">→</div>' +
+      flowItemHTML('blue', 'total', 'Pemilihan Material', 'set-overview') + '<div class="flow-arrow">→</div>' +
       flowItemHTML('orange', 'chemical', 'Set', 'set-jok') + '<div class="flow-arrow">→</div>' +
       flowItemHTML('green', 'total', 'Hasil Set', 'set-jok-siap');
   }
@@ -700,9 +700,7 @@ function loadDashboard() {
   gs('apiGetSetDashboard', [reportDate, plantId], function (d) {
     setDashboardLoading(false);
     const setRows = Array.isArray(d && d.set) ? d.set : [];
-    const setTable = $('setTable');
-    if (!setTable) return;
-    setTable.innerHTML = setRows.length
+    $('setTable').innerHTML = setRows.length
       ? processSetTableRows(setRows)
       : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data Proses Set hari ini.</td></tr>';
   }, function (e) {
@@ -716,16 +714,10 @@ function loadDashboard() {
    MASTER DATA
 ===================================================================== */
 const MASTER_TABS = { plant: 'Plant', proses: 'Proses', batch: 'Batch', operator: 'Operator' };
-let MASTER_RENDER_SEQ = 0;
 
 function renderMasterPage() {
-  const renderSeq = ++MASTER_RENDER_SEQ;
-  const pageTitle = $('pageTitle');
-  const processPage = $('processPage');
-  if (!processPage) return;
-
-  if (pageTitle) pageTitle.innerText = 'MASTER DATA';
-  processPage.innerHTML =
+  $('pageTitle').innerText = 'MASTER DATA';
+  $('processPage').innerHTML =
     '<div class="process-page-head"><div>' +
     '<div class="process-page-title">Master Data</div>' +
     '<div class="process-page-subtitle">Kelola referensi utama: plant, proses, batch, dan operator.</div></div>' +
@@ -735,10 +727,7 @@ function renderMasterPage() {
     '<div id="masterPanel"></div>';
 
   gs('apiGetOverview', [], function (o) {
-    if (renderSeq !== MASTER_RENDER_SEQ) return;
-    const stats = $('masterStats');
-    if (!stats) return;
-    stats.innerHTML = [
+    $('masterStats').innerHTML = [
       ['Plant', o.plant, 'referensi lokasi produksi'],
       ['Proses', o.proses, 'alur proses terdaftar'],
       ['Batch', o.batch, 'batch produksi'],
@@ -747,24 +736,20 @@ function renderMasterPage() {
       return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + fmt(x[1]) + '</div><div class="erp-stat-note">' + x[2] + '</div></div>';
     }).join('');
   });
-
-  renderMasterTabs(renderSeq);
-  renderMasterEntity(APP.masterEntity, '', renderSeq);
+  renderMasterTabs();
+  renderMasterEntity(APP.masterEntity);
 }
 
-function renderMasterTabs(renderSeq) {
-  if (renderSeq && renderSeq !== MASTER_RENDER_SEQ) return;
-  const tabs = $('masterTabs');
-  if (!tabs) return;
-  tabs.innerHTML = Object.keys(MASTER_TABS).map(function (k) {
+function renderMasterTabs() {
+  $('masterTabs').innerHTML = Object.keys(MASTER_TABS).map(function (k) {
     return '<button class="erp-tab ' + (k === APP.masterEntity ? 'active' : '') + '" onclick="switchMaster(\'' + k + '\')">' + MASTER_TABS[k] + '</button>';
   }).join('');
 }
 
 function switchMaster(entity) {
   APP.masterEntity = entity;
-  renderMasterTabs(MASTER_RENDER_SEQ);
-  renderMasterEntity(entity, '', MASTER_RENDER_SEQ);
+  renderMasterTabs();
+  renderMasterEntity(entity);
 }
 
 function masterFieldHTML(f, value, plants) {
@@ -781,19 +766,14 @@ function masterFieldHTML(f, value, plants) {
   return '<input data-field="' + esc(f.key) + '" type="' + type + '"' + step + ' value="' + esc(v) + '"' + req + '>';
 }
 
-function renderMasterEntity(entity, editId, renderSeq) {
-  const seq = renderSeq || MASTER_RENDER_SEQ;
+function renderMasterEntity(entity, editId) {
   const panel = $('masterPanel');
-  if (!panel || seq !== MASTER_RENDER_SEQ) return;
   panel.innerHTML = '<div class="erp-card"><div class="erp-card-body"><div class="erp-empty">Memuat ' + esc(MASTER_TABS[entity]) + '...</div></div></div>';
 
   gs('apiGetMaster', [entity], function (data) {
-    if (seq !== MASTER_RENDER_SEQ || !$('masterPanel')) return;
     gs('apiGetPlants', [], function (plants) {
-      if (seq !== MASTER_RENDER_SEQ || !$('masterPanel')) return;
       const targetRow = editId ? data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); }) : null;
       const mode = targetRow ? 'Edit' : 'Tambah';
-      if (seq !== MASTER_RENDER_SEQ || !$('masterPanel')) return;
       panel.innerHTML =
         '<div class="erp-columns">' +
         '<div class="erp-card">' +
@@ -819,12 +799,9 @@ function renderMasterEntity(entity, editId, renderSeq) {
         '</div></div></div>';
 
       const shownHeaders = (data.headers || []).filter(Boolean).slice(0, 7);
-      const headRow = document.querySelector('#masterTable thead tr');
-      if (!headRow) return;
-      headRow.innerHTML =
+      document.querySelector('#masterTable thead tr').innerHTML =
         shownHeaders.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '<th>Aksi</th>';
       const body = $('masterTableBody');
-      if (!body) return;
       body.innerHTML = data.rows.length ? data.rows.map(function (r) {
         return '<tr>' + shownHeaders.map(function (h) { return '<td>' + (r[h] === '' || r[h] == null ? '—' : esc(r[h])) + '</td>'; }).join('') +
           '<td><div class="erp-action-row">' +
@@ -846,7 +823,6 @@ function renderMasterEntity(entity, editId, renderSeq) {
 function submitMaster(event, entity) {
   event.preventDefault();
   const btn = $('masterSaveBtn');
-  if (!btn) return;
   const payload = {};
   document.querySelectorAll('[data-field]').forEach(function (el) { payload[el.getAttribute('data-field')] = el.value; });
   btn.disabled = true; btn.innerText = 'Menyimpan...';
@@ -1885,7 +1861,7 @@ function renderSetPage(key) {
   $('processPage').innerHTML =
     '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.parent || cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
     '<div class="process-kpi-grid"><div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="setTarget">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Output Tersedia</div><div class="process-kpi-value" id="setAvailable">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Realisasi</div><div class="process-kpi-value" id="setActual">0</div><div class="process-kpi-note">Good qty</div></div><div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="setReject">0</div><div class="process-kpi-note">PCS</div></div></div>'+ 
-    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+ 
+    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select><div id="setOperatorHint" class="set-material-meta"></div></div>'+ 
     (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select><div id="setMaterialMeta" class="set-material-meta"></div></div>' : '')+
     '<div class="field full" id="setSourceBox"></div><div class="field full set-option-status" id="setOptionsStatus"></div>'+stockLines+
     '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="resetSetForm()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+ 
@@ -1949,11 +1925,13 @@ function updateSelectedSetMaterialInfo() {
 
 function applySetPlantFilter() {
   const plant = $('setPlant'), batch = $('setBatch'), op = $('setOperator');
-  const plantId = plant ? plant.value : '';
+  const plantId = plant ? String(plant.value || '').trim() : '';
+
+  /* Batch tetap mengikuti Plant yang dipilih. */
   if (batch) {
     Array.from(batch.options).forEach(function(o){
       if (!o.value) return;
-      const rowPlant = o.getAttribute('data-plant') || '';
+      const rowPlant = String(o.getAttribute('data-plant') || '').trim();
       o.hidden = !!plantId && rowPlant !== plantId;
     });
     if (batch.value) {
@@ -1961,17 +1939,49 @@ function applySetPlantFilter() {
       if (selected && selected.hidden) batch.value = '';
     }
   }
+
+  /* Operator jangan dibuat hilang hanya karena Master_Operator belum memiliki
+     plant_id yang sama. Bila ada operator yang cocok dengan plant, tampilkan
+     yang cocok; bila tidak ada, tampilkan seluruh operator aktif. */
   if (op) {
-    Array.from(op.options).forEach(function(o){
-      if (!o.value) return;
-      const rowPlant = o.getAttribute('data-plant') || '';
-      o.hidden = !!plantId && rowPlant && rowPlant !== plantId;
+    const options = Array.from(op.options).filter(function(o){ return !!o.value; });
+    const scoped = plantId ? options.filter(function(o){
+      return String(o.getAttribute('data-plant') || '').trim() === plantId;
+    }) : options;
+    const hasScoped = scoped.length > 0;
+
+    options.forEach(function(o){
+      const rowPlant = String(o.getAttribute('data-plant') || '').trim();
+      o.hidden = !!plantId && hasScoped && rowPlant !== plantId;
     });
+
     if (op.value) {
       const selected = op.options[op.selectedIndex];
       if (selected && selected.hidden) op.value = '';
     }
   }
+}
+
+function updateSetOperatorHint() {
+  const plant = $('setPlant'), op = $('setOperator'), hint = $('setOperatorHint');
+  if (!op || !hint) return;
+  const plantId = plant ? String(plant.value || '').trim() : '';
+  const options = Array.from(op.options).filter(function(o){ return !!o.value; });
+
+  if (!plantId) {
+    hint.innerHTML = options.length
+      ? '<div class="stage-info">Operator aktif tersedia: <b>'+options.length+'</b>.</div>'
+      : '<div class="stage-warning">Belum ada operator aktif di Master Operator.</div>';
+    return;
+  }
+
+  const matched = options.filter(function(o){
+    return String(o.getAttribute('data-plant') || '').trim() === plantId;
+  });
+
+  hint.innerHTML = matched.length
+    ? '<div class="stage-info">Operator untuk Plant <b>'+esc(plantId)+'</b>: <b>'+matched.length+'</b>.</div>'
+    : '<div class="stage-warning">Belum ada operator dengan Plant ID <b>'+esc(plantId)+'</b>. Operator aktif tetap ditampilkan. Periksa Plant ID pada Master Operator agar validasi penyimpanan sesuai.</div>';
 }
 
 function loadSetOptions() {
@@ -2000,7 +2010,9 @@ function loadSetOptions() {
       }).join('');
 
       op.innerHTML='<option value="">Pilih operator</option>'+operators.map(function(o){
-        return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(o.plant_id||'')+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';
+        const opName=String(o.nama_operator||o.telegram_user_id||'').trim();
+        const opPlant=String(o.plant_id||'').trim();
+        return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(opPlant)+'">'+esc(opName)+(opPlant?' — '+esc(opPlant):'')+'</option>';
       }).join('');
 
       if (APP.plant && APP.plant !== 'ALL' && plants.some(function(p){ return String(p.plant_id) === String(APP.plant); })) {

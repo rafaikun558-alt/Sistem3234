@@ -95,7 +95,7 @@ body{overflow-x:hidden}
 .donut-inner{width:112px;height:112px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .donut-value{font-size:22px;font-weight:700;color:#182640}
 .donut-caption{font-size:8px;color:#7c899c;margin-top:4px}
-.efficiency-list{flex:1;max-width:225px}
+.efficiency-list{flex:1;max-width:225px;max-height:245px;overflow-y:auto;padding-right:4px}
 .eff-group-title{font-size:9px;color:#657289;margin-bottom:8px;text-transform:uppercase}
 .efficiency-row{margin-bottom:9px}
 .efficiency-name{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#59677d;margin-bottom:4px}
@@ -393,7 +393,7 @@ body{overflow-x:hidden}
           </div>
         </div>
         <div class="dashboard-card bottom-card">
-          <div class="card-title">RINGKASAN EFISIENSI PER PROSES</div>
+          <div class="card-title">RINGKASAN EFISIENSI PER PROSES <span style="font-size:10px;color:#8a96a8;font-weight:400">(1# Material • 2# Set • 3# Set Kursi Susun)</span></div>
           <div class="efficiency-layout">
             <div class="donut"><div class="donut-inner"><div class="donut-value" id="donutValue">0%</div><div class="donut-caption">Rata-rata Efisiensi</div></div></div>
             <div id="efficiencyList" class="efficiency-list"></div>
@@ -679,10 +679,11 @@ function setDashboardLoading(isLoading) {
 function renderDashboardData(d) {
   d = d || {};
   const efficiency = Number(d.efficiency || 0);
+  const averageEfficiency = Number(d.averageEfficiency !== undefined ? d.averageEfficiency : efficiency);
   $('kpiStock').innerText = fmt(d.stockMaterial);
   $('kpiFinishGood').innerText = fmt(d.finishGood);
   $('kpiEfficiency').innerText = efficiency.toFixed(1).replace('.', ',');
-  $('donutValue').innerText = efficiency.toFixed(1).replace('.', ',') + '%';
+  $('donutValue').innerText = averageEfficiency.toFixed(1).replace('.', ',') + '%';
 
   const materialRows = Array.isArray(d.material) ? d.material : [];
   $('materialTable').innerHTML = materialRows.length
@@ -700,13 +701,32 @@ function renderDashboardData(d) {
   renderChart(d.trend || { labels: [], material: [] });
 
   const eff = Array.isArray(d.efficiencyProcess) ? d.efficiencyProcess : [];
-  $('efficiencyList').innerHTML = eff.length
-    ? '<div class="eff-group-title">PROSES MATERIAL</div>' + eff.map(function (it) {
-        const value = Math.max(0, Number(it.value || 0));
-        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + value.toFixed(1) + '%</b></div>' +
-          '<div class="efficiency-progress"><span style="width:' + Math.min(value, 100) + '%"></span></div></div>';
-      }).join('')
-    : '<div class="empty-state" style="padding:20px">Belum ada ringkasan efisiensi.</div>';
+  if (!eff.length) {
+    $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Belum ada ringkasan efisiensi.</div>';
+  } else {
+    const groups = {};
+    const groupOrder = [];
+    eff.forEach(function (it) {
+      const key = String(it.group || 'lainnya');
+      if (!groups[key]) { groups[key] = { name: it.groupName || key, rows: [] }; groupOrder.push(key); }
+      groups[key].rows.push(it);
+    });
+    $('efficiencyList').innerHTML = groupOrder.map(function (key) {
+      const g = groups[key];
+      return '<div class="eff-group-title" style="margin-top:12px">' + esc(g.name) + '</div>' +
+        g.rows.map(function (it) {
+          const value = Math.max(0, Number(it.value || 0));
+          const target = Number(it.target || 0);
+          const actual = Number(it.actual || 0);
+          const status = target > 0 ? (value > 100 ? '100+' : value.toFixed(1)) + '%' : '—';
+          return '<div class="efficiency-row">' +
+            '<div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + status + '</b></div>' +
+            '<div class="efficiency-progress"><span style="width:' + Math.min(value, 100) + '%"></span></div>' +
+            '<div style="font-size:9px;color:#8a96a8;margin-top:2px">Target ' + fmt(target) + ' • Good ' + fmt(actual) + '</div>' +
+          '</div>';
+        }).join('');
+    }).join('');
+  }
 
   $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
 }

@@ -2158,7 +2158,7 @@ function loadSetHistory(){
     if($('setActual')) $('setActual').innerText=fmt(summary.actual);
     if($('setReject')) $('setReject').innerText=fmt(summary.reject);
     $('setHistoryTable').innerHTML=rows.length?rows.map(function(r){
-      return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class=\"erp-icon-btn\" title=\"Edit transaksi\" data-edit-set=\"'+esc(r.transaksi_id)+'\">✎</button></td></tr>';;
+      return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class=\"erp-icon-btn\" title=\"Edit transaksi\" data-edit-set=\"'+esc(r.transaksi_id)+'\">✎</button><button class=\"erp-icon-btn\" title=\"Hapus transaksi\" data-delete-set=\"'+esc(r.transaksi_id)+'\">🗑</button></td></tr>';
     }).join(''):'<tr><td colspan="8"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
   },function(){
     SET_APP.historyRows=[];
@@ -2167,10 +2167,22 @@ function loadSetHistory(){
 }
 
 document.addEventListener('click', function(e){
-  const btn=e.target.closest ? e.target.closest('[data-edit-set]') : null;
-  if(!btn) return;
-  editSetTransaksi(btn.getAttribute('data-edit-set'));
+  const editBtn=e.target.closest ? e.target.closest('[data-edit-set]') : null;
+  if(editBtn){ editSetTransaksi(editBtn.getAttribute('data-edit-set')); return; }
+  const delBtn=e.target.closest ? e.target.closest('[data-delete-set]') : null;
+  if(delBtn){ deleteSetTransaksi(delBtn.getAttribute('data-delete-set')); }
 });
+
+function deleteSetTransaksi(id){
+  const row=(SET_APP.historyRows||[]).find(function(r){ return String(r.transaksi_id)===String(id); });
+  if(!row) return;
+  if(!confirm('Yakin hapus transaksi Set ini? Stok yang dipakai akan dikembalikan.')) return;
+  gs('apiDeleteSetTransaksi',[id],function(){
+    loadSetHistory();
+  },function(e){
+    alert('Gagal menghapus transaksi Set: '+((e&&e.message)?e.message:e));
+  });
+}
 
 function editSetTransaksi(id){
   const row=(SET_APP.historyRows||[]).find(function(r){ return String(r.transaksi_id)===String(id); });

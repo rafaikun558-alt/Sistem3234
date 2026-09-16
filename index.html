@@ -603,14 +603,28 @@ body{overflow-x:hidden}
 'use strict';
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
 const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
-let ERP_SESSION = loadSession();
-const SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
-const SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
-const SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
-
+const SESSION_QUERY_PARAM = 'session';
 function loadSession() {
   try { return JSON.parse(localStorage.getItem(SESSION_STORAGE_KEY) || 'null'); } catch (e) { return null; }
 }
+function loadSessionFromQuery_() {
+  try {
+    const token = new URLSearchParams(window.location.search).get(SESSION_QUERY_PARAM) || '';
+    if (!token) return null;
+    const existing = loadSession() || {};
+    const session = {token:token, username:existing.username||'', role:existing.role||'', nama:existing.nama||''};
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+    const cleanUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, cleanUrl);
+    return session;
+  } catch (e) { return null; }
+}
+let ERP_SESSION = loadSessionFromQuery_() || loadSession();
+let SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
+let SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
+let SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
+
+
 function saveSession(data) {
   ERP_SESSION = data;
   try { localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
@@ -2711,6 +2725,10 @@ function applySessionToUI() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+  ERP_SESSION = loadSessionFromQuery_() || loadSession();
+  SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
+  SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
+  SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
   if (!ERP_SESSION || !ERP_SESSION.token) { window.location.href = 'login.html'; return; }
   applySessionToUI();
   renderDashboardFlows();

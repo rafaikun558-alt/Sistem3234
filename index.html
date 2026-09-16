@@ -219,6 +219,183 @@ body{overflow-x:hidden}
 @media(max-width:1100px){.process-layout{grid-template-columns:1fr}.process-kpi-grid{grid-template-columns:repeat(2,1fr)}.erp-columns{grid-template-columns:1fr}.erp-process-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.sidebar{width:72px;padding-left:8px;padding-right:8px}.main{margin-left:72px}.company{justify-content:center;padding:0}.company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:none}.menu-item{justify-content:center}.menu-arrow{display:none}.topbar{padding:0 15px}.page-title{font-size:17px}.profile-name,.profile-role{display:none}}
 @media(max-width:650px){.kpi-grid,.erp-page-grid,.erp-process-grid{grid-template-columns:1fr}.top-right{display:none}.content{padding:12px}.efficiency-layout{flex-direction:column;padding-bottom:15px}.process-form-grid,.erp-form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.process-page-head{flex-direction:column}.process-actions{width:100%}.btn-primary,.btn-secondary{flex:1}.material-summary{grid-template-columns:1fr}.erp-search{min-width:100%;width:100%}}
+
+/* ================================================================
+   TYPOGRAPHY + RESPONSIVE MOBILE UI
+   Hanya mengubah tampilan, ukuran font, dan layout responsif.
+   Tidak mengubah alur bisnis / API / proses produksi.
+================================================================ */
+.mobile-menu-btn{display:none;width:40px;height:40px;border:1px solid #dce2eb;border-radius:8px;background:#fff;color:#203252;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto}
+.mobile-overlay{display:none}
+
+/* Desktop: lebih nyaman dibaca */
+.company-subtitle{font-size:10px}
+.menu-section{font-size:11px}
+.menu-item{font-size:14px;min-height:40px}
+.submenu-item{font-size:13px;padding:6px 0}
+.set-group-title{font-size:12px}
+.page-title{font-size:22px}
+.filter-box{font-size:13px}
+.filter-box select{font-size:13px}
+.report-date-label{font-size:11px}
+.report-date-box input{font-size:12px}
+.profile-name{font-size:13px}
+.profile-role{font-size:11px}
+.card-title{font-size:16px}
+.process-table th{font-size:10px}
+.process-table td{font-size:10px}
+.chart-y-label,.chart-x-label{font-size:9px}
+.chart-legend{font-size:10px}
+.donut-caption{font-size:9px}
+.eff-group-title{font-size:10px}
+.efficiency-name{font-size:10px}
+.kpi-title{font-size:11px}
+.batch-stage-duration>div{font-size:9px}
+.batch-stage-duration>div b{font-size:10px}
+.kpi-unit{font-size:10px}
+.kpi-change{font-size:11px}
+.process-page-title{font-size:22px}
+.process-page-subtitle{font-size:12px}
+.btn-primary,.btn-secondary{font-size:12px}
+.process-kpi-label{font-size:10px}
+.process-kpi-value{font-size:21px}
+.process-kpi-unit,.process-kpi-note{font-size:10px}
+.process-panel-title{font-size:15px}
+.process-panel-caption{font-size:10px}
+.field label{font-size:10px}
+.field input,.field select,.field textarea{font-size:12px}
+.status-pill{font-size:9px}
+.table-search{font-size:11px}
+.data-table th{font-size:9px}
+.data-table td{font-size:10px}
+.empty-state{font-size:11px}
+.process-step-badge{font-size:11px}
+.process-step-label{font-size:9px}
+.summary-label{font-size:9px}
+.summary-value{font-size:17px}
+.erp-stat-label{font-size:10px}
+.erp-stat-value{font-size:22px}
+.erp-stat-note{font-size:10px}
+.erp-tab{font-size:11px}
+.erp-card-title{font-size:15px}
+.erp-card-caption{font-size:10px}
+.erp-search,.erp-mini-select,.erp-date{font-size:11px}
+.erp-table th{font-size:9px}
+.erp-table td{font-size:10px}
+.erp-icon-btn{font-size:13px}
+.erp-empty{font-size:11px}
+.erp-empty strong{font-size:12px}
+.erp-chip{font-size:10px}
+.erp-system-name{font-size:11px}
+.erp-system-meta{font-size:10px}
+.erp-process-name{font-size:13px}
+.erp-process-meta{font-size:10px}
+.stage-warning,.stage-info{font-size:10px}
+.set-material-meta{font-size:10px}
+
+@media (max-width:900px){
+  .mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center}
+  .sidebar{width:280px;max-width:86vw;transform:translateX(-105%);transition:transform .22s ease;box-shadow:8px 0 28px rgba(9,24,54,.22);padding:22px 14px 28px}
+  .sidebar.mobile-open{transform:translateX(0)}
+  .main{margin-left:0;min-width:0}
+  .mobile-overlay{position:fixed;inset:0;background:rgba(5,14,31,.35);z-index:900}
+  .mobile-overlay.open{display:block}
+  .topbar{height:auto;min-height:64px;padding:10px 14px;gap:10px;align-items:center}
+  .page-title{font-size:18px;line-height:1.2;flex:1;min-width:0}
+  .top-right{flex:0 1 auto;gap:8px;min-width:0}
+  .top-right .filter-box{min-width:0;height:38px;padding:0 9px}
+  .report-date-box{display:none}
+  .top-right .profile{margin-left:0}
+  .profile-circle{width:34px;height:34px}
+  .profile-name,.profile-role{display:none}
+  .top-right .profile .btn-secondary{height:36px!important;padding:0 11px!important;font-size:12px!important;margin-left:0!important}
+  .content{padding:12px 12px 20px}
+  .kpi-grid,.process-grid,.bottom-grid{grid-template-columns:1fr;gap:12px}
+  .kpi-card{height:auto;min-height:112px;padding:16px}
+  .kpi-icon{width:50px;height:50px}
+  .kpi-title{font-size:12px}
+  .kpi-value{font-size:22px}
+  .batch-stage-duration{min-width:0;width:100%;max-width:260px}
+  .batch-stage-duration>div{font-size:10px}
+  .batch-stage-duration>div b{font-size:11px}
+  .batch-stage-duration .batch-stage-total b{font-size:12px}
+  .kpi-change{font-size:11px}
+  .process-card,.bottom-card{padding:14px}
+  .flow{justify-content:flex-start;overflow-x:auto;padding-bottom:12px}
+  .flow-item{min-width:62px}
+  .flow-label{font-size:9px}
+  .flow-arrow{font-size:17px}
+  .process-table{min-width:560px}
+  .process-table th{font-size:9px}
+  .process-table td{font-size:10px}
+  .efficiency-layout{flex-direction:column;gap:18px;align-items:stretch}
+  .donut{margin:0 auto;width:138px;height:138px}
+  .donut-inner{width:103px;height:103px}
+  .efficiency-list{width:100%;max-width:none;max-height:320px}
+  .efficiency-name{font-size:11px}
+  .eff-group-title{font-size:10px}
+  .chart-wrapper{height:195px}
+  .process-page-title{font-size:20px}
+  .process-page-subtitle{font-size:12px;line-height:1.45}
+  .process-actions{display:flex;flex-wrap:wrap;gap:7px}
+  .process-kpi-grid{grid-template-columns:1fr 1fr}
+  .process-layout,.erp-columns{grid-template-columns:1fr}
+  .process-form-grid,.erp-form-grid{grid-template-columns:1fr}
+  .field.full,.erp-form-grid .field.full{grid-column:1}
+  .table-toolbar{align-items:stretch;flex-direction:column}
+  .table-search{width:100%;height:38px;font-size:12px}
+  .data-table{min-width:760px}
+  .data-table th{font-size:9px}
+  .data-table td{font-size:10px}
+  .erp-page-grid{grid-template-columns:1fr 1fr}
+  .erp-process-grid{grid-template-columns:1fr}
+  .erp-process-name{font-size:14px}
+  .erp-process-meta{font-size:11px;line-height:1.4}
+  .erp-toolbar{align-items:stretch}
+  .erp-toolbar-left,.erp-toolbar-right{width:100%}
+  .erp-search{min-width:0;width:100%;height:38px;font-size:12px}
+  .erp-mini-select,.erp-date{height:38px;font-size:12px}
+  .erp-table-wrap{max-height:60vh}
+  .erp-table td{font-size:10px}
+  .erp-tab{height:38px;font-size:12px;padding:0 13px}
+  .summary-label{font-size:10px}
+  .summary-value{font-size:18px}
+  .footer{font-size:10px}
+
+  /* Sidebar tetap menampilkan teks penuh di HP agar tidak perlu menebak icon. */
+  .company{justify-content:flex-start;padding:0 10px 18px}
+  .company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:block}
+  .company-text{font-size:15px}
+  .company-subtitle{font-size:10px}
+  .menu-section{font-size:11px;margin-left:10px;margin-right:10px}
+  .menu-item{justify-content:flex-start;padding:10px 12px;font-size:14px;min-height:42px}
+  .menu-icon{width:22px;height:22px}
+  .menu-icon svg{width:19px;height:19px}
+  .menu-arrow{display:block}
+  .submenu{margin-left:34px;padding-left:12px}
+  .submenu-item{font-size:13px;padding:7px 0}
+  .set-group-title{font-size:12px}
+}
+
+@media (max-width:560px){
+  .top-right .filter-box{display:none}
+  .process-kpi-grid{grid-template-columns:1fr}
+  .erp-page-grid{grid-template-columns:1fr}
+  .material-summary{grid-template-columns:1fr}
+  .kpi-card{align-items:flex-start}
+  .kpi-info{width:100%}
+  .batch-stage-duration{max-width:none}
+  .page-title{font-size:17px}
+  .process-panel-head,.erp-card-head{padding:13px 14px;align-items:flex-start}
+  .process-panel-body,.erp-card-body{padding:13px 14px}
+  .process-kpi{padding:13px}
+  .erp-info-strip{gap:6px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sidebar,.submenu,.menu-item,.erp-process-card{transition:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -317,7 +494,9 @@ body{overflow-x:hidden}
 
 <!-- ================= MAIN ================= -->
 <main class="main">
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileSidebar()"></div>
   <header class="topbar">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleMobileSidebar()">☰</button>
     <div class="page-title" id="pageTitle">DASHBOARD MANUFAKTUR</div>
     <div class="top-right">
       <div class="filter-box report-date-box"><span class="report-date-label">Tanggal</span><input id="reportDateFilter" type="date" aria-label="Tanggal dashboard"></div>
@@ -2590,6 +2769,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
   navigate('dashboard');
 });
+
+
+/* ================================================================
+   MOBILE SIDEBAR — visual/navigation helper only
+================================================================ */
+function openMobileSidebar(){
+  const sb = $('sidebar'), ov = $('mobileOverlay'), btn = $('mobileMenuBtn');
+  if (!sb || !ov) return;
+  sb.classList.add('mobile-open');
+  ov.classList.add('open');
+  if (btn) btn.setAttribute('aria-expanded','true');
+}
+function closeMobileSidebar(){
+  const sb = $('sidebar'), ov = $('mobileOverlay'), btn = $('mobileMenuBtn');
+  if (!sb || !ov) return;
+  sb.classList.remove('mobile-open');
+  ov.classList.remove('open');
+  if (btn) btn.setAttribute('aria-expanded','false');
+}
+function toggleMobileSidebar(){
+  const sb = $('sidebar');
+  if (!sb) return;
+  if (sb.classList.contains('mobile-open')) closeMobileSidebar();
+  else openMobileSidebar();
+}
+window.addEventListener('resize', function(){
+  if (window.innerWidth > 900) closeMobileSidebar();
+});
+// Tutup drawer setelah user memilih menu/submenu di HP.
+document.addEventListener('click', function(e){
+  if (window.innerWidth > 900) return;
+  const el = e.target.closest('.sidebar .menu-item, .sidebar .submenu-item');
+  if (!el) return;
+  setTimeout(closeMobileSidebar, 80);
+});
+
 </script>
 </body>
 </html>

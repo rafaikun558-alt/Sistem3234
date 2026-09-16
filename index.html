@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Manufaktur — 4D.8 Total Produksi Material</title>
+<title>Dashboard Manufaktur</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{width:100%;min-height:100%;font-family:"Segoe UI",Arial,Helvetica,sans-serif;background:#f5f7fb;color:#17233d}
@@ -33,7 +33,7 @@ body{overflow-x:hidden}
 .page-title{font-size:21px;font-weight:700;color:#14233f;letter-spacing:.1px}
 .top-right{display:flex;align-items:center;gap:13px}
 .filter-box{height:36px;min-width:145px;padding:0 11px;background:#fff;border:1px solid #dce2eb;border-radius:6px;display:flex;align-items:center;gap:8px;color:#34435b;font-size:12px}
-.filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}.report-date-box{min-width:190px}.report-date-label{font-size:10px;color:#78869b;font-weight:700;text-transform:uppercase;white-space:nowrap}.report-date-box input{border:0;outline:none;background:transparent;color:#34435b;font-size:11px;font-family:inherit;width:130px;cursor:pointer}
+.filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}
 .profile{display:flex;align-items:center;gap:9px;margin-left:8px}
 .profile-circle{width:29px;height:29px;border-radius:50%;background:#1b355a;display:flex;align-items:center;justify-content:center;color:#fff}
 .profile-circle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
@@ -52,12 +52,6 @@ body{overflow-x:hidden}
 .kpi-info{min-width:0}
 .kpi-title{font-size:10px;font-weight:700;color:#526078;text-transform:uppercase;margin-bottom:6px;white-space:nowrap}
 .kpi-value{font-size:21px;font-weight:700;color:#162540;line-height:1}
-.batch-stage-duration{margin-top:4px;display:grid;gap:4px;min-width:170px}
-.batch-stage-duration>div{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:8px;color:#738198;line-height:1.15}
-.batch-stage-duration>div b{font-size:9px;color:#1c2a43;white-space:nowrap}
-.batch-stage-duration .batch-stage-total{margin-top:3px;padding-top:5px;border-top:1px solid #e9edf3}
-.batch-stage-duration .batch-stage-total span{font-weight:800;color:#42516a}
-.batch-stage-duration .batch-stage-total b{font-size:11px;color:#287ce0}
 .kpi-unit{font-size:9px;font-weight:500;color:#7e8b9e;margin-left:3px}
 .kpi-change{margin-top:8px;font-size:10px;color:#21a45e}
 .dashboard-card,.process-panel,.erp-card{background:#fff;border:1px solid #e4e8ef;border-radius:8px;box-shadow:0 2px 6px rgba(35,50,80,.03)}
@@ -101,7 +95,7 @@ body{overflow-x:hidden}
 .donut-inner{width:112px;height:112px;background:#fff;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .donut-value{font-size:22px;font-weight:700;color:#182640}
 .donut-caption{font-size:8px;color:#7c899c;margin-top:4px}
-.efficiency-list{flex:1;max-width:225px;max-height:245px;overflow-y:auto;padding-right:4px}
+.efficiency-list{flex:1;max-width:225px}
 .eff-group-title{font-size:9px;color:#657289;margin-bottom:8px;text-transform:uppercase}
 .efficiency-row{margin-bottom:9px}
 .efficiency-name{display:flex;align-items:center;justify-content:space-between;font-size:9px;color:#59677d;margin-bottom:4px}
@@ -214,188 +208,11 @@ body{overflow-x:hidden}
 .erp-process-meta{font-size:9px;color:#8491a4;margin-top:4px}
 .erp-progress{height:6px;border-radius:10px;background:#e9edf3;overflow:hidden;margin-top:9px}
 .erp-progress span{display:block;height:100%;border-radius:10px;background:#2dbb72}
-.stage-warning{background:#fff4dc;border:1px solid #f0d48a;color:#8a6410;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.4}.stage-info{background:#eef5ff;border:1px solid #cfe0ff;color:#315783;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.5}.set-material-meta{margin-top:7px;font-size:9px;color:#7b899d;line-height:1.5}.set-material-meta strong{color:#34435b}.set-option-status{margin-top:10px}.field select:disabled{background:#f7f9fc;color:#8a96a8;cursor:not-allowed}
+.stage-warning{background:#fff4dc;border:1px solid #f0d48a;color:#8a6410;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.4}.stage-info{background:#eef5ff;border:1px solid #cfe0ff;color:#315783;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.5}
 @media(max-width:1250px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.process-grid{grid-template-columns:1fr}.bottom-grid{grid-template-columns:1fr}}
 @media(max-width:1100px){.process-layout{grid-template-columns:1fr}.process-kpi-grid{grid-template-columns:repeat(2,1fr)}.erp-columns{grid-template-columns:1fr}.erp-process-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.sidebar{width:72px;padding-left:8px;padding-right:8px}.main{margin-left:72px}.company{justify-content:center;padding:0}.company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:none}.menu-item{justify-content:center}.menu-arrow{display:none}.topbar{padding:0 15px}.page-title{font-size:17px}.profile-name,.profile-role{display:none}}
 @media(max-width:650px){.kpi-grid,.erp-page-grid,.erp-process-grid{grid-template-columns:1fr}.top-right{display:none}.content{padding:12px}.efficiency-layout{flex-direction:column;padding-bottom:15px}.process-form-grid,.erp-form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.process-page-head{flex-direction:column}.process-actions{width:100%}.btn-primary,.btn-secondary{flex:1}.material-summary{grid-template-columns:1fr}.erp-search{min-width:100%;width:100%}}
-
-/* ================================================================
-   TYPOGRAPHY + RESPONSIVE MOBILE UI
-   Hanya mengubah tampilan, ukuran font, dan layout responsif.
-   Tidak mengubah alur bisnis / API / proses produksi.
-================================================================ */
-.mobile-menu-btn{display:none;width:40px;height:40px;border:1px solid #dce2eb;border-radius:8px;background:#fff;color:#203252;font-size:20px;line-height:1;cursor:pointer;flex:0 0 auto}
-.mobile-overlay{display:none}
-
-/* Desktop: lebih nyaman dibaca */
-.company-subtitle{font-size:10px}
-.menu-section{font-size:11px}
-.menu-item{font-size:14px;min-height:40px}
-.submenu-item{font-size:13px;padding:6px 0}
-.set-group-title{font-size:12px}
-.page-title{font-size:22px}
-.filter-box{font-size:13px}
-.filter-box select{font-size:13px}
-.report-date-label{font-size:11px}
-.report-date-box input{font-size:12px}
-.profile-name{font-size:13px}
-.profile-role{font-size:11px}
-.card-title{font-size:16px}
-.process-table th{font-size:10px}
-.process-table td{font-size:10px}
-.chart-y-label,.chart-x-label{font-size:9px}
-.chart-legend{font-size:10px}
-.donut-caption{font-size:9px}
-.eff-group-title{font-size:10px}
-.efficiency-name{font-size:10px}
-.kpi-title{font-size:11px}
-.batch-stage-duration>div{font-size:9px}
-.batch-stage-duration>div b{font-size:10px}
-.kpi-unit{font-size:10px}
-.kpi-change{font-size:11px}
-.process-page-title{font-size:22px}
-.process-page-subtitle{font-size:12px}
-.btn-primary,.btn-secondary{font-size:12px}
-.process-kpi-label{font-size:10px}
-.process-kpi-value{font-size:21px}
-.process-kpi-unit,.process-kpi-note{font-size:10px}
-.process-panel-title{font-size:15px}
-.process-panel-caption{font-size:10px}
-.field label{font-size:10px}
-.field input,.field select,.field textarea{font-size:12px}
-.status-pill{font-size:9px}
-.table-search{font-size:11px}
-.data-table th{font-size:9px}
-.data-table td{font-size:10px}
-.empty-state{font-size:11px}
-.process-step-badge{font-size:11px}
-.process-step-label{font-size:9px}
-.summary-label{font-size:9px}
-.summary-value{font-size:17px}
-.erp-stat-label{font-size:10px}
-.erp-stat-value{font-size:22px}
-.erp-stat-note{font-size:10px}
-.erp-tab{font-size:11px}
-.erp-card-title{font-size:15px}
-.erp-card-caption{font-size:10px}
-.erp-search,.erp-mini-select,.erp-date{font-size:11px}
-.erp-table th{font-size:9px}
-.erp-table td{font-size:10px}
-.erp-icon-btn{font-size:13px}
-.erp-empty{font-size:11px}
-.erp-empty strong{font-size:12px}
-.erp-chip{font-size:10px}
-.erp-system-name{font-size:11px}
-.erp-system-meta{font-size:10px}
-.erp-process-name{font-size:13px}
-.erp-process-meta{font-size:10px}
-.stage-warning,.stage-info{font-size:10px}
-.set-material-meta{font-size:10px}
-
-@media (max-width:900px){
-  .mobile-menu-btn{display:inline-flex;align-items:center;justify-content:center}
-  .sidebar{width:280px;max-width:86vw;transform:translateX(-105%);transition:transform .22s ease;box-shadow:8px 0 28px rgba(9,24,54,.22);padding:22px 14px 28px}
-  .sidebar.mobile-open{transform:translateX(0)}
-  .main{margin-left:0;min-width:0}
-  .mobile-overlay{position:fixed;inset:0;background:rgba(5,14,31,.35);z-index:900}
-  .mobile-overlay.open{display:block}
-  .topbar{height:auto;min-height:64px;padding:10px 14px;gap:10px;align-items:center}
-  .page-title{font-size:18px;line-height:1.2;flex:1;min-width:0}
-  .top-right{flex:0 1 auto;gap:8px;min-width:0}
-  .top-right .filter-box{min-width:0;height:38px;padding:0 9px}
-  .report-date-box{display:none}
-  .top-right .profile{margin-left:0}
-  .profile-circle{width:34px;height:34px}
-  .profile-name,.profile-role{display:none}
-  .top-right .profile .btn-secondary{height:36px!important;padding:0 11px!important;font-size:12px!important;margin-left:0!important}
-  .content{padding:12px 12px 20px}
-  .kpi-grid,.process-grid,.bottom-grid{grid-template-columns:1fr;gap:12px}
-  .kpi-card{height:auto;min-height:112px;padding:16px}
-  .kpi-icon{width:50px;height:50px}
-  .kpi-title{font-size:12px}
-  .kpi-value{font-size:22px}
-  .batch-stage-duration{min-width:0;width:100%;max-width:260px}
-  .batch-stage-duration>div{font-size:10px}
-  .batch-stage-duration>div b{font-size:11px}
-  .batch-stage-duration .batch-stage-total b{font-size:12px}
-  .kpi-change{font-size:11px}
-  .process-card,.bottom-card{padding:14px}
-  .flow{justify-content:flex-start;overflow-x:auto;padding-bottom:12px}
-  .flow-item{min-width:62px}
-  .flow-label{font-size:9px}
-  .flow-arrow{font-size:17px}
-  .process-table{min-width:560px}
-  .process-table th{font-size:9px}
-  .process-table td{font-size:10px}
-  .efficiency-layout{flex-direction:column;gap:18px;align-items:stretch}
-  .donut{margin:0 auto;width:138px;height:138px}
-  .donut-inner{width:103px;height:103px}
-  .efficiency-list{width:100%;max-width:none;max-height:320px}
-  .efficiency-name{font-size:11px}
-  .eff-group-title{font-size:10px}
-  .chart-wrapper{height:195px}
-  .process-page-title{font-size:20px}
-  .process-page-subtitle{font-size:12px;line-height:1.45}
-  .process-actions{display:flex;flex-wrap:wrap;gap:7px}
-  .process-kpi-grid{grid-template-columns:1fr 1fr}
-  .process-layout,.erp-columns{grid-template-columns:1fr}
-  .process-form-grid,.erp-form-grid{grid-template-columns:1fr}
-  .field.full,.erp-form-grid .field.full{grid-column:1}
-  .table-toolbar{align-items:stretch;flex-direction:column}
-  .table-search{width:100%;height:38px;font-size:12px}
-  .data-table{min-width:760px}
-  .data-table th{font-size:9px}
-  .data-table td{font-size:10px}
-  .erp-page-grid{grid-template-columns:1fr 1fr}
-  .erp-process-grid{grid-template-columns:1fr}
-  .erp-process-name{font-size:14px}
-  .erp-process-meta{font-size:11px;line-height:1.4}
-  .erp-toolbar{align-items:stretch}
-  .erp-toolbar-left,.erp-toolbar-right{width:100%}
-  .erp-search{min-width:0;width:100%;height:38px;font-size:12px}
-  .erp-mini-select,.erp-date{height:38px;font-size:12px}
-  .erp-table-wrap{max-height:60vh}
-  .erp-table td{font-size:10px}
-  .erp-tab{height:38px;font-size:12px;padding:0 13px}
-  .summary-label{font-size:10px}
-  .summary-value{font-size:18px}
-  .footer{font-size:10px}
-
-  /* Sidebar tetap menampilkan teks penuh di HP agar tidak perlu menebak icon. */
-  .company{justify-content:flex-start;padding:0 10px 18px}
-  .company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:block}
-  .company-text{font-size:15px}
-  .company-subtitle{font-size:10px}
-  .menu-section{font-size:11px;margin-left:10px;margin-right:10px}
-  .menu-item{justify-content:flex-start;padding:10px 12px;font-size:14px;min-height:42px}
-  .menu-icon{width:22px;height:22px}
-  .menu-icon svg{width:19px;height:19px}
-  .menu-arrow{display:block}
-  .submenu{margin-left:34px;padding-left:12px}
-  .submenu-item{font-size:13px;padding:7px 0}
-  .set-group-title{font-size:12px}
-}
-
-@media (max-width:560px){
-  .top-right .filter-box{display:none}
-  .process-kpi-grid{grid-template-columns:1fr}
-  .erp-page-grid{grid-template-columns:1fr}
-  .material-summary{grid-template-columns:1fr}
-  .kpi-card{align-items:flex-start}
-  .kpi-info{width:100%}
-  .batch-stage-duration{max-width:none}
-  .page-title{font-size:17px}
-  .process-panel-head,.erp-card-head{padding:13px 14px;align-items:flex-start}
-  .process-panel-body,.erp-card-body{padding:13px 14px}
-  .process-kpi{padding:13px}
-  .erp-info-strip{gap:6px}
-}
-
-@media (prefers-reduced-motion:reduce){
-  .sidebar,.submenu,.menu-item,.erp-process-card{transition:none!important}
-}
-
 </style>
 </head>
 <body>
@@ -416,7 +233,6 @@ body{overflow-x:hidden}
   <div class="menu-item" data-route="master"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>Master Data</span><span class="menu-arrow">›</span></div>
   <div class="menu-item" data-route="stock"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg></span><span>Stok Material</span><span class="menu-arrow">›</span></div>
   <div class="menu-item" data-route="input-produksi"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Input Produksi</span></div>
-  <div class="menu-item" data-route="change-password"><span class="menu-icon">🔒</span><span>Keamanan & Password</span></div>
 
   <div class="menu-section" data-route="material-overview">1# Proses Material</div>
   <div class="menu-item" data-menu-toggle="cutting" data-route="cutting"><span class="menu-icon">✂</span><span>Cutting Proses</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
@@ -457,19 +273,19 @@ body{overflow-x:hidden}
   <div class="menu-item" data-route="dop"><span class="menu-icon">●</span><span>Pemasangan Dop</span></div>
   <div class="menu-item" data-route="total-material"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg></span><span>Total Produksi Material</span></div>
   <div class="menu-section set-section" data-route="set-overview">2# Proses Set</div>
-  <div class="menu-item" data-menu-toggle="set-cutting-material"><span class="menu-icon">✂</span><span>Cutting Material</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
-  <div class="submenu" data-submenu="set-cutting-material">
-    <div class="submenu-item" data-menu-set-group="cutting-papan">› Cutting Papan</div>
-    <div class="submenu nested" data-submenu="set-cutting-papan">
+  <div class="menu-item" data-menu-toggle="set-pemilihan"><span class="menu-icon">◈</span><span>Pemilihan Material</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="set-pemilihan">
+    <div class="submenu-item" data-menu-set-group="papan">› Papan</div>
+    <div class="submenu nested" data-submenu="set-papan">
       <div class="submenu-item" data-route="set-papan-jok">› Papan Jok</div>
       <div class="submenu-item" data-route="set-papan-sandaran">› Papan Sandaran</div>
       <div class="submenu-item" data-route="set-papan-tutupan">› Papan Tutupan</div>
     </div>
-    <div class="submenu-item" data-menu-set-group="cutting-kain">› Cutting Kain</div>
-    <div class="submenu nested" data-submenu="set-cutting-kain">
+    <div class="submenu-item" data-menu-set-group="kain">› Kain</div>
+    <div class="submenu nested" data-submenu="set-kain">
       <div class="submenu-item" data-route="set-pola-jok">› Pola Jok</div>
       <div class="submenu-item" data-route="set-pola-sandaran">› Pola Sandaran</div>
-      <div class="submenu-item" data-route="set-pola-tutupan">› Pola Tutupan</div>
+      <div class="submenu-item" data-route="set-tutupa">› Tutupa</div>
     </div>
     <div class="submenu-item" data-menu-set-group="busa">› Busa</div>
     <div class="submenu nested" data-submenu="set-busa">
@@ -495,12 +311,10 @@ body{overflow-x:hidden}
 
 <!-- ================= MAIN ================= -->
 <main class="main">
-  <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileSidebar()"></div>
   <header class="topbar">
-    <button class="mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false" onclick="toggleMobileSidebar()">☰</button>
     <div class="page-title" id="pageTitle">DASHBOARD MANUFAKTUR</div>
     <div class="top-right">
-      <div class="filter-box report-date-box"><span class="report-date-label">Tanggal</span><input id="reportDateFilter" type="date" aria-label="Tanggal dashboard"></div>
+      <div class="filter-box" id="topDateBox"></div>
       <div class="filter-box">
         <select id="plantFilter"><option value="ALL">Semua Plant</option></select>
       </div>
@@ -530,22 +344,17 @@ body{overflow-x:hidden}
         <div class="kpi-card">
           <div class="kpi-icon icon-blue"><svg viewBox="0 0 24 24"><path d="M4 19V5"/><path d="M4 19h17"/><path d="M7 15l4-5 3 3 5-7"/><path d="M16 6h3v3"/></svg></div>
           <div class="kpi-info">
-            <div class="kpi-title">Total Finish Good</div>
-            <div class="kpi-value"><span id="kpiFinishGood">0</span><span class="kpi-unit">PCS</span></div>
-            <div class="kpi-change">Hasil Set Kursi Susun</div>
+            <div class="kpi-title">Rangka Jadi Hari Ini</div>
+            <div class="kpi-value"><span id="kpiMaterial">0</span><span class="kpi-unit">PCS</span></div>
+            <div class="kpi-change">Output Perakitan Rangka</div>
           </div>
         </div>
         <div class="kpi-card">
           <div class="kpi-icon icon-orange"><svg viewBox="0 0 24 24"><path d="M5 16a8 8 0 1 1 14 0"/><path d="M12 12l4-4"/><path d="M12 20v1"/><path d="M5 19h14"/></svg></div>
           <div class="kpi-info">
-            <div class="kpi-title">RATA-RATA WAKTU BATCH</div>
-            <div id="kpiBatchStageDuration" class="batch-stage-duration">
-              <div><span>1# Material</span><b id="kpiStage1">0 mnt</b></div>
-              <div><span>2# Proses Set</span><b id="kpiStage2">0 mnt</b></div>
-              <div><span>3# Set Kursi Susun</span><b id="kpiStage3">0 mnt</b></div>
-              <div class="batch-stage-total"><span>Total Rata-rata</span><b id="kpiStageTotal">0 mnt</b></div>
-            </div>
-            <div class="kpi-change">Rata-rata waktu 1# → 2# → 3# • Mendukung lintas tanggal</div>
+            <div class="kpi-title">Pencapaian Rangka</div>
+            <div class="kpi-value"><span id="kpiEfficiency">0</span>%</div>
+            <div class="kpi-change">Rangka jadi / target</div>
           </div>
         </div>
       </div>
@@ -557,15 +366,6 @@ body{overflow-x:hidden}
           <table class="process-table">
             <thead><tr><th>PROSES</th><th>TARGET RANGKA</th><th>OUTPUT</th><th>PENCAPAIAN</th></tr></thead>
             <tbody id="materialTable"></tbody>
-          </table>
-        </div>
-
-        <div class="dashboard-card process-card">
-          <div class="card-title">PROSES SET</div>
-          <div class="flow" id="setFlow"></div>
-          <table class="process-table">
-            <thead><tr><th>PROSES</th><th>TARGET RANGKA</th><th>OUTPUT</th><th>PENCAPAIAN</th></tr></thead>
-            <tbody id="setTable"></tbody>
           </table>
         </div>
       </div>
@@ -584,7 +384,7 @@ body{overflow-x:hidden}
           </div>
         </div>
         <div class="dashboard-card bottom-card">
-          <div class="card-title">RINGKASAN EFISIENSI PER PROSES <span style="font-size:10px;color:#8a96a8;font-weight:400">(1# Material • 2# Set • 3# Set Kursi Susun)</span></div>
+          <div class="card-title">RINGKASAN EFISIENSI PER PROSES</div>
           <div class="efficiency-layout">
             <div class="donut"><div class="donut-inner"><div class="donut-value" id="donutValue">0%</div><div class="donut-caption">Rata-rata Efisiensi</div></div></div>
             <div id="efficiencyList" class="efficiency-list"></div>
@@ -605,8 +405,6 @@ body{overflow-x:hidden}
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
 const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
 let ERP_SESSION = loadSession();
-let ERP_PUBLIC_CLIENT_ID = '';
-try { ERP_PUBLIC_CLIENT_ID = localStorage.getItem('erp_public_client_id') || ''; } catch (e) {}
 const SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
 const SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
 const SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
@@ -622,51 +420,143 @@ function clearSession() {
   ERP_SESSION = null;
   try { localStorage.removeItem(SESSION_STORAGE_KEY); } catch (e) {}
 }
-function getPublicApiClientId_() {
-  if (ERP_PUBLIC_CLIENT_ID) return Promise.resolve(ERP_PUBLIC_CLIENT_ID);
-  return fetch(API_BASE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: 'apiGetPublicConfig', token: '', args: [] }),
-    cache: 'no-store'
-  }).then(function (response) {
-    return response.text().then(function (raw) {
-      let data;
-      try { data = JSON.parse(raw); } catch (e) { throw new Error('Layanan server tidak tersedia.'); }
-      if (!response.ok || !data.success || !data.data || !data.data.clientId) throw new Error('Layanan server tidak tersedia.');
-      ERP_PUBLIC_CLIENT_ID = String(data.data.clientId);
-      try { localStorage.setItem('erp_public_client_id', ERP_PUBLIC_CLIENT_ID); } catch (e2) {}
-      return ERP_PUBLIC_CLIENT_ID;
-    });
+/* =====================================================================
+   PERFORMANCE LAYER — FRONTEND API
+   - Cache pendek untuk request read-only yang aman.
+   - Deduplicate request yang sama saat masih berjalan.
+   - Abort request lama saat tidak lagi dibutuhkan.
+   - Instrumentasi waktu request di console tanpa mengubah alur bisnis.
+===================================================================== */
+const API_READ_CACHE_TTL = {
+  apiGetPlants: 60000,
+  apiGetProcessMaster: 60000,
+  apiGetMaster: 30000,
+  apiGetProcessOptions: 15000,
+  apiGetBatchContext: 5000,
+  apiGetStock: 10000,
+  apiGetOverview: 15000,
+  apiGetDashboard: 10000,
+  apiGetProcessPage: 10000,
+  apiGetSetOptions: 15000,
+  apiGetSetContext: 5000,
+  apiGetSetProcessPage: 10000,
+  apiGetKursiSusunOptions: 15000,
+  apiGetKursiSusunContext: 5000,
+  apiGetKursiSusunPage: 10000
+};
+const API_CACHE = new Map();
+const API_INFLIGHT = new Map();
+
+function apiCacheKey_(action, args, token) {
+  return action + '|' + JSON.stringify(Array.isArray(args) ? args : []) + '|' + String(token || '');
+}
+
+function clearApiCache(actionPrefix) {
+  if (!actionPrefix) { API_CACHE.clear(); return; }
+  Array.from(API_CACHE.keys()).forEach(function (key) {
+    if (key.indexOf(actionPrefix + '|') === 0) API_CACHE.delete(key);
   });
 }
 
-function apiRequest(action, args, token) {
+function apiRequest(action, args, token, options) {
+  options = options || {};
+  const requestToken = token || (ERP_SESSION && ERP_SESSION.token) || '';
   const normalizedArgs = Array.isArray(args) ? args : [];
-  function attempt(retry) {
-    return getPublicApiClientId_().then(function (clientId) {
-      const payload = { action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: normalizedArgs, client_id: clientId };
-      return fetch(API_BASE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload),
-        cache: 'no-store'
-      }).then(function (response) {
-        return response.text().then(function (raw) {
-          let data;
-          try { data = JSON.parse(raw); } catch (e) {
-            if (retry < 1) return new Promise(function(resolve){ setTimeout(resolve, 500); }).then(function(){ return attempt(retry + 1); });
-            throw new Error('Layanan server tidak tersedia.');
-          }
-          if (!response.ok || !data.success) throw new Error(data.error || 'Permintaan tidak dapat diproses.');
-          return data.data;
-        });
+  const ttl = Number(API_READ_CACHE_TTL[action] || 0);
+  const useCache = ttl > 0 && !options.noCache;
+  const key = apiCacheKey_(action, normalizedArgs, requestToken);
+  const now = Date.now();
+
+  if (useCache) {
+    const cached = API_CACHE.get(key);
+    if (cached && (now - cached.time) < ttl) {
+      console.debug('[ERP CACHE HIT]', action, Math.round(now - cached.time) + 'ms old');
+      return Promise.resolve(cached.data);
+    }
+  }
+
+  if (API_INFLIGHT.has(key)) {
+    console.debug('[ERP REQUEST DEDUPE]', action);
+    return API_INFLIGHT.get(key);
+  }
+
+  const started = performance.now();
+
+  // Security Hardening: semua request frontend menyertakan public API client ID.
+  // Client ID bukan password/secret; server tetap memvalidasinya.
+  function getPublicApiClientId_() {
+    try {
+      const cached = localStorage.getItem('erp_public_client_id');
+      if (cached) return Promise.resolve(cached);
+    } catch (e) {}
+
+    return fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'apiGetPublicConfig', token: '', args: [] }),
+      cache: 'no-store'
+    }).then(function (response) {
+      return response.text().then(function (raw) {
+        let data;
+        try { data = JSON.parse(raw); } catch (e) { throw new Error('Layanan server tidak tersedia.'); }
+        if (!response.ok || !data.success || !data.data || !data.data.clientId) {
+          throw new Error('Layanan server tidak tersedia.');
+        }
+        const clientId = String(data.data.clientId);
+        try { localStorage.setItem('erp_public_client_id', clientId); } catch (e2) {}
+        return clientId;
       });
     });
   }
-  return attempt(0);
+
+  const promise = getPublicApiClientId_().then(function (clientId) {
+    return fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: action,
+        token: requestToken,
+        args: normalizedArgs,
+        client_id: clientId
+      }),
+      cache: 'no-store'
+    });
+  }).then(function (response) {
+    return response.text().then(function (raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch (e) { throw new Error('Respons API bukan JSON yang valid.'); }
+      if (!response.ok || !data.success) throw new Error(data.error || 'Request API gagal.');
+      return data.data;
+    });
+  }).then(function (data) {
+    const elapsed = Math.round(performance.now() - started);
+    console.debug('[ERP API]', action, elapsed + 'ms');
+    if (useCache) API_CACHE.set(key, { time: Date.now(), data: data });
+    return data;
+  }).catch(function (err) {
+    console.debug('[ERP API ERROR]', action, Math.round(performance.now() - started) + 'ms', err && err.message ? err.message : err);
+    throw err;
+  }).finally(function () {
+    API_INFLIGHT.delete(key);
+  });
+
+  API_INFLIGHT.set(key, promise);
+  return promise;
 }
 
+function apiWriteDone_(actions) {
+  (actions || []).forEach(function (a) { clearApiCache(a); });
+  clearApiCache('apiGetDashboard');
+  clearApiCache('apiGetOverview');
+  clearApiCache('apiGetProcessPage');
+  clearApiCache('apiGetStock');
+  clearApiCache('apiGetProcessOptions');
+  clearApiCache('apiGetBatchContext');
+  clearApiCache('apiGetSetProcessPage');
+  clearApiCache('apiGetSetContext');
+  clearApiCache('apiGetKursiSusunPage');
+  clearApiCache('apiGetKursiSusunContext');
+}
 
 /* =====================================================================
    HELPER DASAR
@@ -685,8 +575,12 @@ function todayISO() {
 }
 /** Pemanggil REST API. Signature lama gs() dipertahankan agar modul v13 tidak perlu dirombak. */
 function gs(fnName, args, onOk, onErr) {
-  apiRequest(fnName, args || [], ERP_SESSION ? ERP_SESSION.token : '')
-    .then(onOk)
+  const writeAction = /^(apiSave|apiUpdate|apiDelete)/.test(String(fnName || ''));
+  apiRequest(fnName, args || [], ERP_SESSION ? ERP_SESSION.token : '', { noCache: writeAction })
+    .then(function (data) {
+      if (writeAction) apiWriteDone_([fnName]);
+      onOk(data);
+    })
     .catch(function (e) {
       if (e && /Sesi (tidak ditemukan|habis)/i.test(e.message || '')) {
         clearSession();
@@ -702,40 +596,24 @@ function doLogout() {
     .finally(function () { clearSession(); window.location.href = 'login.html'; });
 }
 
-/* Read-only API helper: retry sekali untuk respons non-JSON/transient tanpa alert. */
-function gsRead(fnName, args, onOk, onErr) {
-  function attempt(n) {
-    apiRequest(fnName, args || [], ERP_SESSION ? ERP_SESSION.token : '')
-      .then(onOk)
-      .catch(function(e) {
-        if (n < 1 && e && /Respons API bukan JSON yang valid|Request API gagal/i.test(e.message || '')) {
-          setTimeout(function(){ attempt(n + 1); }, 450);
-          return;
-        }
-        (onErr || function(){})(e);
-      });
-  }
-  attempt(0);
-}
-
 /* =====================================================================
    KONFIGURASI HALAMAN PROSES
 ===================================================================== */
 const PROCESS_PAGES = {
   cutting:            { code: 'CUTTING',            title: 'Cutting Proses',        subtitle: 'Material bahan baku menjadi 4 komponen: Kaki-kaki, Palang, Sandaran, dan U.', sub: ['Kaki-kaki', 'Palang', 'Sandaran', 'U'], stockInput: true },
   bending:            { code: 'BENDING',            title: 'Bending Proses',        subtitle: 'Setiap sub proses menerima output dari komponen Cutting yang sesuai.', sub: ['Bending Kaki', 'Bor', 'Bending Sandaran', 'Bending U'] },
-  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Kupingan diproses langsung dari stok material dan independen dari Cutting serta Bending.', sub: [], stockInput: true },
-  las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menerima output Bending Kaki sebagai sumber proses.', sub: ['Las Robot'] },
-  perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Gabungkan 5 komponen. Rangka Jadi = minimum dari Las Kaki, Las Palang, Las Sandaran, Las U, dan Las Kupingan.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
-  coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing rangka jadi. Pilih tepat satu: Coating atau Nickel.', sub: [] },
-  nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing rangka jadi. Pilih tepat satu: Nickel atau Coating.', sub: [] },
-  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari hasil Chemical: Coating atau Nickel.', sub: ['Coating', 'Nickel'] }
+  kupingan:           { code: 'KUPINGAN',           title: 'Kupingan',               subtitle: 'Penginputan panel/kupingan langsung dari stok material. Proses ini independen dari Cutting dan Bending.', sub: [], stockInput: true },
+  las:                { code: 'LAS',                title: 'Las Proses',             subtitle: 'Las Robot menggunakan output Bending Kaki.', sub: ['Las Robot'] },
+  perakitan:          { code: 'PERAKITAN_RANGKA',   title: 'Perakitan Rangka',       subtitle: 'Lima komponen dirakit. Total rangka jadi = minimum dari lima komponen.', sub: ['Las Kaki', 'Las Palang', 'Las Sandaran', 'Las U', 'Las Kupingan'] },
+  coating:            { code: 'COATING',            title: 'Coating',                subtitle: 'Finishing pada total rangka jadi. Pilih salah satu finishing: Coating atau Nickel.', sub: [] },
+  nickel:             { code: 'NICKEL',             title: 'Nickel',                 subtitle: 'Finishing Nickel pada total rangka jadi. Pilih salah satu finishing: Nickel atau Coating.', sub: [] },
+  dop:                { code: 'PEMASANGAN_DOP',    title: 'Pemasangan Dop',        subtitle: 'Proses akhir dari output Coating.', sub: [] }
 };
 
 const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
 const MATERIAL_ACCENT = { CUTTING: 'green', BENDING: 'orange', KUPINGAN: 'cyan', LAS: 'blue', PERAKITAN_RANGKA: 'pink', COATING: 'orange', PEMASANGAN_DOP: 'green' };
 
-const APP = { route: 'dashboard', sub: '', plant: 'ALL', reportDate: todayISO(), masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
+const APP = { route: 'dashboard', sub: '', plant: 'ALL', masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
 
 /* =====================================================================
    ROUTER — SATU-SATUNYA PINTU NAVIGASI
@@ -765,7 +643,6 @@ function renderRoute() {
 
   if (APP.route === 'master') return renderMasterPage();
   if (APP.route === 'stock') return renderStockPage();
-  if (APP.route === 'change-password') return renderPasswordSecurityPage();
   if (APP.route === 'material-overview') return renderMaterialHub();
   if (APP.route === 'input-produksi') return renderInputHub();
   if (APP.route === 'total-material') return renderTotalMaterialPage();
@@ -809,30 +686,8 @@ function renderDashboardFlows() {
     flowItemHTML('pink', 'total', 'Perakitan', 'perakitan') + '<div class="flow-arrow">→</div>' +
     flowItemHTML('orange', 'chemical', 'Chemical: Coating / Nickel', 'coating') + '<div class="flow-arrow">→</div>' +
     flowItemHTML('green', 'total', 'Dop', 'dop');
-
-  const setFlow = $('setFlow');
-  if (setFlow) {
-    setFlow.innerHTML =
-      flowItemHTML('blue', 'total', 'Pemilihan Material', 'set-overview') + '<div class="flow-arrow">→</div>' +
-      flowItemHTML('orange', 'chemical', 'Set', 'set-jok') + '<div class="flow-arrow">→</div>' +
-      flowItemHTML('green', 'total', 'Hasil Set', 'set-jok-siap');
-  }
-}
-
-function processSetTableRows(rows) {
-  let html = '';
-  (rows || []).forEach(function (it) {
-    const p = pct(it.target, it.actual);
-    const status = Number(it.actual || 0) > 0 ? '✓' : '—';
-    html += '<tr><td title="' + esc(it.name) + '">' + status + ' ' + esc(it.name) + '</td>' +
-      '<td>' + fmt(it.target) + '</td><td>' + fmt(it.actual) + '</td>' +
-      '<td><div class="achievement"><span class="achievement-value">' + p.toFixed(1) + '%</span>' +
-      '<span class="small-progress"><span class="small-progress-fill" style="width:' + Math.min(p, 100) + '%"></span></span></div></td></tr>';
-  });
-  const complete = Number(rows && rows.length ? Math.min.apply(null, rows.map(function(x){ return Number(x.actual || 0); })) : 0);
-  const target = Number(rows && rows.length ? Math.min.apply(null, rows.map(function(x){ return Number(x.target || 0); })) : 0);
-  html += '<tr class="total-row"><td>KAPASITAS SET LENGKAP</td><td>' + fmt(target) + '</td><td>' + fmt(complete) + '</td><td>' + pct(target, complete).toFixed(1) + '%</td></tr>';
-  return html;
+  var setFlow = $('setFlow');
+  if (setFlow) setFlow.innerHTML = '';
 }
 
 function processTableRows(rows, totalLabel) {
@@ -879,148 +734,22 @@ function renderChart(trend) {
   });
 }
 
-let DASHBOARD_LOADING = false;
-
-function setDashboardLoading(isLoading) {
-  DASHBOARD_LOADING = !!isLoading;
-  const ids = ['kpiStock', 'kpiFinishGood', 'kpiStage1', 'kpiStage2', 'kpiStage3', 'kpiStageTotal', 'donutValue'];
-  if (isLoading) {
-    ids.forEach(function (id) { if ($(id)) $(id).innerText = '...'; });
-    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat data dashboard...</td></tr>';
-    if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat Proses Set...</td></tr>';
-    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Memuat ringkasan efisiensi...</div>';
-  }
-}
-
-function renderDashboardData(d) {
-  d = d || {};
-  const efficiency = Number(d.efficiency || 0);
-  const averageEfficiency = Number(d.averageEfficiency !== undefined ? d.averageEfficiency : efficiency);
-  $('kpiStock').innerText = fmt(d.stockMaterial);
-  $('kpiFinishGood').innerText = fmt(d.finishGood);
-  const stageDur = d.averageBatchStageDuration || {};
-  if ($('kpiStage1')) $('kpiStage1').innerText = stageDur.materialLabel || '0 mnt';
-  if ($('kpiStage2')) $('kpiStage2').innerText = stageDur.setLabel || '0 mnt';
-  if ($('kpiStage3')) $('kpiStage3').innerText = stageDur.kursiSusunLabel || '0 mnt';
-  if ($('kpiStageTotal')) $('kpiStageTotal').innerText = stageDur.totalLabel || '0 mnt';
-  $('donutValue').innerText = averageEfficiency.toFixed(1).replace('.', ',') + '%';
-
-  const materialRows = Array.isArray(d.material) ? d.material : [];
-  $('materialTable').innerHTML = materialRows.length
-    ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL')
-    : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data produksi hari ini.</td></tr>';
-
-  const setRows = Array.isArray(d.set) ? d.set : [];
-  $('setTable').innerHTML = setRows.length
-    ? processSetTableRows(setRows)
-    : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data Proses Set hari ini.</td></tr>';
-
-  const t2 = $('materialTable2');
-  if (t2) t2.innerHTML = materialRows.length ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL') : '';
-
-  renderChart(d.trend || { labels: [], material: [] });
-
-  const eff = Array.isArray(d.efficiencyProcess) ? d.efficiencyProcess : [];
-  if (!eff.length) {
-    $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Belum ada ringkasan efisiensi.</div>';
-  } else {
-    const groups = {};
-    const groupOrder = [];
-    eff.forEach(function (it) {
-      const key = String(it.group || 'lainnya');
-      if (!groups[key]) { groups[key] = { name: it.groupName || key, rows: [] }; groupOrder.push(key); }
-      groups[key].rows.push(it);
-    });
-    $('efficiencyList').innerHTML = groupOrder.map(function (key) {
-      const g = groups[key];
-      return '<div class="eff-group-title" style="margin-top:12px">' + esc(g.name) + '</div>' +
-        g.rows.map(function (it) {
-          const value = Math.max(0, Number(it.value || 0));
-          const target = Number(it.target || 0);
-          const actual = Number(it.actual || 0);
-          const status = target > 0 ? (value > 100 ? '100+' : value.toFixed(1)) + '%' : '—';
-          return '<div class="efficiency-row">' +
-            '<div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + status + '</b></div>' +
-            '<div class="efficiency-progress"><span style="width:' + Math.min(value, 100) + '%"></span></div>' +
-            '<div style="font-size:9px;color:#8a96a8;margin-top:2px">Target ' + fmt(target) + ' • Good ' + fmt(actual) + '</div>' +
-          '</div>';
-        }).join('');
-    }).join('');
-  }
-
-  $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
-}
-
 function loadDashboard() {
-  if (DASHBOARD_LOADING) return;
-  setDashboardLoading(true);
-  const reportDate = APP.reportDate || todayISO();
-  const plantId = APP.plant || 'ALL';
-  gsRead('apiGetDashboard', [reportDate, plantId], function (d) {
-    renderDashboardData(d || {});
-    setDashboardLoading(false);
-  }, function (e) {
-    setDashboardLoading(false);
-    const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat dashboard.');
-    if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
-    if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat Proses Set: ' + esc(msg) + '</td></tr>';
-    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
-  });
-}
-
-/* =====================================================================
-   KEAMANAN & PASSWORD
-===================================================================== */
-function renderPasswordSecurityPage() {
-  $('pageTitle').innerText = 'KEAMANAN & PASSWORD';
-  const isAdmin = ERP_SESSION && ['admin','superadmin'].indexOf(String(ERP_SESSION.role)) >= 0;
-  $('processPage').innerHTML =
-    '<div class="process-page-head"><div><div class="process-page-title">Keamanan & Password</div>' +
-    '<div class="process-page-subtitle">Kelola password akun dan reset akses pengguna secara aman.</div></div>' +
-    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
-    '<div class="erp-columns">' +
-    '<div class="erp-card"><div class="erp-card-head"><div><div class="erp-card-title">Ganti Password Saya</div><div class="erp-card-caption">Password minimal 10 karakter dan harus mengandung huruf serta angka.</div></div></div>' +
-    '<div class="erp-card-body"><form id="changePasswordForm" onsubmit="submitChangePassword(event)">' +
-    '<div class="erp-form-grid">' +
-    '<div class="field full"><label>Password Lama</label><input id="cpCurrent" type="password" autocomplete="current-password" required></div>' +
-    '<div class="field"><label>Password Baru</label><input id="cpNew" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>' +
-    '<div class="field"><label>Konfirmasi Password</label><input id="cpConfirm" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>' +
-    '</div><div class="form-footer"><button class="btn-primary" id="cpSaveBtn" type="submit">Simpan Password</button></div></form></div></div>' +
-    (isAdmin ? '<div class="erp-card"><div class="erp-card-head"><div><div class="erp-card-title">Reset Password Pengguna</div><div class="erp-card-caption">Admin membuat token sekali pakai yang berlaku 15 menit. Sampaikan token kepada pengguna melalui kanal internal.</div></div></div><div class="erp-card-body"><form id="resetAdminForm" onsubmit="generateAdminReset(event)"><div class="erp-form-grid"><div class="field full"><label>Username Pengguna</label><input id="rpUsername" type="text" autocomplete="off" required></div></div><div class="form-footer"><button class="btn-secondary" id="rpBtn" type="submit">Buat Token Reset</button></div><div id="rpResult" class="stage-info" style="display:none;margin-top:12px"></div></form></div></div>' : '') +
-    '</div>';
-}
-
-function submitChangePassword(event) {
-  event.preventDefault();
-  const btn = $('cpSaveBtn');
-  const current = $('cpCurrent').value;
-  const next = $('cpNew').value;
-  const confirmNext = $('cpConfirm').value;
-  if (next !== confirmNext) { alert('Konfirmasi password baru tidak sama.'); return; }
-  btn.disabled = true; btn.innerText = 'Menyimpan...';
-  gs('apiChangePassword', [current, next], function (res) {
-    alert('Password berhasil diubah. Silakan login kembali.');
-    clearSession();
-    window.location.href = 'login.html';
-  }, function (e) {
-    alert('Gagal mengubah password: ' + ((e && e.message) ? e.message : 'Permintaan ditolak.'));
-    btn.disabled = false; btn.innerText = 'Simpan Password';
-  });
-}
-
-function generateAdminReset(event) {
-  event.preventDefault();
-  const btn = $('rpBtn');
-  const username = $('rpUsername').value.trim();
-  const result = $('rpResult');
-  btn.disabled = true; btn.innerText = 'Membuat token...';
-  gs('apiAdminCreatePasswordReset', [username], function (res) {
-    result.style.display = 'block';
-    result.innerHTML = '<strong>Token reset dibuat.</strong><br>Username: ' + esc(res.username) + '<br>Berlaku sampai: ' + esc(res.expiresAt) + '<br><strong>Token (tampilkan hanya sekali):</strong><br><span style="font-family:monospace;word-break:break-all">' + esc(res.resetToken) + '</span>';
-    btn.disabled = false; btn.innerText = 'Buat Token Reset';
-  }, function (e) {
-    alert('Gagal membuat token reset: ' + ((e && e.message) ? e.message : 'Permintaan ditolak.'));
-    btn.disabled = false; btn.innerText = 'Buat Token Reset';
+  gs('apiGetDashboard', [], function (d) {
+    $('kpiStock').innerText = fmt(d.stockMaterial);
+    $('kpiMaterial').innerText = fmt(d.produksiMaterial);
+    $('kpiEfficiency').innerText = Number(d.efficiency).toFixed(1).replace('.', ',');
+    $('donutValue').innerText = Number(d.efficiency).toFixed(1).replace('.', ',') + '%';
+    $('materialTable').innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
+    var t2 = $('materialTable2');
+    if (t2) t2.innerHTML = processTableRows(d.material, 'TOTAL PRODUKSI MATERIAL');
+    renderChart(d.trend);
+    $('efficiencyList').innerHTML = '<div class="eff-group-title">PROSES MATERIAL</div>' +
+      d.efficiencyProcess.map(function (it) {
+        return '<div class="efficiency-row"><div class="efficiency-name"><span>' + esc(it.name) + '</span><b>' + Number(it.value).toFixed(1) + '%</b></div>' +
+          '<div class="efficiency-progress"><span style="width:' + Math.min(Number(it.value), 100) + '%"></span></div></div>';
+      }).join('');
+    $('lastUpdate').innerText = new Date().toLocaleString('id-ID');
   });
 }
 
@@ -1041,9 +770,7 @@ function renderMasterPage() {
     '<div id="masterPanel"></div>';
 
   gs('apiGetOverview', [], function (o) {
-    const masterStats = $('masterStats');
-    if (!masterStats) return;
-    masterStats.innerHTML = [
+    $('masterStats').innerHTML = [
       ['Plant', o.plant, 'referensi lokasi produksi'],
       ['Proses', o.proses, 'alur proses terdaftar'],
       ['Batch', o.batch, 'batch produksi'],
@@ -1057,9 +784,7 @@ function renderMasterPage() {
 }
 
 function renderMasterTabs() {
-  const tabs = $('masterTabs');
-  if (!tabs) return;
-  tabs.innerHTML = Object.keys(MASTER_TABS).map(function (k) {
+  $('masterTabs').innerHTML = Object.keys(MASTER_TABS).map(function (k) {
     return '<button class="erp-tab ' + (k === APP.masterEntity ? 'active' : '') + '" onclick="switchMaster(\'' + k + '\')">' + MASTER_TABS[k] + '</button>';
   }).join('');
 }
@@ -1086,13 +811,11 @@ function masterFieldHTML(f, value, plants) {
 
 function renderMasterEntity(entity, editId) {
   const panel = $('masterPanel');
-  if (!panel || !MASTER_TABS[entity]) return;
   panel.innerHTML = '<div class="erp-card"><div class="erp-card-body"><div class="erp-empty">Memuat ' + esc(MASTER_TABS[entity]) + '...</div></div></div>';
 
   gs('apiGetMaster', [entity], function (data) {
     gs('apiGetPlants', [], function (plants) {
-      if (!panel || !document.body.contains(panel)) return;
-      const targetRow = editId ? (entity === 'batch' ? data.rows.find(function (r) { return String(r.batch_id || '') + '::' + (r.kelompok || 'Material') === String(editId); }) : data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); })) : null;
+      const targetRow = editId ? data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); }) : null;
       const mode = targetRow ? 'Edit' : 'Tambah';
       panel.innerHTML =
         '<div class="erp-columns">' +
@@ -1106,7 +829,6 @@ function renderMasterEntity(entity, editId) {
           return '<div class="field"><label>' + esc(f.label) + '</label>' + masterFieldHTML(f, targetRow ? targetRow[f.key] : '', plants) + '</div>';
         }).join('') +
         '</div>' +
-        (entity === 'batch' && targetRow ? '<input type="hidden" id="masterOriginalBatchId" value="'+esc(targetRow.batch_id || '')+'"><input type="hidden" id="masterOriginalKelompok" value="'+esc(targetRow.kelompok || 'Material')+'">' : '') +
         '<div class="form-footer"><button class="btn-secondary" type="button" onclick="renderMasterEntity(\'' + entity + '\')">Reset</button>' +
         '<button class="btn-primary" type="submit" id="masterSaveBtn">Simpan ' + esc(data.title) + '</button></div>' +
         '</form></div></div>' +
@@ -1120,16 +842,13 @@ function renderMasterEntity(entity, editId) {
         '</div></div></div>';
 
       const shownHeaders = (data.headers || []).filter(Boolean).slice(0, 7);
-      const masterHead = document.querySelector('#masterTable thead tr');
-      if (!masterHead) return;
-      masterHead.innerHTML =
+      document.querySelector('#masterTable thead tr').innerHTML =
         shownHeaders.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '<th>Aksi</th>';
       const body = $('masterTableBody');
-      if (!body) return;
       body.innerHTML = data.rows.length ? data.rows.map(function (r) {
         return '<tr>' + shownHeaders.map(function (h) { return '<td>' + (r[h] === '' || r[h] == null ? '—' : esc(r[h])) + '</td>'; }).join('') +
           '<td><div class="erp-action-row">' +
-          '<button class="erp-icon-btn" title="Edit" onclick="renderMasterEntity(\'' + entity + '\',\'' + esc(entity === 'batch' ? String(r.batch_id || '') + '::' + (r.kelompok || 'Material') : r[data.idCol]) + '\')">✎</button>' +
+          '<button class="erp-icon-btn" title="Edit" onclick="renderMasterEntity(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">✎</button>' +
           '<button class="erp-icon-btn" title="Hapus" onclick="deleteMaster(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">🗑</button>' +
           '</div></td></tr>';
       }).join('') : '<tr><td colspan="8"><div class="erp-empty"><strong>Belum ada data</strong>Tambahkan melalui form di sebelah kiri.</div></td></tr>';
@@ -1149,10 +868,6 @@ function submitMaster(event, entity) {
   const btn = $('masterSaveBtn');
   const payload = {};
   document.querySelectorAll('[data-field]').forEach(function (el) { payload[el.getAttribute('data-field')] = el.value; });
-  if (entity === 'batch') {
-    payload._original_batch_id = $('masterOriginalBatchId') ? $('masterOriginalBatchId').value : '';
-    payload._original_kelompok = $('masterOriginalKelompok') ? $('masterOriginalKelompok').value : '';
-  }
   btn.disabled = true; btn.innerText = 'Menyimpan...';
   gs('apiSaveMaster', [entity, payload], function (res) {
     alert('Data ' + MASTER_TABS[entity] + ' berhasil disimpan (' + res.mode + '). ID: ' + res.id);
@@ -1181,12 +896,11 @@ function renderStockPage() {
     '<div class="process-page-title">Stok Material</div>' +
     '<div class="process-page-subtitle">Pantau saldo material, batas minimum, lokasi, dan status.</div></div>' +
     '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button>' +
-    '<button class="btn-secondary" onclick="loadStockTable()">↻ Refresh</button>' +
     '<button class="btn-primary" onclick="focusStockForm()">+ Material</button></div></div>' +
     '<div id="stockSummary" class="erp-page-grid"></div>' +
     '<div class="erp-columns">' +
     '<div class="erp-card" id="stockFormCard">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">ID kosong = otomatis MAT-xxxx. Perubahan saldo menghasilkan mutasi stok.</div></div><span id="stockFormStatus" class="status-pill status-good"><span class="status-dot"></span>Siap</span></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Input / Update Stok</div><div class="erp-card-caption">Kosongkan ID untuk material baru (otomatis MAT-001).</div></div></div>' +
     '<div class="erp-card-body"><form id="stockForm" onsubmit="submitStock(event)">' +
     '<div class="erp-form-grid">' +
     '<div class="field"><label>ID Material</label><input id="stId" type="text" placeholder="MAT-001"></div>' +
@@ -1195,70 +909,53 @@ function renderStockPage() {
     '<div class="field"><label>Satuan</label><input id="stUnit" type="text" placeholder="PCS / KG / LTR"></div>' +
     '<div class="field"><label>Saldo Stok</label><input id="stQty" required type="number" step="0.01" min="0" placeholder="0"></div>' +
     '<div class="field"><label>Minimum Stok</label><input id="stMin" type="number" step="0.01" min="0" placeholder="0"></div>' +
-    '<div class="field"><label>Plant</label><select id="stPlant" required><option value="">Pilih plant</option></select></div>' +
+    '<div class="field"><label>Plant</label><select id="stPlant"><option value="">Pilih plant</option></select></div>' +
     '<div class="field"><label>Lokasi</label><input id="stLoc" type="text" placeholder="Gudang A"></div>' +
     '<div class="field full"><label>Status</label><select id="stStatus"><option>Aktif</option><option>Tidak Aktif</option></select></div>' +
     '</div>' +
-    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="resetStockForm()">Reset</button>' +
+    '<div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'stockForm\').reset()">Reset</button>' +
     '<button class="btn-primary" id="stockSaveBtn" type="submit">Simpan Stok</button></div>' +
     '</form></div></div>' +
     '<div class="erp-card">' +
-    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div><span id="stockListStatus" class="status-pill status-good"><span class="status-dot"></span>Memuat</span></div>' +
+    '<div class="erp-card-head"><div><div class="erp-card-title">Daftar Persediaan</div><div class="erp-card-caption" id="stockSheetInfo">Memuat...</div></div></div>' +
     '<div class="erp-card-body">' +
-    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div><div class="erp-toolbar-right"><span class="erp-chip" id="stockFilterChip">Plant: ALL</span></div></div>' +
+    '<div class="erp-toolbar"><div class="erp-toolbar-left"><input id="stockSearch" class="erp-search" placeholder="Cari material / kategori / lokasi..."></div></div>' +
     '<div class="erp-table-wrap"><table class="erp-table"><thead><tr>' +
     '<th>ID</th><th>NAMA</th><th>KATEGORI</th><th>PLANT</th><th>SATUAN</th><th>STOK</th><th>MIN</th><th>LOKASI</th><th>STATUS</th><th>AKSI</th>' +
     '</tr></thead><tbody id="stockTableBody"></tbody></table></div>' +
     '</div></div></div>';
 
   gs('apiGetPlants', [], function (plants) {
-    const preferred = APP.plant !== 'ALL' ? APP.plant : '';
     $('stPlant').innerHTML = '<option value="">Pilih plant</option>' + plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '"' + (preferred === p.plant_id ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
   });
   loadStockTable();
 }
 
-function resetStockForm() {
-  $('stockForm').reset();
-  if (APP.plant !== 'ALL' && $('stPlant')) $('stPlant').value = APP.plant;
-  $('stockSaveBtn').disabled = false;
-  $('stockSaveBtn').innerText = 'Simpan Stok';
-  const st = $('stockFormStatus');
-  if (st) { st.className = 'status-pill status-good'; st.innerHTML = '<span class="status-dot"></span>Siap'; }
-}
-
 function loadStockTable() {
-  const status = $('stockListStatus');
-  if (status) { status.className = 'status-pill status-warn'; status.innerHTML = '<span class="status-dot"></span>Memuat'; }
-  const body = $('stockTableBody');
-  if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty">Memuat data stok...</div></td></tr>';
-
   gs('apiGetStock', [APP.plant], function (d) {
     APP.stockCache = d;
-    $('stockSheetInfo').innerText = 'Sheet: ' + d.sheet + ' • ' + fmt(d.totalItems) + ' item • Diperbarui ' + new Date().toLocaleTimeString('id-ID');
-    $('stockFilterChip').innerText = 'Plant: ' + (d.plantId || 'ALL');
+    $('stockSheetInfo').innerText = (d.missingSheet ? 'Sheet Stok_Material dibuat otomatis saat simpan pertama' : 'Sheet: ' + d.sheet) + ' • ' + fmt(d.totalItems) + ' item';
     $('stockSummary').innerHTML = [
       ['Total Item', fmt(d.totalItems), 'item material', ''],
       ['Total Qty', fmt(d.totalQty), 'saldo gabungan', ''],
       ['Stok Minimum', fmt(d.lowStock), 'item perlu perhatian', d.lowStock ? 'warn' : 'good'],
-      ['Filter Plant', d.plantId || 'ALL', 'plant aktif', '']
+      ['Filter Plant', d.plantId, 'plant aktif', '']
     ].map(function (x) {
       return '<div class="erp-stat-card"><div class="erp-stat-label">' + x[0] + '</div><div class="erp-stat-value">' + esc(x[1]) + '</div><div class="erp-stat-note">' + esc(x[2]) + '</div></div>';
     }).join('');
 
+    const body = $('stockTableBody');
     body.innerHTML = d.rows.length ? d.rows.map(function (r, idx) {
       const qty = Number(r.stok || 0), min = Number(r.minimum_stok || 0);
       const low = min > 0 && qty <= min;
-      const statusClass = String(r.status || 'Aktif') === 'Aktif' ? 'status-good' : 'status-warn';
       return '<tr>' +
         '<td>' + esc(r.material_id) + '</td><td><b>' + esc(r.material_name) + '</b></td>' +
         '<td>' + esc(r.kategori || '—') + '</td><td>' + esc(r.plant_id || '—') + '</td>' +
         '<td>' + esc(r.satuan || '—') + '</td>' +
         '<td><span class="status-pill ' + (low ? 'status-warn' : 'status-good') + '"><span class="status-dot"></span>' + fmt(qty) + '</span></td>' +
-        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td>' +
-        '<td><span class="status-pill ' + statusClass + '"><span class="status-dot"></span>' + esc(r.status || 'Aktif') + '</span></td>' +
+        '<td>' + fmt(min) + '</td><td>' + esc(r.lokasi || '—') + '</td><td>' + esc(r.status || 'Aktif') + '</td>' +
         '<td><div class="erp-action-row">' +
         '<button class="erp-icon-btn" title="Edit" onclick="editStock(' + idx + ')">✎</button>' +
         '<button class="erp-icon-btn" title="Hapus" onclick="deleteStock(' + idx + ')">🗑</button>' +
@@ -1271,10 +968,6 @@ function loadStockTable() {
         tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
       });
     };
-    if (status) { status.className = 'status-pill status-good'; status.innerHTML = '<span class="status-dot"></span>Terhubung'; }
-  }, function (e) {
-    if (status) { status.className = 'status-pill status-bad'; status.innerHTML = '<span class="status-dot"></span>Gagal'; }
-    if (body) body.innerHTML = '<tr><td colspan="10"><div class="erp-empty"><strong>Gagal membaca stok</strong>' + esc((e && e.message) ? e.message : e) + '</div></td></tr>';
   });
 }
 
@@ -1312,9 +1005,7 @@ function focusStockForm() {
 function submitStock(event) {
   event.preventDefault();
   const btn = $('stockSaveBtn');
-  const formStatus = $('stockFormStatus');
   btn.disabled = true; btn.innerText = 'Menyimpan...';
-  if (formStatus) { formStatus.className = 'status-pill status-warn'; formStatus.innerHTML = '<span class="status-dot"></span>Menyimpan'; }
   const payload = {
     material_id: $('stId').value.trim(),
     material_name: $('stName').value.trim(),
@@ -1328,12 +1019,12 @@ function submitStock(event) {
   };
   gs('apiSaveStock', [payload], function (res) {
     alert('Stok berhasil disimpan (' + res.mode + '). ID: ' + res.id);
-    resetStockForm();
+    $('stockForm').reset();
+    btn.disabled = false; btn.innerText = 'Simpan Stok';
     loadStockTable();
   }, function (e) {
     alert('Gagal menyimpan stok: ' + ((e && e.message) ? e.message : e));
     btn.disabled = false; btn.innerText = 'Simpan Stok';
-    if (formStatus) { formStatus.className = 'status-pill status-bad'; formStatus.innerHTML = '<span class="status-dot"></span>Gagal'; }
   });
 }
 function renderInputHub() {
@@ -1360,7 +1051,7 @@ function renderMaterialHub() {
   const items = [
     ['cutting', 'Cutting Proses', 'green', 'Pipa/plat menjadi komponen: Kaki-kaki, Palang, Sandaran, U.'],
     ['bending', 'Bending Proses', 'orange', 'Bending Kaki, Bor, Bending Sandaran, Bending U.'],
-    ['kupingan', 'Kupingan', 'cyan', 'Input kupingan langsung dari stok material. Proses independen.'],
+    ['kupingan', 'Kupingan', 'cyan', 'Input panel/kupingan langsung dari stok. Proses independen.'],
     ['las', 'Las Proses', 'blue', 'Las Robot dari Bending Kaki.'],
     ['perakitan', 'Perakitan Rangka', 'pink', '5 jalur komponen bertemu menjadi 1 rangka jadi.'],
     ['coating', 'Chemical', 'orange', 'Pilih salah satu finishing: Coating atau Nickel setelah rangka jadi.'],
@@ -1416,7 +1107,7 @@ function renderProcessPage(key) {
   APP.editingTrxId = null;
   const subField = cfg.sub && cfg.sub.length ? '<div class="field full"><label>Sub Proses</label><select id="ppSub" required>' +
     '<option value="">Pilih sub proses</option>' + cfg.sub.map(function (s) { return '<option value="' + esc(s) + '"' + (APP.sub === s ? ' selected' : '') + '>' + esc(s) + '</option>'; }).join('') + '</select></div>' : '';
-  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select><div id="ppStockHint" class="process-panel-caption" style="margin-top:5px">Pilih material untuk melihat saldo stok.</div></div>' : '';
+  const materialField = cfg.stockInput ? '<div class="field full"><label>Material Bahan Baku</label><select id="ppMaterial" required><option value="">Memuat material stok...</option></select></div>' : '';
 
   const accent = MATERIAL_ACCENT[cfg.code] || 'purple';
 
@@ -1482,304 +1173,40 @@ function resetProcessForm() {
   $('ppDate').value = todayISO();
   $('ppStageBox').style.display = 'none';
   if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
-  if ($('ppQtyInput')) $('ppQtyInput').removeAttribute('max');
-  if ($('ppSaveBtn')) $('ppSaveBtn').disabled = APP.procKey === 'kupingan';
 }
 
 function loadProcessOptions(key) {
   const cfg = PROCESS_PAGES[key];
   gs('apiGetProcessOptions', [cfg.code], function (d) {
     const plantSel = $('ppPlant');
-    const allPlants = d.plants || [];
-    plantSel.innerHTML = '<option value="">Pilih plant</option>' + allPlants.map(function (p) {
-      const selected = APP.plant !== 'ALL' && String(p.plant_id) === String(APP.plant) ? ' selected' : '';
-      return '<option value="' + esc(p.plant_id) + '"' + selected + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+    plantSel.innerHTML = '<option value="">Pilih plant</option>' + d.plants.map(function (p) {
+      return '<option value="' + esc(p.plant_id) + '"' + (APP.plant !== 'ALL' && p.plant_id === APP.plant ? ' selected' : '') + '>' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
     }).join('');
 
     const batches = d.batches || [];
-    const operators = d.operators || [];
-    const materialRows = d.materials || [];
+    $('ppBatch').innerHTML = '<option value="">Pilih batch</option>' + batches.map(function (b) {
+      const disabled = APP.plant !== 'ALL' && b.plant_id !== APP.plant ? ' disabled' : '';
+      return '<option value="' + esc(b.batch_id) + '"' + disabled + '>' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
+    }).join('');
 
-    function getSelectedPlant() {
-      return plantSel && plantSel.value ? String(plantSel.value) : '';
-    }
-
-    function renderBatchOptions() {
-      const selectedPlant = getSelectedPlant();
-      const batchSel = $('ppBatch');
-      const filtered = selectedPlant
-        ? batches.filter(function (b) { return String(b.plant_id || '') === selectedPlant; })
-        : [];
-
-      batchSel.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih batch' : 'Pilih plant terlebih dahulu') + '</option>' +
-        filtered.map(function (b) {
-          return '<option value="' + esc(b.batch_id) + '">' + esc(b.batch_id) + ' — ' + esc(b.produk || '') + ' [' + esc(b.tahap_saat_ini || '') + ']</option>';
-        }).join('');
-    }
-
-    function renderMaterialOptions(keepValue) {
-      const m = $('ppMaterial');
-      if (!m) return;
-      const selectedPlant = getSelectedPlant();
-      const filtered = selectedPlant
-        ? materialRows.filter(function (r) {
-            return String(r.plant_id || '') === selectedPlant && String(r.status || 'Aktif') !== 'Tidak Aktif' && Number(r.stok || 0) > 0;
-          })
-        : [];
-      const oldValue = keepValue ? m.value : '';
-      m.innerHTML = '<option value="">' + (selectedPlant ? 'Pilih material stok' : 'Pilih plant terlebih dahulu') + '</option>' +
-        filtered.map(function (r) {
-          return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
-        }).join('');
-      if (oldValue && filtered.some(function (r) { return String(r.material_id) === String(oldValue); })) m.value = oldValue;
-
-      const hint = $('ppStockHint');
-      if (hint) {
-        if (!selectedPlant) hint.innerText = 'Pilih plant terlebih dahulu.';
-        else if (!filtered.length) hint.innerText = 'Tidak ada material stok aktif pada plant ini.';
-      }
-    }
-
-    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + operators.map(function (o) {
+    $('ppOperator').innerHTML = '<option value="">Pilih operator</option>' + (d.operators || []).map(function (o) {
       return '<option value="' + esc(o.telegram_user_id) + '">' + esc(o.nama_operator || o.telegram_user_id) + '</option>';
     }).join('');
 
     const m = $('ppMaterial');
-    if (m && !m.dataset.stockHintBound) {
-      m.dataset.stockHintBound = '1';
-      m.addEventListener('change', function () {
-        const selectedPlant = getSelectedPlant();
-        const row = materialRows.find(function (r) {
-          return String(r.material_id) === String(m.value) && String(r.plant_id || '') === selectedPlant;
-        });
-        const hint = $('ppStockHint');
-        if (!hint) return;
-        if (!row) {
-          hint.innerText = selectedPlant ? 'Pilih material untuk melihat saldo stok.' : 'Pilih plant terlebih dahulu.';
-          return;
-        }
-        hint.innerText = 'Saldo stok: ' + fmt(row.stok) + ' ' + (row.satuan || '') + ' • Plant: ' + (row.plant_id || '-');
-        if (APP.procKey === 'kupingan') applyKupinganUX(materialRows);
-      });
+    if (m) {
+      m.innerHTML = '<option value="">Pilih material stok</option>' + (d.materials || []).map(function (r) {
+        return '<option value="' + esc(r.material_id) + '">' + esc(r.material_id) + ' — ' + esc(r.material_name) + ' (stok ' + fmt(r.stok) + ' ' + esc(r.satuan || '') + ')</option>';
+      }).join('');
     }
-
-    // Plant menjadi sumber kebenaran untuk Batch dan Material.
-    plantSel.addEventListener('change', function () {
-      renderBatchOptions();
-      renderMaterialOptions(false);
-      if ($('ppBatch')) $('ppBatch').value = '';
-      if ($('ppQtyInput')) $('ppQtyInput').value = '';
-      if ($('ppStageBox')) { $('ppStageBox').style.display = 'none'; $('ppStageBox').innerHTML = ''; }
-      if ($('ppSourceBox')) { $('ppSourceBox').style.display = 'none'; $('ppSourceBox').innerHTML = ''; }
-    });
-
-    $('ppBatch').addEventListener('change', refreshProcessContext);
-    if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
-    if ($('ppSub') && key === 'perakitan') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) applyAssemblyUX(); });
-    if ($('ppSub') && key === 'bending') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
-    if ($('ppSub') && key === 'dop') $('ppSub').addEventListener('change', function () { if ($('ppBatch') && $('ppBatch').value) refreshProcessContext(); });
-
-    renderBatchOptions();
-    renderMaterialOptions(false);
     if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
   }, function (e) {
     const st = $('ppStatus');
     if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
   });
-}
 
-function getBendingSourceLabel(sub) {
-  const map = {
-    'Bending Kaki': 'Cutting Kaki-kaki',
-    'Bor': 'Cutting Palang',
-    'Bending Sandaran': 'Cutting Sandaran',
-    'Bending U': 'Cutting U'
-  };
-  return map[sub] || '';
-}
-
-function applyBendingUX(ctx) {
-  if (APP.procKey !== 'bending') return;
-  const sub = $('ppSub') ? $('ppSub').value : '';
-  const qty = $('ppQtyInput');
-  const save = $('ppSaveBtn');
-  const source = getBendingSourceLabel(sub);
-  if (source && $('ppSourceBox')) {
-    $('ppSourceBox').style.display = 'block';
-    $('ppSourceBox').innerHTML = '<div class="stage-info"><b>Sumber Bending:</b> ' + esc(source) +
-      (ctx && Number(ctx.availableQty || 0) > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
-      '</div>';
-  }
-  if (qty) {
-    const av = Number(ctx && ctx.availableQty || 0);
-    if (av > 0) qty.max = String(av);
-    else qty.removeAttribute('max');
-  }
-  if (save && !APP.editingTrxId) {
-    const ok = !!(ctx && ctx.available);
-    save.disabled = !ok;
-    save.title = ok ? '' : 'Selesaikan sumber Cutting terlebih dahulu.';
-  }
-}
-
-
-function applyKupinganUX(materialRows) {
-  if (APP.procKey !== 'kupingan') return;
-  const plant = $('ppPlant') ? $('ppPlant').value : '';
-  const material = $('ppMaterial') ? $('ppMaterial').value : '';
-  const qty = $('ppQtyInput');
-  const save = $('ppSaveBtn');
-  const sourceBox = $('ppSourceBox');
-  const row = (materialRows || []).find(function (r) {
-    return String(r.material_id) === String(material) && String(r.plant_id || '') === String(plant);
-  });
-  if (sourceBox) {
-    sourceBox.style.display = 'block';
-    sourceBox.innerHTML = row
-      ? '<div class="stage-info"><b>Sumber Kupingan:</b> Stok material' +
-        ' &nbsp;•&nbsp; <b>Material:</b> ' + esc(row.material_name || row.material_id) +
-        ' &nbsp;•&nbsp; <b>Saldo:</b> ' + fmt(row.stok) + ' ' + esc(row.satuan || 'PCS') + '</div>'
-      : '<div class="stage-warning">Pilih material stok untuk proses Kupingan. Proses ini independen dari Cutting dan Bending.</div>';
-  }
-  if (qty) {
-    if (row && Number(row.stok || 0) > 0) qty.max = String(row.stok);
-    else qty.removeAttribute('max');
-  }
-  if (save && !APP.editingTrxId) {
-    save.disabled = !row;
-    save.title = row ? '' : 'Pilih material stok terlebih dahulu.';
-  }
-}
-
-
-function getAssemblySourceMap() {
-  return {
-    'Las Kaki': 'Las Robot',
-    'Las Palang': 'Bor',
-    'Las Sandaran': 'Bending Sandaran',
-    'Las U': 'Bending U',
-    'Las Kupingan': 'Kupingan'
-  };
-}
-
-function applyAssemblyUX() {
-  if (APP.procKey !== 'perakitan') return;
-  const batch = $('ppBatch') ? $('ppBatch').value : '';
-  const sub = $('ppSub') ? $('ppSub').value : '';
-  const sourceBox = $('ppSourceBox');
-  const qty = $('ppQtyInput');
-  const save = $('ppSaveBtn');
-  const map = getAssemblySourceMap();
-  const subs = Object.keys(map);
-
-  if (!batch) {
-    if (sourceBox) { sourceBox.style.display = 'none'; sourceBox.innerHTML = ''; }
-    if (qty) qty.removeAttribute('max');
-    if (save && !APP.editingTrxId) save.disabled = true;
-    return;
-  }
-
-  // Ambil ketersediaan kelima komponen dari batch yang sama.
-  Promise.all(subs.map(function (s) {
-    return new Promise(function (resolve) {
-      gs('apiGetBatchContext', [batch, 'PERAKITAN_RANGKA', s], function (ctx) {
-        resolve({ sub: s, label: map[s], qty: Number(ctx.availableQty || 0), available: !!ctx.available });
-      }, function () {
-        resolve({ sub: s, label: map[s], qty: 0, available: false });
-      });
-    });
-  })).then(function (items) {
-    const vals = items.map(function (x) { return x.qty; });
-    const complete = items.every(function (x) { return x.qty > 0 && x.available; });
-    const minQty = complete ? Math.min.apply(null, vals) : 0;
-
-    if (sourceBox) {
-      sourceBox.style.display = 'block';
-      sourceBox.innerHTML = '<div class="stage-info"><b>Sumber 5 Komponen Perakitan:</b><br>' +
-        items.map(function (x) {
-          const cls = x.qty > 0 ? 'status-good' : 'status-warn';
-          return '<span style="display:inline-block;margin:4px 10px 0 0" class="status-pill ' + cls + '">' +
-            esc(x.sub) + ' ← ' + esc(x.label) + ': ' + fmt(x.qty) + ' PCS</span>';
-        }).join('') +
-        '<br><b style="display:inline-block;margin-top:6px">Rangka Jadi tersedia: ' + fmt(minQty) + ' PCS (MIN 5 komponen)</b></div>';
-    }
-
-    if (qty) {
-      if (minQty > 0) qty.max = String(minQty);
-      else qty.removeAttribute('max');
-      if (!APP.editingTrxId) qty.value = minQty || '';
-    }
-    if ($('ppQtyTarget')) {
-      // target batch tetap mengikuti target asli; tidak diubah menjadi jumlah komponen.
-      if (!$('ppQtyTarget').value) refreshProcessContext();
-    }
-    if (save && !APP.editingTrxId) {
-      save.disabled = !complete || !sub;
-      save.title = complete ? '' : 'Lengkapi seluruh 5 komponen perakitan terlebih dahulu.';
-    }
-  });
-}
-
-function applyDopUX(ctx) {
-  if (APP.procKey !== 'dop') return;
-  const qty = $('ppQtyInput');
-  const save = $('ppSaveBtn');
-  const sourceBox = $('ppSourceBox');
-  const sub = $('ppSub');
-  const branch = sub ? sub.value : '';
-  const availableQty = Number(ctx && ctx.availableQty || 0);
-  const sourceLabel = ctx && ctx.sourceLabel ? ctx.sourceLabel : 'Hasil Chemical';
-  const ok = !!(ctx && ctx.available) && availableQty > 0 && !!branch;
-  if (sourceBox) {
-    sourceBox.style.display = 'block';
-    sourceBox.innerHTML = '<div class="stage-info"><b>Sumber Pemasangan Dop:</b> ' + esc(sourceLabel) +
-      (availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS' : '') +
-      '<br><b>Catatan:</b> Satu batch boleh dibagi antara Coating dan Nickel. Pilih branch sumber Dop.</div>';
-  }
-  if (qty) {
-    if (availableQty > 0) qty.max = String(availableQty);
-    else qty.removeAttribute('max');
-    if (!APP.editingTrxId && availableQty > 0) qty.value = availableQty;
-  }
-  if (save && !APP.editingTrxId) {
-    save.disabled = !ok;
-    save.title = ok ? '' : 'Pilih Coating/Nickel dan pastikan hasil branch masih tersedia.';
-  }
-}
-
-function applyChemicalUX(ctx) {
-  if (APP.procKey !== 'coating' && APP.procKey !== 'nickel') return;
-  const batchSel = $('ppBatch');
-  const qty = $('ppQtyInput');
-  const save = $('ppSaveBtn');
-  const sourceBox = $('ppSourceBox');
-  if (!batchSel || !batchSel.value) return;
-
-  const chosen = APP.procKey === 'coating' ? 'COATING' : 'NICKEL';
-  const other = chosen === 'COATING' ? 'NICKEL' : 'COATING';
-  const chosenName = chosen === 'COATING' ? 'Coating' : 'Nickel';
-  const otherName = other === 'COATING' ? 'Coating' : 'Nickel';
-  const availableQty = Number(ctx && ctx.availableQty || 0);
-  const nextStage = String(ctx && ctx.tahapSaatIni || '').toUpperCase();
-
-  if (sourceBox) {
-    sourceBox.style.display = 'block';
-    let html = '<div class="stage-info"><b>Sumber Chemical:</b> Total Rangka Jadi';
-    if (availableQty > 0) html += ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(availableQty) + ' PCS';
-    html += '<br><b>Branch:</b> ' + esc(chosenName) + ' atau ' + esc(otherName) + ' — <b>batch boleh dibagi ke dua branch</b>.</div>';
-    sourceBox.innerHTML = html;
-  }
-
-  if (qty) {
-    if (availableQty > 0) qty.max = String(availableQty);
-    else qty.removeAttribute('max');
-    if (!APP.editingTrxId && availableQty > 0) qty.value = availableQty;
-  }
-  if (save && !APP.editingTrxId) {
-    const ok = !!(ctx && ctx.available) && availableQty > 0;
-    save.disabled = !ok;
-    save.title = ok ? '' : 'Rangka Jadi belum tersedia atau finishing lain sudah dipilih.';
-  }
+  $('ppBatch').addEventListener('change', refreshProcessContext);
+  if ($('ppSub')) $('ppSub').addEventListener('change', refreshProcessContext);
 }
 
 function refreshProcessContext() {
@@ -1806,19 +1233,6 @@ function refreshProcessContext() {
         (ctx.availableQty > 0 ? ' &nbsp;•&nbsp; <b>Tersedia:</b> ' + fmt(ctx.availableQty) + ' PCS' : '') +
         (ctx.code === 'PERAKITAN_RANGKA' ? ' &nbsp;•&nbsp; Total rangka jadi dihitung dari minimum 5 komponen.' : '') +
         '</div>';
-    }
-    applyBendingUX(ctx);
-    if (APP.procKey === 'kupingan') {
-      gs('apiGetProcessOptions', ['KUPINGAN'], function (opt) { applyKupinganUX(opt.materials || []); });
-    }
-    if (APP.procKey === 'perakitan') {
-      applyAssemblyUX();
-    }
-    if (APP.procKey === 'coating' || APP.procKey === 'nickel') {
-      applyChemicalUX(ctx);
-    }
-    if (APP.procKey === 'dop') {
-      applyDopUX(ctx);
     }
   });
 }
@@ -1903,41 +1317,6 @@ function submitProcess(event, key) {
   const qtyInput = Number($('ppQtyInput').value || 0);
   const qtyGood = Number($('ppQtyGood').value || 0);
   const qtyReject = Number($('ppQtyReject').value || 0);
-  if (key === 'bending' && $('ppQtyInput').max) {
-    const maxInput = Number($('ppQtyInput').max || 0);
-    if (maxInput > 0 && qtyInput > maxInput) {
-      alert('Qty Input Bending melebihi output Cutting yang tersedia: ' + fmt(maxInput) + ' PCS.');
-      return;
-    }
-  }
-  if (key === 'kupingan') {
-    const selectedMaterial = $('ppMaterial') ? $('ppMaterial').value : '';
-    if (!selectedMaterial) {
-      alert('Material stok wajib dipilih untuk proses Kupingan.');
-      return;
-    }
-    if ($('ppQtyInput').max) {
-      const maxStock = Number($('ppQtyInput').max || 0);
-      if (maxStock > 0 && qtyInput > maxStock) {
-        alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
-        return;
-      }
-    }
-  }
-  if ((key === 'coating' || key === 'nickel') && $('ppQtyInput').max) {
-    const maxChemical = Number($('ppQtyInput').max || 0);
-    if (maxChemical > 0 && qtyInput > maxChemical) {
-      alert('Qty Input Chemical melebihi Rangka Jadi yang tersedia: ' + fmt(maxChemical) + ' PCS.');
-      return;
-    }
-  }
-  if (key === 'perakitan' && $('ppQtyInput').max) {
-    const maxAssembly = Number($('ppQtyInput').max || 0);
-    if (maxAssembly > 0 && qtyInput > maxAssembly) {
-      alert('Qty Input Perakitan melebihi Rangka Jadi tersedia (MIN 5 komponen): ' + fmt(maxAssembly) + ' PCS.');
-      return;
-    }
-  }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
     alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
     return;
@@ -2043,14 +1422,14 @@ function setupSidebarCollapsibles() {
    2# PROSES SET — UI
 ===================================================================== */
 const SET_PAGES = {
-  'set-papan-jok': { code:'PAPAN_JOK', title:'Papan Jok', group:'Papan', parent:'Cutting Papan', stock:true },
-  'set-papan-sandaran': { code:'PAPAN_SANDARAN', title:'Papan Sandaran', group:'Papan', parent:'Cutting Papan', stock:true },
-  'set-papan-tutupan': { code:'PAPAN_TUTUPAN', title:'Papan Tutupan', group:'Papan', parent:'Cutting Papan', stock:true },
-  'set-pola-jok': { code:'KAIN_POLA_JOK', title:'Pola Jok', group:'Kain', parent:'Cutting Kain', stock:true },
-  'set-pola-sandaran': { code:'KAIN_POLA_SANDARAN', title:'Pola Sandaran', group:'Kain', parent:'Cutting Kain', stock:true },
-  'set-pola-tutupan': { code:'KAIN_TUTUPA', title:'Pola Tutupan', group:'Kain', parent:'Cutting Kain', stock:true },
-  'set-busa-jok': { code:'BUSA_JOK', title:'Busa Jok', group:'Busa', parent:'Busa', stock:true },
-  'set-busa-sandaran': { code:'BUSA_SANDARAN', title:'Busa Sandaran', group:'Busa', parent:'Busa', stock:true },
+  'set-papan-jok': { code:'PAPAN_JOK', title:'Papan Jok', group:'Papan', stock:true },
+  'set-papan-sandaran': { code:'PAPAN_SANDARAN', title:'Papan Sandaran', group:'Papan', stock:true },
+  'set-papan-tutupan': { code:'PAPAN_TUTUPAN', title:'Papan Tutupan', group:'Papan', stock:true },
+  'set-pola-jok': { code:'KAIN_POLA_JOK', title:'Pola Jok', group:'Kain', stock:true },
+  'set-pola-sandaran': { code:'KAIN_POLA_SANDARAN', title:'Pola Sandaran', group:'Kain', stock:true },
+  'set-tutupa': { code:'KAIN_TUTUPA', title:'Tutupa', group:'Kain', stock:true },
+  'set-busa-jok': { code:'BUSA_JOK', title:'Busa Jok', group:'Busa', stock:true },
+  'set-busa-sandaran': { code:'BUSA_SANDARAN', title:'Busa Sandaran', group:'Busa', stock:true },
   'set-jok': { code:'SET_JOK', title:'Set Jok', group:'Set', stock:false },
   'set-sandaran': { code:'SET_SANDARAN', title:'Set Sandaran', group:'Set', stock:false },
   'set-tutupan': { code:'SET_TUTUPAN', title:'Set Tutupan', group:'Set', stock:false },
@@ -2058,114 +1437,26 @@ const SET_PAGES = {
   'set-sandaran-siap': { code:'SANDARAN_SIAP_PAKAI', title:'Sandaran siap pakai', group:'Hasil Akhir', stock:false },
   'set-tutupan-siap': { code:'TUTUPAN_SIAP_PAKAI', title:'Tutupan siap pakai', group:'Hasil Akhir', stock:false }
 };
-const SET_APP = { page:null, options:null, editingTrxId:null, historyRows:[] };
+const SET_APP = { page:null, options:null };
 
 function renderSetOverview() {
   $('pageTitle').innerText = '2# PROSES SET';
-
-  const cuttingGroups = [
-    {
-      title: 'Cutting Papan',
-      subtitle: 'Material papan diambil dari Stok Material.',
-      accent: '#7b57d9',
-      items: [
-        ['set-papan-jok', 'Papan Jok', 'Komponen untuk Set Jok.'],
-        ['set-papan-sandaran', 'Papan Sandaran', 'Komponen untuk Set Sandaran.'],
-        ['set-papan-tutupan', 'Papan Tutupan', 'Komponen untuk Set Tutupan.']
-      ]
-    },
-    {
-      title: 'Cutting Kain',
-      subtitle: 'Material kain diambil dari Stok Material.',
-      accent: '#23a8be',
-      items: [
-        ['set-pola-jok', 'Pola Jok', 'Komponen kain untuk Set Jok.'],
-        ['set-pola-sandaran', 'Pola Sandaran', 'Komponen kain untuk Set Sandaran.'],
-        ['set-pola-tutupan', 'Pola Tutupan', 'Komponen kain untuk Set Tutupan.']
-      ]
-    },
-    {
-      title: 'Busa',
-      subtitle: 'Material busa diambil dari Stok Material.',
-      accent: '#e7971b',
-      items: [
-        ['set-busa-jok', 'Busa Jok', 'Komponen untuk Set Jok.'],
-        ['set-busa-sandaran', 'Busa Sandaran', 'Komponen untuk Set Sandaran.']
-      ]
-    }
-  ];
-
-  const setGroups = [
-    ['set-jok', 'Set Jok', 'Papan Jok + Pola Jok + Busa Jok.', '#2e5bd7'],
-    ['set-sandaran', 'Set Sandaran', 'Papan Sandaran + Pola Sandaran + Busa Sandaran.', '#8059d8'],
-    ['set-tutupan', 'Set Tutupan', 'Papan Tutupan + Pola Tutupan.', '#23a8be']
-  ];
-
-  const hasilGroups = [
-    ['set-jok-siap', 'Jok siap pakai', 'Hasil dari Set Jok.', '#2bad68'],
-    ['set-sandaran-siap', 'Sandaran siap pakai', 'Hasil dari Set Sandaran.', '#2bad68'],
-    ['set-tutupan-siap', 'Tutupan siap pakai', 'Hasil dari Set Tutupan.', '#2bad68']
-  ];
-
-  let html =
-    '<div class="process-page-head"><div><div class="process-page-title">2# Proses Set</div>' +
-    '<div class="process-page-subtitle">Cutting Material → Set → Hasil Set.</div></div>' +
-    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>';
-
-  html += '<div class="process-panel" style="margin-bottom:14px;overflow:hidden">' +
-    '<div class="process-panel-head" style="border-top:4px solid #2e5bd7;padding-top:12px">' +
-      '<div><div class="process-panel-title">Cutting Material</div>' +
-      '<div class="process-panel-caption">Semua material awal diambil dari Stok Material.</div></div>' +
-      '<span class="status-pill status-good"><span class="status-dot"></span>Input Stok</span>' +
-    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
-
-  cuttingGroups.forEach(function(group){
-    html += '<div class="process-panel" style="overflow:hidden">' +
-      '<div class="process-panel-head" style="border-top:3px solid '+group.accent+';padding-top:10px">' +
-        '<div><div class="process-panel-title" style="font-size:13px">'+esc(group.title)+'</div>' +
-        '<div class="process-panel-caption">'+esc(group.subtitle)+'</div></div>' +
-      '</div><div class="process-panel-body" style="padding:10px"><div style="display:grid;gap:8px">';
-    group.items.forEach(function(item, idx){
-      html += '<div class="erp-process-card" style="padding:10px;border-radius:7px" onclick="navigate(\''+item[0]+'\')">' +
-        '<div class="erp-process-top" style="margin-bottom:6px">' +
-        '<div class="erp-process-number" style="background:'+group.accent+'">'+(idx+1)+'</div>' +
-        '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
-        '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
-    });
-    html += '</div></div></div>';
-  });
-  html += '</div></div></div>';
-
-  html += '<div class="process-panel" style="margin-bottom:14px;overflow:hidden">' +
-    '<div class="process-panel-head" style="border-top:4px solid #8059d8;padding-top:12px">' +
-      '<div><div class="process-panel-title">Set</div>' +
-      '<div class="process-panel-caption">Hasil Cutting Material dirakit menjadi Set.</div></div>' +
-      '<span class="status-pill status-good"><span class="status-dot"></span>Perakitan Set</span>' +
-    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
-  setGroups.forEach(function(item, idx){
-    html += '<div class="erp-process-card" style="padding:12px" onclick="navigate(\''+item[0]+'\')">' +
-      '<div class="erp-process-top" style="margin-bottom:8px"><div class="erp-process-number" style="background:'+item[3]+'">'+(idx+1)+'</div>' +
-      '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
-      '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
-  });
-  html += '</div></div></div>';
-
-  html += '<div class="process-panel" style="overflow:hidden">' +
-    '<div class="process-panel-head" style="border-top:4px solid #2bad68;padding-top:12px">' +
-      '<div><div class="process-panel-title">Hasil Set</div>' +
-      '<div class="process-panel-caption">Output siap pakai dari setiap Set.</div></div>' +
-      '<span class="status-pill status-good"><span class="status-dot"></span>Output</span>' +
-    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
-  hasilGroups.forEach(function(item, idx){
-    html += '<div class="erp-process-card" style="padding:12px" onclick="navigate(\''+item[0]+'\')">' +
-      '<div class="erp-process-top" style="margin-bottom:8px"><div class="erp-process-number" style="background:'+item[3]+'">'+(idx+1)+'</div>' +
-      '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
-      '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
-  });
-  html += '</div></div></div>';
-
-  html += '<div class="stage-info" style="margin-top:14px"><b>Urutan:</b> Cutting Papan / Cutting Kain / Busa → Set Jok / Set Sandaran / Set Tutupan → Hasil Set.</div>';
-  $('processPage').innerHTML = html;
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">2# Proses Set</div><div class="process-page-subtitle">Pemilihan material → Set Jok / Set Sandaran / Set Tutupan → produk siap pakai.</div></div>'+
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>'+
+    '<div class="erp-process-grid">'+[
+      ['set-papan-jok','Papan','Papan Jok','Memilih material Papan Jok dari stok.'],
+      ['set-pola-jok','Kain','Pola Jok','Memilih material Kain untuk pola jok.'],
+      ['set-busa-jok','Busa','Busa Jok','Memilih material Busa Jok dari stok.'],
+      ['set-jok','Set Jok','Set Jok','Papan Jok + Pola Jok + Busa Jok + bahan tambahan.'],
+      ['set-sandaran','Set Sandaran','Set Sandaran','Papan Sandaran + Pola Sandaran + Busa Sandaran + bahan tambahan.'],
+      ['set-tutupan','Set Tutupan','Set Tutupan','Papan Tutupan + Tutupa + Lem.'],
+      ['set-jok-siap','Hasil Akhir','Jok siap pakai','Hasil dari Set Jok.'],
+      ['set-sandaran-siap','Hasil Akhir','Sandaran siap pakai','Hasil dari Set Sandaran.'],
+      ['set-tutupan-siap','Hasil Akhir','Tutupan siap pakai','Hasil dari Set Tutupan.']
+    ].map(function(x,i){
+      return '<div class="erp-process-card" onclick="navigate(\''+x[0]+'\')"><div class="erp-process-top"><div class="erp-process-number" style="background:'+['#7b57d9','#23a8be','#e7971b','#c85f8c','#c85f8c','#c85f8c','#2bad68','#2bad68','#2bad68'][i]+'">'+(i+1)+'</div><div class="erp-process-name">'+esc(x[2])+'</div><span class="menu-arrow">›</span></div><div class="erp-process-meta">'+esc(x[3])+'</div></div>';
+    }).join('')+'</div>';
 }
 
 function setStockOptionsHtml(materials, labelHint) {
@@ -2173,7 +1464,6 @@ function setStockOptionsHtml(materials, labelHint) {
 }
 
 function renderSetPage(key) {
-  SET_APP.editingTrxId = null; SET_APP.historyRows = [];
   const cfg = SET_PAGES[key];
   SET_APP.page = key;
   $('pageTitle').innerText = cfg.title.toUpperCase();
@@ -2188,415 +1478,56 @@ function renderSetPage(key) {
     }).join('')+'</div></div>';
   }
   $('processPage').innerHTML =
-    '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.parent || cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
+    '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
     '<div class="process-kpi-grid"><div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="setTarget">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Output Tersedia</div><div class="process-kpi-value" id="setAvailable">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Realisasi</div><div class="process-kpi-value" id="setActual">0</div><div class="process-kpi-note">Good qty</div></div><div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="setReject">0</div><div class="process-kpi-note">PCS</div></div></div>'+ 
-    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select><div id="setOperatorHint" class="set-material-meta"></div></div>'+ 
-    (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select><div id="setMaterialMeta" class="set-material-meta"></div></div>' : '')+
-    '<div class="field full" id="setSourceBox"></div><div class="field full set-option-status" id="setOptionsStatus"></div>'+stockLines+
-    '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="resetSetForm()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+ 
-    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="setHistoryTable"></tbody></table></div></div></div></div>';
-
-  $('setOptionsStatus').innerHTML = '<div class="stage-info">Menyiapkan pilihan form...</div>';
-  loadSetHistory();
-  loadSetOptions().then(function(){ refreshSetContext(); }).catch(function(){});
-}
-
-function materialMatchesSetGroup(material, group) {
-  const cat = String(material && material.kategori || '').trim().toLowerCase();
-  const name = String(material && material.material_name || '').trim().toLowerCase();
-  const g = String(group || '').trim().toLowerCase();
-  if (!g) return true;
-  return cat === g || name.indexOf(g) >= 0;
-}
-
-function getSetMaterialsForGroup(materials, group, plantId) {
-  const list = Array.isArray(materials) ? materials : [];
-  const plantScoped = plantId ? list.filter(function(m){ return String(m.plant_id || '') === String(plantId); }) : list;
-  const matched = plantScoped.filter(function(m){ return materialMatchesSetGroup(m, group); });
-  // Prioritaskan kategori kelompok. Bila master kategori belum konsisten, gunakan seluruh material pada plant tersebut.
-  return matched.length ? matched : plantScoped;
-}
-
-function getSelectedSetMaterial() {
-  const mat = $('setMaterial');
-  const materials = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
-  if (!mat || !mat.value) return null;
-  return materials.find(function(m){ return String(m.material_id) === String(mat.value); }) || null;
-}
-
-function populateSetMaterialSelect(select, materials, group, plantId) {
-  if (!select) return;
-  const list = getSetMaterialsForGroup(materials, group, plantId);
-  select.innerHTML = setStockOptionsHtml(list, group);
-  select.disabled = list.length === 0;
-}
-
-function updateSelectedSetMaterialInfo() {
-  const cfg = SET_PAGES[SET_APP.page];
-  const matSelect = $('setMaterial');
-  const meta = $('setMaterialMeta');
-  const qty = $('setQtyInput');
-  if (!cfg || !cfg.stock || !matSelect) return;
-  const items = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
-  const selected = items.find(function(m){ return String(m.material_id) === String(matSelect.value); });
-  if (!selected) {
-    if (meta) meta.innerHTML = '';
-    if (qty) qty.removeAttribute('max');
-    return;
-  }
-  const stock = Number(selected.stok || 0);
-  if (qty) qty.max = String(Math.max(stock, 0));
-  if (meta) {
-    meta.innerHTML = '<span class="stage-info"><b>Stok tersedia:</b> '+fmt(stock)+' '+esc(selected.satuan || 'PCS')+' • <b>Kategori:</b> '+esc(selected.kategori || '-')+' • <b>Plant material:</b> '+esc(selected.plant_id || '-')+'</span>';
-  }
-  const q = Number(qty && qty.value || 0);
-  if (qty && q > stock) qty.value = stock > 0 ? stock : '';
-}
-
-function applySetPlantFilter() {
-  const plant = $('setPlant'), batch = $('setBatch'), op = $('setOperator');
-  const plantId = plant ? String(plant.value || '').trim() : '';
-
-  /* Batch tetap mengikuti Plant yang dipilih. */
-  if (batch) {
-    Array.from(batch.options).forEach(function(o){
-      if (!o.value) return;
-      const rowPlant = String(o.getAttribute('data-plant') || '').trim();
-      o.hidden = !!plantId && rowPlant !== plantId;
-    });
-    if (batch.value) {
-      const selected = batch.options[batch.selectedIndex];
-      if (selected && selected.hidden) batch.value = '';
-    }
-  }
-
-  /* Operator jangan dibuat hilang hanya karena Master_Operator belum memiliki
-     plant_id yang sama. Bila ada operator yang cocok dengan plant, tampilkan
-     yang cocok; bila tidak ada, tampilkan seluruh operator aktif. */
-  if (op) {
-    const options = Array.from(op.options).filter(function(o){ return !!o.value; });
-    const scoped = plantId ? options.filter(function(o){
-      return String(o.getAttribute('data-plant') || '').trim() === plantId;
-    }) : options;
-    const hasScoped = scoped.length > 0;
-
-    options.forEach(function(o){
-      const rowPlant = String(o.getAttribute('data-plant') || '').trim();
-      o.hidden = !!plantId && hasScoped && rowPlant !== plantId;
-    });
-
-    if (op.value) {
-      const selected = op.options[op.selectedIndex];
-      if (selected && selected.hidden) op.value = '';
-    }
-  }
-}
-
-function updateSetOperatorHint() {
-  const plant = $('setPlant'), op = $('setOperator'), hint = $('setOperatorHint');
-  if (!op || !hint) return;
-  const plantId = plant ? String(plant.value || '').trim() : '';
-  const options = Array.from(op.options).filter(function(o){ return !!o.value; });
-
-  if (!plantId) {
-    hint.innerHTML = options.length
-      ? '<div class="stage-info">Operator aktif tersedia: <b>'+options.length+'</b>.</div>'
-      : '<div class="stage-warning">Belum ada operator aktif di Master Operator.</div>';
-    return;
-  }
-
-  const matched = options.filter(function(o){
-    return String(o.getAttribute('data-plant') || '').trim() === plantId;
-  });
-
-  hint.innerHTML = matched.length
-    ? '<div class="stage-info">Operator untuk Plant <b>'+esc(plantId)+'</b>: <b>'+matched.length+'</b>.</div>'
-    : '<div class="stage-warning">Belum ada operator dengan Plant ID <b>'+esc(plantId)+'</b>. Operator aktif tetap ditampilkan. Periksa Plant ID pada Master Operator agar validasi penyimpanan sesuai.</div>';
+    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+
+    (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select></div>' : '')+
+    '<div class="field full" id="setSourceBox"></div>'+stockLines+
+    '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'setForm\').reset();refreshSetContext()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+
+    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="setTable"></tbody></table></div></div></div></div>';
+  loadSetOptions().then(function(){ refreshSetContext(); loadSetHistory(); });
 }
 
 function loadSetOptions() {
   return new Promise(function(resolve,reject){
-    gsRead('apiGetSetOptions', [], function(d){
-      d = d || {};
-      SET_APP.options = d;
-      const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
-      const plants = Array.isArray(d.plants) ? d.plants : [];
-      const batches = Array.isArray(d.batches) ? d.batches : [];
-      const operators = Array.isArray(d.operators) ? d.operators : [];
-      const materials = Array.isArray(d.materials) ? d.materials : [];
-      const cfg = SET_PAGES[SET_APP.page];
-      const group = cfg ? cfg.group : '';
-
-      if(!plant || !batch || !op) {
-        throw new Error('Elemen form Plant/Batch/Operator tidak ditemukan.');
-      }
-
-      plant.innerHTML='<option value="">Pilih plant</option>'+plants.map(function(p){
-        return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';
-      }).join('');
-
-      batch.innerHTML='<option value="">Pilih batch</option>'+batches.map(function(b){
-        return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';
-      }).join('');
-
-      op.innerHTML='<option value="">Pilih operator</option>'+operators.map(function(o){
-        const opName=String(o.nama_operator||o.telegram_user_id||'').trim();
-        const opPlant=String(o.plant_id||'').trim();
-        return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(opPlant)+'">'+esc(opName)+(opPlant?' — '+esc(opPlant):'')+'</option>';
-      }).join('');
-
-      if (APP.plant && APP.plant !== 'ALL' && plants.some(function(p){ return String(p.plant_id) === String(APP.plant); })) {
-        plant.value = APP.plant;
-      }
-
-      function rebuildMaterialOptions() {
-        if (mat) {
-          const plantId = plant.value || '';
-          populateSetMaterialSelect(mat, materials, group, plantId);
-          updateSelectedSetMaterialInfo();
-        }
-      }
-
-      function clearDependentSelections() {
-        if (batch) batch.value = '';
-        if (op) op.value = '';
-        if (mat) mat.value = '';
-      }
-
-      if (batch) {
-        batch.onchange = function(){
-          refreshSetContext();
-        };
-      }
-
-      if (plant) {
-        plant.onchange = function(){
-          clearDependentSelections();
-          applySetPlantFilter();
-          rebuildMaterialOptions();
-          refreshSetContext();
-        };
-      }
-
-      if (op) op.onchange = function(){};
-      if (mat) mat.onchange = function(){ updateSelectedSetMaterialInfo(); };
-
-      applySetPlantFilter();
-      rebuildMaterialOptions();
-
-      // Bahan tambahan hanya dipakai pada proses perakitan Set.
-      if ($('setMaterialLines')) {
-        Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){
-          sel.innerHTML = '<option value="">Pilih material stok</option>'+materials.map(function(m){
-            return '<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>';
-          }).join('');
-        });
-      }
-
-      if ($('setOptionsStatus')) {
-        const hasCore = plants.length > 0 && batches.length > 0 && operators.length > 0;
-        const stockForPlant = plant.value ? getSetMaterialsForGroup(materials, group, plant.value).length : materials.length;
-        const hasMaterial = !cfg || !cfg.stock || stockForPlant > 0;
-        $('setOptionsStatus').innerHTML = hasCore && hasMaterial
-          ? '<div class="stage-info"><b>Form siap digunakan.</b> Pilih Plant → Batch → Operator'+(cfg && cfg.stock ? ' → Material' : '')+' → isi Qty → Simpan.</div>'
-          : '<div class="stage-warning"><b>Data master belum lengkap.</b> Pastikan Plant, Batch, Operator, dan stok material sesuai plant sudah tersedia.</div>';
-      }
-
+    gs('apiGetSetOptions', [], function(d){ SET_APP.options=d; const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
+      if(!plant) return resolve();
+      plant.innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
+      batch.innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
+      op.innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
+      if(mat) mat.innerHTML=setStockOptionsHtml(d.materials);
+      d.processes.filter(function(p){return ['SET_JOK','SET_SANDARAN','SET_TUTUPAN'].indexOf(p.code)>=0;}).forEach(function(){ });
+      if(batch) batch.addEventListener('change',refreshSetContext);
+      if(plant) plant.addEventListener('change',function(){ Array.from(batch.options).forEach(function(o){ if(o.value) o.hidden = o.getAttribute('data-plant') !== plant.value; }); refreshSetContext(); });
       resolve();
-    }, function(e){
-      if ($('setOptionsStatus')) {
-        $('setOptionsStatus').innerHTML = '<div class="stage-warning">Data form belum siap. Muat ulang panel untuk mencoba kembali.</div>';
-      }
-      reject(e);
-    });
+    }, reject);
   });
 }
 
 function refreshSetContext() {
-  const cfg=SET_PAGES[SET_APP.page];
-  if(!cfg || !$('setBatch')) return;
-  if (!$('setBatch').value) {
-    if ($('setTarget')) $('setTarget').innerText='0';
-    if ($('setAvailable')) $('setAvailable').innerText='0';
-    if ($('setQtyInput')) $('setQtyInput').value='';
-    if ($('setQtyTarget')) $('setQtyTarget').value='';
-    if ($('setSourceBox')) $('setSourceBox').innerHTML='<div class="stage-info">Pilih <b>Batch</b> untuk melihat target dan sumber proses.</div>';
-    updateSelectedSetMaterialInfo();
-    return;
-  }
-  const selectedBatchOption = $('setBatch').options[$('setBatch').selectedIndex];
-  const selectedBatchPlant = selectedBatchOption ? (selectedBatchOption.getAttribute('data-plant') || '') : '';
-  if ($('setPlant').value && selectedBatchPlant && String(selectedBatchPlant) !== String($('setPlant').value)) {
-    $('setSourceBox').innerHTML='<div class="stage-warning"><b>Batch tidak sesuai Plant.</b> Silakan pilih Batch pada Plant yang sama.</div>';
-    return;
-  }
-  gsRead('apiGetSetContext',[$('setBatch').value,cfg.code],function(d){
+  const cfg=SET_PAGES[SET_APP.page]; if(!cfg || !$('setBatch') || !$('setBatch').value) return;
+  gs('apiGetSetContext',[$('setBatch').value,cfg.code],function(d){
     $('setTarget').innerText=fmt(d.batchTarget); $('setAvailable').innerText=fmt(d.suggestedQtyInput);
     $('setQtyInput').value=d.suggestedQtyInput>0?d.suggestedQtyInput:''; $('setQtyTarget').value=d.suggestedQtyInput>0?d.suggestedQtyInput:d.batchTarget;
     const box=$('setSourceBox');
-    box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '<div class="stage-info"><b>Sumber proses:</b> stok material sesuai pilihan pada form.</div>';
-    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!Array.from(sel.options).some(function(o){ return String(o.value) === String(m.material_id); })) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
-    updateSelectedSetMaterialInfo();
-  }, function(e){
-    if ($('setSourceBox')) $('setSourceBox').innerHTML='<div class="stage-info">Konteks batch sedang dimuat ulang. Data input tetap dapat dipilih.</div>';
+    box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '';
+    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!sel.querySelector('option[value="'+m.material_id+'"]')) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
   });
 }
 
-function resetSetForm() {
-  const form = $('setForm');
-  if (form) form.reset();
-  const cfg = SET_PAGES[SET_APP.page];
-  if ($('setDate')) $('setDate').value = todayISO();
-  if ($('setPlant') && APP.plant && APP.plant !== 'ALL') $('setPlant').value = APP.plant;
-  applySetPlantFilter();
-  if ($('setSourceBox')) $('setSourceBox').innerHTML = '<div class="stage-info">Pilih <b>Batch</b> untuk melihat target dan sumber proses.</div>';
-  if ($('setTarget')) $('setTarget').innerText = '0';
-  if ($('setAvailable')) $('setAvailable').innerText = '0';
-  if ($('setSaveBtn')) { $('setSaveBtn').disabled = false; $('setSaveBtn').innerText = 'Simpan Proses Set'; }
-  if ($('setQtyGood')) $('setQtyGood').value = '';
-  if ($('setQtyReject')) $('setQtyReject').value = '0';
-  const mats = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
-  if ($('setMaterial')) populateSetMaterialSelect($('setMaterial'), mats, cfg ? cfg.group : '', $('setPlant') ? $('setPlant').value : '');
-  updateSelectedSetMaterialInfo();
-}
-
-function loadSetHistory(){
-  const cfg=SET_PAGES[SET_APP.page];
-  if(!cfg || !$('setHistoryTable')) return;
-  gsRead('apiGetSetProcessPage',[cfg.code,APP.plant,''],function(d){
-    d=d||{}; const summary=d.summary||{}; const rows=Array.isArray(d.rows)?d.rows:[];
-    SET_APP.historyRows=rows;
-    if($('setActual')) $('setActual').innerText=fmt(summary.actual);
-    if($('setReject')) $('setReject').innerText=fmt(summary.reject);
-    $('setHistoryTable').innerHTML=rows.length?rows.map(function(r){
-      return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class=\"erp-icon-btn\" title=\"Edit transaksi\" data-edit-set=\"'+esc(r.transaksi_id)+'\">✎</button><button class=\"erp-icon-btn\" title=\"Hapus transaksi\" data-delete-set=\"'+esc(r.transaksi_id)+'\">🗑</button></td></tr>';
-    }).join(''):'<tr><td colspan="8"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
-  },function(){
-    SET_APP.historyRows=[];
-    if($('setHistoryTable')) $('setHistoryTable').innerHTML='<tr><td colspan="8"><div class="empty-state">Riwayat sedang disiapkan. Coba buka panel ini kembali.</div></td></tr>';
-  });
-}
-
-document.addEventListener('click', function(e){
-  const editBtn=e.target.closest ? e.target.closest('[data-edit-set]') : null;
-  if(editBtn){ editSetTransaksi(editBtn.getAttribute('data-edit-set')); return; }
-  const delBtn=e.target.closest ? e.target.closest('[data-delete-set]') : null;
-  if(delBtn){ deleteSetTransaksi(delBtn.getAttribute('data-delete-set')); }
-});
-
-function deleteSetTransaksi(id){
-  const row=(SET_APP.historyRows||[]).find(function(r){ return String(r.transaksi_id)===String(id); });
-  if(!row) return;
-  if(!confirm('Yakin hapus transaksi Set ini? Stok yang dipakai akan dikembalikan.')) return;
-  gs('apiDeleteSetTransaksi',[id],function(){
-    loadSetHistory();
-  },function(e){
-    alert('Gagal menghapus transaksi Set: '+((e&&e.message)?e.message:e));
-  });
-}
-
-function editSetTransaksi(id){
-  const row=(SET_APP.historyRows||[]).find(function(r){ return String(r.transaksi_id)===String(id); });
-  if(!row) return;
-  SET_APP.editingTrxId=String(id);
-  const map={setDate:row.tanggal,setPlant:row.plant_id,setBatch:row.batch_id,setOperator:row.operator_id,setQtyInput:row.qty_input,setQtyTarget:row.qty_target,setQtyGood:row.qty_good,setQtyReject:row.qty_reject,setNote:row.catatan||''};
-  Object.keys(map).forEach(function(k){ if($(k)) $(k).value=map[k]; });
-  ['setDate','setPlant','setBatch','setOperator','setMaterial'].forEach(function(fid){ if($(fid)) $(fid).disabled=true; });
-  if($('setSaveBtn')) { $('setSaveBtn').innerText='Update Transaksi Set'; }
-  let cancel=$('setCancelEditBtn');
-  if(!cancel){
-    cancel=document.createElement('button'); cancel.type='button'; cancel.id='setCancelEditBtn'; cancel.className='btn-secondary'; cancel.innerText='Batal Edit'; cancel.onclick=cancelEditSetTransaksi;
-    $('setSaveBtn').insertAdjacentElement('beforebegin',cancel);
-  }
-  $('setFormCard').scrollIntoView({behavior:'smooth'});
-}
-
-function cancelEditSetTransaksi(){
-  SET_APP.editingTrxId=null;
-  ['setDate','setPlant','setBatch','setOperator','setMaterial'].forEach(function(fid){ if($(fid)) $(fid).disabled=false; });
-  if($('setSaveBtn')) { $('setSaveBtn').innerText='Simpan Proses Set'; $('setSaveBtn').disabled=false; }
-  const cancel=$('setCancelEditBtn'); if(cancel) cancel.remove();
-  resetSetForm();
-}
+function loadSetHistory(){ const cfg=SET_PAGES[SET_APP.page]; if(!cfg) return; gs('apiGetSetProcessPage',[cfg.code,APP.plant,''],function(d){ $('setActual').innerText=fmt(d.summary.actual); $('setReject').innerText=fmt(d.summary.reject); $('setTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status)+'</td></tr>';}).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>'; }); }
 
 function submitSetProcess(event,key){
   event.preventDefault();
   const cfg=SET_PAGES[key], btn=$('setSaveBtn');
-  const qtyInput = Number($('setQtyInput').value || 0);
-  const qtyGood = Number($('setQtyGood').value || 0);
-  const qtyReject = Number($('setQtyReject').value || 0);
-
-  if (!$('setPlant').value || !$('setBatch').value || !$('setOperator').value) {
-    alert('Plant, Batch, dan Operator wajib dipilih.');
-    return;
-  }
-  if (cfg.stock) {
-    const mat = $('setMaterial');
-    if (!mat || !mat.value) {
-      alert('Material wajib dipilih untuk tahap Cutting Material.');
-      return;
-    }
-    const selected = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials.find(function(m){ return String(m.material_id) === String(mat.value); }) : null;
-    if (!selected) {
-      alert('Data material terpilih tidak ditemukan. Silakan refresh halaman lalu pilih material kembali.');
-      return;
-    }
-    if (String(selected.plant_id || '') !== String($('setPlant').value || '')) {
-      alert('Plant material berbeda dengan Plant batch. Pilih material pada plant yang sama.');
-      return;
-    }
-    const stock = Number(selected.stok || 0);
-    if (qtyInput <= 0) {
-      alert('Qty Input harus lebih besar dari 0.');
-      return;
-    }
-    if (qtyInput > stock) {
-      alert('Qty Input melebihi stok material tersedia: ' + fmt(stock) + ' PCS.');
-      return;
-    }
-  }
-  const qtyTarget = Number($('setQtyTarget').value || 0);
-  const batchTarget = Number($('setTarget').innerText.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.') || 0);
-  if (qtyGood < 0 || qtyReject < 0 || qtyInput < 0 || qtyTarget < 0) {
-    alert('Qty tidak boleh bernilai negatif.');
-    return;
-  }
-  if (batchTarget > 0 && qtyTarget > batchTarget) {
-    alert('Target Produksi tidak boleh melebihi Target Batch.');
-    return;
-  }
-  if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
-    alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
-    return;
-  }
-
-  if (SET_APP.editingTrxId) {
-    const updatePayload = {
-      qty_input: qtyInput,
-      qty_target: qtyTarget,
-      qty_good: qtyGood,
-      qty_reject: qtyReject,
-      catatan: $('setNote').value || ''
-    };
-    btn.disabled=true; btn.innerText='Menyimpan...';
-    gs('apiUpdateSetTransaksi',[SET_APP.editingTrxId,updatePayload],function(){
-      alert('Transaksi Set berhasil diperbarui.');
-      cancelEditSetTransaksi();
-      loadSetHistory();
-    },function(e){
-      alert('Gagal memperbarui transaksi Set: '+((e&&e.message)?e.message:e));
-      btn.disabled=false; btn.innerText='Update Transaksi Set';
-    });
-    return;
-  }
-
   const lines=[]; const selects=document.querySelectorAll('#setMaterialLines select');
   selects.forEach(function(sel,i){ if(sel.value){ lines.push({material_id:sel.value,qty:Number(($('setMatQty_'+i)||{}).value||0)}); } });
   const mat=$('setMaterial');
-  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:qtyInput,qty_target:qtyTarget,qty_good:qtyGood,qty_reject:qtyReject,material_lines:JSON.stringify(lines),catatan:$('setNote').value};
+  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:Number($('setQtyInput').value||0),qty_target:Number($('setQtyTarget').value||0),qty_good:Number($('setQtyGood').value||0),qty_reject:Number($('setQtyReject').value||0),material_lines:JSON.stringify(lines),catatan:$('setNote').value};
   btn.disabled=true; btn.innerText='Menyimpan...';
   gs('apiSaveSetTransaksi',[payload],function(res){ alert('Proses Set berhasil disimpan. ID: '+res.transaksi_id); renderSetPage(key); },function(e){ alert('Gagal menyimpan Proses Set: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Proses Set'; });
 }
+
 
 /* =====================================================================
    3# SET KURSI SUSUN — UI
@@ -2649,7 +1580,7 @@ function renderKursiSusunForm(name) {
     '</div><div class="form-footer"><button class="btn-secondary" type="button" onclick="document.getElementById(\'ksForm\').reset(); refreshKursiSusunContext()">Reset</button>' +
     '<button class="btn-primary" id="ksSaveBtn" type="submit">Simpan Pemasangan</button></div></form></div></div>' +
     '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(name)+'</div><div class="process-panel-caption">Data 3# Set Kursi Susun.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div>' +
-    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="ksTable"></tbody></table></div></div></div></div>';
+    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="ksTable"></tbody></table></div></div></div></div>';
   loadKursiSusunOptions();
 }
 
@@ -2657,7 +1588,7 @@ function loadKursiSusunOptions() {
   gs('apiGetKursiSusunOptions', [], function(d){
     KURSI_SUSUN_APP.options=d;
     $('ksPlant').innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
-    $('ksBatch').innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+' [Material '+fmt(b.material_target||b.qty_target||0)+' + Set '+fmt(b.set_target||b.qty_target||0)+']</option>';}).join('');
+    $('ksBatch').innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
     $('ksOperator').innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
     $('ksBatch').addEventListener('change',refreshKursiSusunContext);
     $('ksPlant').addEventListener('change',function(){ Array.from($('ksBatch').options).forEach(function(o){if(o.value)o.hidden=o.getAttribute('data-plant')!==$('ksPlant').value;}); refreshKursiSusunContext(); });
@@ -2682,101 +1613,25 @@ function refreshKursiSusunContext() {
 
 function loadKursiSusunHistory(){
   const cfg=KURSI_SUSUN_PAGES[KURSI_SUSUN_APP.active];
-  if (!$('ksTable')) return;
-  gsRead('apiGetKursiSusunPage',[cfg.code,APP.plant,''],function(d){
-    const rows=Array.isArray(d && d.rows)?d.rows:[];
-    KURSI_SUSUN_APP.historyRows=rows;
-    if ($('ksFinish')) $('ksFinish').innerText=fmt(d && d.finishQty);
-    $('ksTable').innerHTML=rows.length?rows.map(function(r){
-      return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class="erp-icon-btn" title="Edit transaksi" data-edit-ks="'+esc(r.transaksi_id)+'">✎</button><button class="erp-icon-btn" title="Hapus transaksi" data-delete-ks="'+esc(r.transaksi_id)+'">🗑</button></td></tr>';
-    }).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
-  },function(e){
-    KURSI_SUSUN_APP.historyRows=[];
-    if ($('ksTable')) $('ksTable').innerHTML='<tr><td colspan="7"><div class="empty-state">Riwayat sedang disiapkan. Coba buka panel ini kembali.</div></td></tr>';
+  gs('apiGetKursiSusunPage',[cfg.code,APP.plant,''],function(d){
+    if ($('ksFinish')) $('ksFinish').innerText=fmt(d.finishQty);
+    $('ksTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td></tr>';}).join(''):'<tr><td colspan="6"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
   });
-}
-
-document.addEventListener('click', function(e){
-  const editBtn=e.target.closest ? e.target.closest('[data-edit-ks]') : null;
-  if(editBtn){ editKursiSusunTransaksi(editBtn.getAttribute('data-edit-ks')); return; }
-  const delBtn=e.target.closest ? e.target.closest('[data-delete-ks]') : null;
-  if(delBtn){ deleteKursiSusunTransaksi(delBtn.getAttribute('data-delete-ks')); }
-});
-
-function deleteKursiSusunTransaksi(id){
-  const row=(KURSI_SUSUN_APP.historyRows||[]).find(function(r){return String(r.transaksi_id)===String(id);});
-  if(!row) return;
-  if(!confirm('Yakin hapus transaksi Set Kursi Susun ini? Tindakan tidak bisa dibatalkan.')) return;
-  gs('apiDeleteKursiSusunTransaksi',[id],function(){
-    loadKursiSusunHistory();
-    refreshKursiSusunContext();
-  },function(e){
-    alert('Gagal menghapus transaksi Set Kursi Susun: '+((e&&e.message)?e.message:e));
-  });
-}
-
-function editKursiSusunTransaksi(id){
-  const row=(KURSI_SUSUN_APP.historyRows||[]).find(function(r){return String(r.transaksi_id)===String(id);});
-  if(!row) return;
-  KURSI_SUSUN_APP.editingTrxId=String(id);
-  const map={ksDate:row.tanggal,ksPlant:row.plant_id,ksBatch:row.batch_id,ksOperator:row.operator_id,ksQtyInput:row.qty_input,ksQtyTarget:row.qty_target,ksQtyGood:row.qty_good,ksQtyReject:row.qty_reject,ksNote:row.catatan||''};
-  Object.keys(map).forEach(function(k){if($(k)) $(k).value=map[k];});
-  ['ksDate','ksPlant','ksBatch','ksOperator'].forEach(function(fid){if($(fid)) $(fid).disabled=true;});
-  if($('ksSaveBtn')) { $('ksSaveBtn').innerText='Update Pemasangan'; }
-  let cancel=$('ksCancelEditBtn');
-  if(!cancel){
-    cancel=document.createElement('button'); cancel.type='button'; cancel.id='ksCancelEditBtn'; cancel.className='btn-secondary'; cancel.innerText='Batal Edit'; cancel.onclick=cancelEditKursiSusunTransaksi;
-    $('ksSaveBtn').insertAdjacentElement('beforebegin',cancel);
-  }
-  if($('ksFormCard')) $('ksFormCard').scrollIntoView({behavior:'smooth'});
-}
-
-function cancelEditKursiSusunTransaksi(){
-  KURSI_SUSUN_APP.editingTrxId=null;
-  ['ksDate','ksPlant','ksBatch','ksOperator'].forEach(function(fid){if($(fid)) $(fid).disabled=false;});
-  if($('ksSaveBtn')) {$('ksSaveBtn').innerText='Simpan Pemasangan'; $('ksSaveBtn').disabled=false;}
-  const cancel=$('ksCancelEditBtn'); if(cancel) cancel.remove();
-  const form=$('ksForm'); if(form) form.reset();
-  if($('ksDate')) $('ksDate').value=todayISO();
-  refreshKursiSusunContext();
 }
 
 function submitKursiSusun(event,name){
   event.preventDefault();
   const cfg=KURSI_SUSUN_PAGES[name], btn=$('ksSaveBtn');
-  const qtyInput=Number($('ksQtyInput').value||0);
-  const qtyTarget=Number($('ksQtyTarget').value||0);
-  const qtyGood=Number($('ksQtyGood').value||0);
-  const qtyReject=Number($('ksQtyReject').value||0);
-  if(qtyInput<=0){alert('Qty Input harus lebih dari 0.');return;}
-  if(qtyGood<0 || qtyReject<0 || qtyTarget<0){alert('Qty tidak boleh negatif.');return;}
-  if(qtyGood+qtyReject>qtyInput){alert('Qty Good + Reject tidak boleh melebihi Qty Input.');return;}
-
-  if(KURSI_SUSUN_APP.editingTrxId){
-    const updatePayload={qty_input:qtyInput,qty_target:qtyTarget,qty_good:qtyGood,qty_reject:qtyReject,catatan:$('ksNote').value||''};
-    btn.disabled=true; btn.innerText='Menyimpan...';
-    gs('apiUpdateKursiSusunTransaksi',[KURSI_SUSUN_APP.editingTrxId,updatePayload],function(){
-      alert('Transaksi Set Kursi Susun berhasil diperbarui.');
-      cancelEditKursiSusunTransaksi();
-      loadKursiSusunHistory();
-      refreshKursiSusunContext();
-    },function(e){
-      alert('Gagal memperbarui transaksi Set Kursi Susun: '+((e&&e.message)?e.message:e));
-      btn.disabled=false; btn.innerText='Update Pemasangan';
-    });
-    return;
-  }
-
   const payload={
     tanggal:$('ksDate').value,
     plant_id:$('ksPlant').value,
     batch_id:$('ksBatch').value,
     operator_id:$('ksOperator').value,
     proses_code:cfg.code,
-    qty_input:qtyInput,
-    qty_target:qtyTarget,
-    qty_good:qtyGood,
-    qty_reject:qtyReject,
+    qty_input:Number($('ksQtyInput').value||0),
+    qty_target:Number($('ksQtyTarget').value||0),
+    qty_good:Number($('ksQtyGood').value||0),
+    qty_reject:Number($('ksQtyReject').value||0),
     catatan:$('ksNote').value
   };
   btn.disabled=true; btn.innerText='Menyimpan...';
@@ -2833,7 +1688,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 
-  $('reportDateFilter').value = APP.reportDate;
+  $('topDateBox').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
   gs('apiGetPlants', [], function (plants) {
     $('plantFilter').innerHTML = '<option value="ALL">Semua Plant</option>' + plants.map(function (p) {
@@ -2844,49 +1699,9 @@ document.addEventListener('DOMContentLoaded', function () {
     APP.plant = this.value;
     renderRoute();
   });
-  $('reportDateFilter').addEventListener('change', function () {
-    APP.reportDate = this.value || todayISO();
-    if (APP.route === 'dashboard') loadDashboard();
-  });
 
   navigate('dashboard');
 });
-
-
-/* ================================================================
-   MOBILE SIDEBAR — visual/navigation helper only
-================================================================ */
-function openMobileSidebar(){
-  const sb = $('sidebar'), ov = $('mobileOverlay'), btn = $('mobileMenuBtn');
-  if (!sb || !ov) return;
-  sb.classList.add('mobile-open');
-  ov.classList.add('open');
-  if (btn) btn.setAttribute('aria-expanded','true');
-}
-function closeMobileSidebar(){
-  const sb = $('sidebar'), ov = $('mobileOverlay'), btn = $('mobileMenuBtn');
-  if (!sb || !ov) return;
-  sb.classList.remove('mobile-open');
-  ov.classList.remove('open');
-  if (btn) btn.setAttribute('aria-expanded','false');
-}
-function toggleMobileSidebar(){
-  const sb = $('sidebar');
-  if (!sb) return;
-  if (sb.classList.contains('mobile-open')) closeMobileSidebar();
-  else openMobileSidebar();
-}
-window.addEventListener('resize', function(){
-  if (window.innerWidth > 900) closeMobileSidebar();
-});
-// Tutup drawer setelah user memilih menu/submenu di HP.
-document.addEventListener('click', function(e){
-  if (window.innerWidth > 900) return;
-  const el = e.target.closest('.sidebar .menu-item, .sidebar .submenu-item');
-  if (!el) return;
-  setTimeout(closeMobileSidebar, 80);
-});
-
 </script>
 </body>
 </html>

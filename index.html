@@ -1798,16 +1798,24 @@ function materialMatchesSetGroup(material, group) {
   return cat === g || name.indexOf(g) >= 0;
 }
 
-function getSetMaterialsForGroup(materials, group) {
+function getSetMaterialsForGroup(materials, group, plantId) {
   const list = Array.isArray(materials) ? materials : [];
-  const matched = list.filter(function(m){ return materialMatchesSetGroup(m, group); });
-  // Jika kategori master belum konsisten, jangan mengosongkan dropdown.
-  return matched.length ? matched : list;
+  const plantScoped = plantId ? list.filter(function(m){ return String(m.plant_id || '') === String(plantId); }) : list;
+  const matched = plantScoped.filter(function(m){ return materialMatchesSetGroup(m, group); });
+  // Prioritaskan kategori kelompok. Bila master kategori belum konsisten, gunakan seluruh material pada plant tersebut.
+  return matched.length ? matched : plantScoped;
 }
 
-function populateSetMaterialSelect(select, materials, group) {
+function getSelectedSetMaterial() {
+  const mat = $('setMaterial');
+  const materials = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
+  if (!mat || !mat.value) return null;
+  return materials.find(function(m){ return String(m.material_id) === String(mat.value); }) || null;
+}
+
+function populateSetMaterialSelect(select, materials, group, plantId) {
   if (!select) return;
-  const list = getSetMaterialsForGroup(materials, group);
+  const list = getSetMaterialsForGroup(materials, group, plantId);
   select.innerHTML = setStockOptionsHtml(list, group);
   select.disabled = list.length === 0;
 }
@@ -1871,45 +1879,87 @@ function loadSetOptions() {
       const batches = Array.isArray(d.batches) ? d.batches : [];
       const operators = Array.isArray(d.operators) ? d.operators : [];
       const materials = Array.isArray(d.materials) ? d.materials : [];
-      if(!plant) { resolve(); return; }
+      const cfg = SET_PAGES[SET_APP.page];
+      const group = cfg ? cfg.group : '';
 
-      plant.innerHTML='<option value="">Pilih plant</option>'+plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
-      batch.innerHTML='<option value="">Pilih batch</option>'+batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
-      op.innerHTML='<option value="">Pilih operator</option>'+operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(o.plant_id||'')+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
-      if(mat) populateSetMaterialSelect(mat, materials, SET_PAGES[SET_APP.page] && SET_PAGES[SET_APP.page].group);
+      if(!plant || !batch || !op) {
+        throw new Error('Elemen form Plant/Batch/Operator tidak ditemukan.');
+      }
+
+      plant.innerHTML='<option value="">Pilih plant</option>'+plants.map(function(p){
+        return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';
+      }).join('');
+
+      batch.innerHTML='<option value="">Pilih batch</option>'+batches.map(function(b){
+        return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';
+      }).join('');
+
+      op.innerHTML='<option value="">Pilih operator</option>'+operators.map(function(o){
+        return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(o.plant_id||'')+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';
+      }).join('');
 
       if (APP.plant && APP.plant !== 'ALL' && plants.some(function(p){ return String(p.plant_id) === String(APP.plant); })) {
         plant.value = APP.plant;
       }
+
+      function rebuildMaterialOptions() {
+        if (mat) {
+          const plantId = plant.value || '';
+          populateSetMaterialSelect(mat, materials, group, plantId);
+          updateSelectedSetMaterialInfo();
+        }
+      }
+
+      function clearDependentSelections() {
+        if (batch) batch.value = '';
+        if (op) op.value = '';
+        if (mat) mat.value = '';
+      }
+
+      if (batch) {
+        batch.onchange = function(){
+          refreshSetContext();
+        };
+      }
+
+      if (plant) {
+        plant.onchange = function(){
+          clearDependentSelections();
+          applySetPlantFilter();
+          rebuildMaterialOptions();
+          refreshSetContext();
+        };
+      }
+
+      if (op) op.onchange = function(){};
+      if (mat) mat.onchange = function(){ updateSelectedSetMaterialInfo(); };
+
       applySetPlantFilter();
+      rebuildMaterialOptions();
 
-      if(batch) batch.onchange = function(){ refreshSetContext(); };
-      if(plant) plant.onchange = function(){
-        applySetPlantFilter();
-        refreshSetContext();
-        updateSelectedSetMaterialInfo();
-      };
-      if(op) op.onchange = function(){};
-      if(mat) mat.onchange = function(){ updateSelectedSetMaterialInfo(); };
-
-      // Isi dropdown bahan tambahan hanya pada tahap perakitan Set, tanpa mengubah logika sumber utama.
+      // Bahan tambahan hanya dipakai pada proses perakitan Set.
       if ($('setMaterialLines')) {
         Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){
-          sel.innerHTML = '<option value="">Pilih material stok</option>'+materials.map(function(m){return '<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>';}).join('');
+          sel.innerHTML = '<option value="">Pilih material stok</option>'+materials.map(function(m){
+            return '<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>';
+          }).join('');
         });
       }
 
       if ($('setOptionsStatus')) {
-        const hasCore = plants.length && batches.length && operators.length;
-        const hasMaterial = !SET_PAGES[SET_APP.page].stock || materials.length;
+        const hasCore = plants.length > 0 && batches.length > 0 && operators.length > 0;
+        const stockForPlant = plant.value ? getSetMaterialsForGroup(materials, group, plant.value).length : materials.length;
+        const hasMaterial = !cfg || !cfg.stock || stockForPlant > 0;
         $('setOptionsStatus').innerHTML = hasCore && hasMaterial
-          ? '<div class="stage-info"><b>Form siap digunakan.</b> Pilih Plant terlebih dahulu, lalu Batch, Operator, dan Material.</div>'
-          : '<div class="stage-warning"><b>Data master belum lengkap.</b> Pastikan Plant, Batch, Operator, dan stok Material sudah tersedia.</div>';
+          ? '<div class="stage-info"><b>Form siap digunakan.</b> Pilih Plant → Batch → Operator'+(cfg && cfg.stock ? ' → Material' : '')+' → isi Qty → Simpan.</div>'
+          : '<div class="stage-warning"><b>Data master belum lengkap.</b> Pastikan Plant, Batch, Operator, dan stok material sesuai plant sudah tersedia.</div>';
       }
-      updateSelectedSetMaterialInfo();
+
       resolve();
     }, function(e){
-      if ($('setOptionsStatus')) $('setOptionsStatus').innerHTML = '<div class="stage-warning"><b>Gagal memuat pilihan form.</b> '+esc((e && e.message) ? e.message : e)+'</div>';
+      if ($('setOptionsStatus')) {
+        $('setOptionsStatus').innerHTML = '<div class="stage-warning"><b>Gagal memuat pilihan form.</b> '+esc((e && e.message) ? e.message : e)+'</div>';
+      }
       reject(e);
     });
   });
@@ -1927,12 +1977,18 @@ function refreshSetContext() {
     updateSelectedSetMaterialInfo();
     return;
   }
+  const selectedBatchOption = $('setBatch').options[$('setBatch').selectedIndex];
+  const selectedBatchPlant = selectedBatchOption ? (selectedBatchOption.getAttribute('data-plant') || '') : '';
+  if ($('setPlant').value && selectedBatchPlant && String(selectedBatchPlant) !== String($('setPlant').value)) {
+    $('setSourceBox').innerHTML='<div class="stage-warning"><b>Batch tidak sesuai Plant.</b> Silakan pilih Batch pada Plant yang sama.</div>';
+    return;
+  }
   gs('apiGetSetContext',[$('setBatch').value,cfg.code],function(d){
     $('setTarget').innerText=fmt(d.batchTarget); $('setAvailable').innerText=fmt(d.suggestedQtyInput);
     $('setQtyInput').value=d.suggestedQtyInput>0?d.suggestedQtyInput:''; $('setQtyTarget').value=d.suggestedQtyInput>0?d.suggestedQtyInput:d.batchTarget;
     const box=$('setSourceBox');
     box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '<div class="stage-info"><b>Sumber proses:</b> stok material sesuai pilihan pada form.</div>';
-    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!sel.querySelector('option[value="'+CSS.escape(String(m.material_id))+'"]')) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
+    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!Array.from(sel.options).some(function(o){ return String(o.value) === String(m.material_id); })) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
     updateSelectedSetMaterialInfo();
   }, function(e){
     if ($('setSourceBox')) $('setSourceBox').innerHTML='<div class="stage-warning"><b>Gagal membaca konteks batch.</b> '+esc((e && e.message) ? e.message : e)+'</div>';
@@ -1950,6 +2006,10 @@ function resetSetForm() {
   if ($('setTarget')) $('setTarget').innerText = '0';
   if ($('setAvailable')) $('setAvailable').innerText = '0';
   if ($('setSaveBtn')) { $('setSaveBtn').disabled = false; $('setSaveBtn').innerText = 'Simpan Proses Set'; }
+  if ($('setQtyGood')) $('setQtyGood').value = '';
+  if ($('setQtyReject')) $('setQtyReject').value = '0';
+  const mats = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
+  if ($('setMaterial')) populateSetMaterialSelect($('setMaterial'), mats, cfg ? cfg.group : '', $('setPlant') ? $('setPlant').value : '');
   updateSelectedSetMaterialInfo();
 }
 
@@ -1973,7 +2033,15 @@ function submitSetProcess(event,key){
       return;
     }
     const selected = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials.find(function(m){ return String(m.material_id) === String(mat.value); }) : null;
-    const stock = Number(selected && selected.stok || 0);
+    if (!selected) {
+      alert('Data material terpilih tidak ditemukan. Silakan refresh halaman lalu pilih material kembali.');
+      return;
+    }
+    if (String(selected.plant_id || '') !== String($('setPlant').value || '')) {
+      alert('Plant material berbeda dengan Plant batch. Pilih material pada plant yang sama.');
+      return;
+    }
+    const stock = Number(selected.stok || 0);
     if (qtyInput <= 0) {
       alert('Qty Input harus lebih besar dari 0.');
       return;
@@ -1983,8 +2051,14 @@ function submitSetProcess(event,key){
       return;
     }
   }
-  if (qtyGood < 0 || qtyReject < 0 || qtyInput < 0) {
+  const qtyTarget = Number($('setQtyTarget').value || 0);
+  const batchTarget = Number($('setTarget').innerText.replace(/[^0-9,.-]/g,'').replace(/\./g,'').replace(',','.') || 0);
+  if (qtyGood < 0 || qtyReject < 0 || qtyInput < 0 || qtyTarget < 0) {
     alert('Qty tidak boleh bernilai negatif.');
+    return;
+  }
+  if (batchTarget > 0 && qtyTarget > batchTarget) {
+    alert('Target Produksi tidak boleh melebihi Target Batch.');
     return;
   }
   if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
@@ -1995,7 +2069,7 @@ function submitSetProcess(event,key){
   const lines=[]; const selects=document.querySelectorAll('#setMaterialLines select');
   selects.forEach(function(sel,i){ if(sel.value){ lines.push({material_id:sel.value,qty:Number(($('setMatQty_'+i)||{}).value||0)}); } });
   const mat=$('setMaterial');
-  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:qtyInput,qty_target:Number($('setQtyTarget').value||0),qty_good:qtyGood,qty_reject:qtyReject,material_lines:JSON.stringify(lines),catatan:$('setNote').value};
+  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:qtyInput,qty_target:qtyTarget,qty_good:qtyGood,qty_reject:qtyReject,material_lines:JSON.stringify(lines),catatan:$('setNote').value};
   btn.disabled=true; btn.innerText='Menyimpan...';
   gs('apiSaveSetTransaksi',[payload],function(res){ alert('Proses Set berhasil disimpan. ID: '+res.transaksi_id); renderSetPage(key); },function(e){ alert('Gagal menyimpan Proses Set: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Proses Set'; });
 }

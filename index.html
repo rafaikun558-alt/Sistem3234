@@ -1881,7 +1881,7 @@ function renderSetPage(key) {
     (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select><div id="setMaterialMeta" class="set-material-meta"></div></div>' : '')+
     '<div class="field full" id="setSourceBox"></div><div class="field full set-option-status" id="setOptionsStatus"></div>'+stockLines+
     '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="resetSetForm()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+ 
-    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="setTable"></tbody></table></div></div></div></div>';
+    '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="setHistoryTable"></tbody></table></div></div></div></div>';
 
   $('setOptionsStatus').innerHTML = '<div class="stage-info">Menyiapkan pilihan form...</div>';
   loadSetHistory();
@@ -2149,14 +2149,14 @@ function resetSetForm() {
 
 function loadSetHistory(){
   const cfg=SET_PAGES[SET_APP.page];
-  if(!cfg || !$('setTable')) return;
+  if(!cfg || !$('setHistoryTable')) return;
   gsRead('apiGetSetProcessPage',[cfg.code,APP.plant,''],function(d){
     d=d||{}; const summary=d.summary||{}; const rows=Array.isArray(d.rows)?d.rows:[];
     if($('setActual')) $('setActual').innerText=fmt(summary.actual);
     if($('setReject')) $('setReject').innerText=fmt(summary.reject);
-    $('setTable').innerHTML=rows.length?rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td></tr>';}).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
+    $('setHistoryTable').innerHTML=rows.length?rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td></tr>';}).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
   },function(){
-    if($('setTable')) $('setTable').innerHTML='<tr><td colspan="7"><div class="empty-state">Riwayat sedang disiapkan. Coba buka panel ini kembali.</div></td></tr>';
+    if($('setHistoryTable')) $('setHistoryTable').innerHTML='<tr><td colspan="7"><div class="empty-state">Riwayat sedang disiapkan. Coba buka panel ini kembali.</div></td></tr>';
   });
 }
 

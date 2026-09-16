@@ -273,19 +273,19 @@ body{overflow-x:hidden}
   <div class="menu-item" data-route="dop"><span class="menu-icon">●</span><span>Pemasangan Dop</span></div>
   <div class="menu-item" data-route="total-material"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h6"/></svg></span><span>Total Produksi Material</span></div>
   <div class="menu-section set-section" data-route="set-overview">2# Proses Set</div>
-  <div class="menu-item" data-menu-toggle="set-pemilihan"><span class="menu-icon">◈</span><span>Pemilihan Material</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
-  <div class="submenu" data-submenu="set-pemilihan">
-    <div class="submenu-item" data-menu-set-group="papan">› Papan</div>
-    <div class="submenu nested" data-submenu="set-papan">
+  <div class="menu-item" data-menu-toggle="set-cutting-material"><span class="menu-icon">✂</span><span>Cutting Material</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
+  <div class="submenu" data-submenu="set-cutting-material">
+    <div class="submenu-item" data-menu-set-group="cutting-papan">› Cutting Papan</div>
+    <div class="submenu nested" data-submenu="set-cutting-papan">
       <div class="submenu-item" data-route="set-papan-jok">› Papan Jok</div>
       <div class="submenu-item" data-route="set-papan-sandaran">› Papan Sandaran</div>
       <div class="submenu-item" data-route="set-papan-tutupan">› Papan Tutupan</div>
     </div>
-    <div class="submenu-item" data-menu-set-group="kain">› Kain</div>
-    <div class="submenu nested" data-submenu="set-kain">
+    <div class="submenu-item" data-menu-set-group="cutting-kain">› Cutting Kain</div>
+    <div class="submenu nested" data-submenu="set-cutting-kain">
       <div class="submenu-item" data-route="set-pola-jok">› Pola Jok</div>
       <div class="submenu-item" data-route="set-pola-sandaran">› Pola Sandaran</div>
-      <div class="submenu-item" data-route="set-tutupa">› Tutupa</div>
+      <div class="submenu-item" data-route="set-pola-tutupan">› Pola Tutupan</div>
     </div>
     <div class="submenu-item" data-menu-set-group="busa">› Busa</div>
     <div class="submenu nested" data-submenu="set-busa">
@@ -1670,14 +1670,14 @@ function setupSidebarCollapsibles() {
    2# PROSES SET — UI
 ===================================================================== */
 const SET_PAGES = {
-  'set-papan-jok': { code:'PAPAN_JOK', title:'Papan Jok', group:'Papan', stock:true },
-  'set-papan-sandaran': { code:'PAPAN_SANDARAN', title:'Papan Sandaran', group:'Papan', stock:true },
-  'set-papan-tutupan': { code:'PAPAN_TUTUPAN', title:'Papan Tutupan', group:'Papan', stock:true },
-  'set-pola-jok': { code:'KAIN_POLA_JOK', title:'Pola Jok', group:'Kain', stock:true },
-  'set-pola-sandaran': { code:'KAIN_POLA_SANDARAN', title:'Pola Sandaran', group:'Kain', stock:true },
-  'set-tutupa': { code:'KAIN_TUTUPA', title:'Tutupa', group:'Kain', stock:true },
-  'set-busa-jok': { code:'BUSA_JOK', title:'Busa Jok', group:'Busa', stock:true },
-  'set-busa-sandaran': { code:'BUSA_SANDARAN', title:'Busa Sandaran', group:'Busa', stock:true },
+  'set-papan-jok': { code:'PAPAN_JOK', title:'Papan Jok', group:'Papan', parent:'Cutting Papan', stock:true },
+  'set-papan-sandaran': { code:'PAPAN_SANDARAN', title:'Papan Sandaran', group:'Papan', parent:'Cutting Papan', stock:true },
+  'set-papan-tutupan': { code:'PAPAN_TUTUPAN', title:'Papan Tutupan', group:'Papan', parent:'Cutting Papan', stock:true },
+  'set-pola-jok': { code:'KAIN_POLA_JOK', title:'Pola Jok', group:'Kain', parent:'Cutting Kain', stock:true },
+  'set-pola-sandaran': { code:'KAIN_POLA_SANDARAN', title:'Pola Sandaran', group:'Kain', parent:'Cutting Kain', stock:true },
+  'set-pola-tutupan': { code:'KAIN_TUTUPA', title:'Pola Tutupan', group:'Kain', parent:'Cutting Kain', stock:true },
+  'set-busa-jok': { code:'BUSA_JOK', title:'Busa Jok', group:'Busa', parent:'Busa', stock:true },
+  'set-busa-sandaran': { code:'BUSA_SANDARAN', title:'Busa Sandaran', group:'Busa', parent:'Busa', stock:true },
   'set-jok': { code:'SET_JOK', title:'Set Jok', group:'Set', stock:false },
   'set-sandaran': { code:'SET_SANDARAN', title:'Set Sandaran', group:'Set', stock:false },
   'set-tutupan': { code:'SET_TUTUPAN', title:'Set Tutupan', group:'Set', stock:false },
@@ -1690,72 +1690,108 @@ const SET_APP = { page:null, options:null };
 function renderSetOverview() {
   $('pageTitle').innerText = '2# PROSES SET';
 
-  const groups = [
+  const cuttingGroups = [
     {
-      title: 'Papan',
-      subtitle: 'Pemilihan komponen papan dari stok material.',
+      title: 'Cutting Papan',
+      subtitle: 'Material papan diambil dari Stok Material.',
       accent: '#7b57d9',
       items: [
-        ['set-papan-jok', 'Papan Jok', 'Material papan untuk komponen Jok.'],
-        ['set-papan-sandaran', 'Papan Sandaran', 'Material papan untuk komponen Sandaran.'],
-        ['set-papan-tutupan', 'Papan Tutupan', 'Material papan untuk komponen Tutupan.']
+        ['set-papan-jok', 'Papan Jok', 'Komponen untuk Set Jok.'],
+        ['set-papan-sandaran', 'Papan Sandaran', 'Komponen untuk Set Sandaran.'],
+        ['set-papan-tutupan', 'Papan Tutupan', 'Komponen untuk Set Tutupan.']
       ]
     },
     {
-      title: 'Kain',
-      subtitle: 'Pemilihan material kain sesuai komponen set.',
+      title: 'Cutting Kain',
+      subtitle: 'Material kain diambil dari Stok Material.',
       accent: '#23a8be',
       items: [
-        ['set-pola-jok', 'Pola Jok', 'Material kain untuk Jok.'],
-        ['set-pola-sandaran', 'Pola Sandaran', 'Material kain untuk Sandaran.'],
-        ['set-tutupa', 'Tutupa', 'Material kain untuk Tutupan.']
+        ['set-pola-jok', 'Pola Jok', 'Komponen kain untuk Set Jok.'],
+        ['set-pola-sandaran', 'Pola Sandaran', 'Komponen kain untuk Set Sandaran.'],
+        ['set-pola-tutupan', 'Pola Tutupan', 'Komponen kain untuk Set Tutupan.']
       ]
     },
     {
       title: 'Busa',
-      subtitle: 'Pemilihan material busa untuk komponen set.',
+      subtitle: 'Material busa diambil dari Stok Material.',
       accent: '#e7971b',
       items: [
-        ['set-busa-jok', 'Busa Jok', 'Material busa untuk Jok.'],
-        ['set-busa-sandaran', 'Busa Sandaran', 'Material busa untuk Sandaran.']
+        ['set-busa-jok', 'Busa Jok', 'Komponen untuk Set Jok.'],
+        ['set-busa-sandaran', 'Busa Sandaran', 'Komponen untuk Set Sandaran.']
       ]
     }
   ];
 
+  const setGroups = [
+    ['set-jok', 'Set Jok', 'Papan Jok + Pola Jok + Busa Jok.', '#2e5bd7'],
+    ['set-sandaran', 'Set Sandaran', 'Papan Sandaran + Pola Sandaran + Busa Sandaran.', '#8059d8'],
+    ['set-tutupan', 'Set Tutupan', 'Papan Tutupan + Pola Tutupan.', '#23a8be']
+  ];
+
+  const hasilGroups = [
+    ['set-jok-siap', 'Jok siap pakai', 'Hasil dari Set Jok.', '#2bad68'],
+    ['set-sandaran-siap', 'Sandaran siap pakai', 'Hasil dari Set Sandaran.', '#2bad68'],
+    ['set-tutupan-siap', 'Tutupan siap pakai', 'Hasil dari Set Tutupan.', '#2bad68']
+  ];
+
   let html =
     '<div class="process-page-head"><div><div class="process-page-title">2# Proses Set</div>' +
-    '<div class="process-page-subtitle">Pemilihan material dikelompokkan menjadi Papan, Kain, dan Busa.</div></div>' +
+    '<div class="process-page-subtitle">Cutting Material → Set → Hasil Set.</div></div>' +
     '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>';
 
-  html += '<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start">';
+  html += '<div class="process-panel" style="margin-bottom:14px;overflow:hidden">' +
+    '<div class="process-panel-head" style="border-top:4px solid #2e5bd7;padding-top:12px">' +
+      '<div><div class="process-panel-title">Cutting Material</div>' +
+      '<div class="process-panel-caption">Semua material awal diambil dari Stok Material.</div></div>' +
+      '<span class="status-pill status-good"><span class="status-dot"></span>Input Stok</span>' +
+    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
 
-  groups.forEach(function(group){
+  cuttingGroups.forEach(function(group){
     html += '<div class="process-panel" style="overflow:hidden">' +
-      '<div class="process-panel-head" style="border-top:4px solid '+group.accent+';padding-top:12px">' +
-        '<div><div class="process-panel-title">'+esc(group.title)+'</div>' +
+      '<div class="process-panel-head" style="border-top:3px solid '+group.accent+';padding-top:10px">' +
+        '<div><div class="process-panel-title" style="font-size:13px">'+esc(group.title)+'</div>' +
         '<div class="process-panel-caption">'+esc(group.subtitle)+'</div></div>' +
-        '<span class="status-pill status-good"><span class="status-dot"></span>Aktif</span>' +
-      '</div>' +
-      '<div class="process-panel-body" style="padding:12px">' +
-        '<div style="display:grid;gap:9px">';
-
+      '</div><div class="process-panel-body" style="padding:10px"><div style="display:grid;gap:8px">';
     group.items.forEach(function(item, idx){
-      html += '<div class="erp-process-card" style="padding:12px;border-radius:7px;cursor:pointer" onclick="navigate(\''+item[0]+'\')">' +
-        '<div class="erp-process-top" style="margin-bottom:8px">' +
-          '<div class="erp-process-number" style="background:'+group.accent+'">'+(idx+1)+'</div>' +
-          '<div class="erp-process-name">'+esc(item[1])+'</div>' +
-          '<span class="menu-arrow">›</span>' +
-        '</div>' +
-        '<div class="erp-process-meta">'+esc(item[2])+'</div>' +
-      '</div>';
+      html += '<div class="erp-process-card" style="padding:10px;border-radius:7px" onclick="navigate(\''+item[0]+'\')">' +
+        '<div class="erp-process-top" style="margin-bottom:6px">' +
+        '<div class="erp-process-number" style="background:'+group.accent+'">'+(idx+1)+'</div>' +
+        '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
+        '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
     });
-
     html += '</div></div></div>';
   });
+  html += '</div></div></div>';
 
-  html += '</div>' +
-    '<div class="stage-info" style="margin-top:14px"><b>Tahap 1 — Pemilihan Material:</b> pilih salah satu sub panel untuk mencatat material stok ke proses Set.</div>';
+  html += '<div class="process-panel" style="margin-bottom:14px;overflow:hidden">' +
+    '<div class="process-panel-head" style="border-top:4px solid #8059d8;padding-top:12px">' +
+      '<div><div class="process-panel-title">Set</div>' +
+      '<div class="process-panel-caption">Hasil Cutting Material dirakit menjadi Set.</div></div>' +
+      '<span class="status-pill status-good"><span class="status-dot"></span>Perakitan Set</span>' +
+    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
+  setGroups.forEach(function(item, idx){
+    html += '<div class="erp-process-card" style="padding:12px" onclick="navigate(\''+item[0]+'\')">' +
+      '<div class="erp-process-top" style="margin-bottom:8px"><div class="erp-process-number" style="background:'+item[3]+'">'+(idx+1)+'</div>' +
+      '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
+      '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
+  });
+  html += '</div></div></div>';
 
+  html += '<div class="process-panel" style="overflow:hidden">' +
+    '<div class="process-panel-head" style="border-top:4px solid #2bad68;padding-top:12px">' +
+      '<div><div class="process-panel-title">Hasil Set</div>' +
+      '<div class="process-panel-caption">Output siap pakai dari setiap Set.</div></div>' +
+      '<span class="status-pill status-good"><span class="status-dot"></span>Output</span>' +
+    '</div><div class="process-panel-body"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">';
+  hasilGroups.forEach(function(item, idx){
+    html += '<div class="erp-process-card" style="padding:12px" onclick="navigate(\''+item[0]+'\')">' +
+      '<div class="erp-process-top" style="margin-bottom:8px"><div class="erp-process-number" style="background:'+item[3]+'">'+(idx+1)+'</div>' +
+      '<div class="erp-process-name">'+esc(item[1])+'</div><span class="menu-arrow">›</span></div>' +
+      '<div class="erp-process-meta">'+esc(item[2])+'</div></div>';
+  });
+  html += '</div></div></div>';
+
+  html += '<div class="stage-info" style="margin-top:14px"><b>Urutan:</b> Cutting Papan / Cutting Kain / Busa → Set Jok / Set Sandaran / Set Tutupan → Hasil Set.</div>';
   $('processPage').innerHTML = html;
 }
 
@@ -1778,7 +1814,7 @@ function renderSetPage(key) {
     }).join('')+'</div></div>';
   }
   $('processPage').innerHTML =
-    '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
+    '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.parent || cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
     '<div class="process-kpi-grid"><div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="setTarget">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Output Tersedia</div><div class="process-kpi-value" id="setAvailable">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Realisasi</div><div class="process-kpi-value" id="setActual">0</div><div class="process-kpi-note">Good qty</div></div><div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="setReject">0</div><div class="process-kpi-note">PCS</div></div></div>'+ 
     '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+ 
     (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select><div id="setMaterialMeta" class="set-material-meta"></div></div>' : '')+
@@ -2029,7 +2065,7 @@ function submitSetProcess(event,key){
   if (cfg.stock) {
     const mat = $('setMaterial');
     if (!mat || !mat.value) {
-      alert('Material wajib dipilih untuk tahap Pemilihan Material.');
+      alert('Material wajib dipilih untuk tahap Cutting Material.');
       return;
     }
     const selected = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials.find(function(m){ return String(m.material_id) === String(mat.value); }) : null;

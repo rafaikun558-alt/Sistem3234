@@ -80,6 +80,8 @@ label{display:flex;align-items:center;justify-content:space-between;font-size:10
 .form-foot strong{color:#65738a}
 @media(max-width:920px){body{background:#07162f;padding:16px}.page-shell{grid-template-columns:1fr;min-height:auto;max-width:560px;border-radius:20px}.hero{display:none}.form-panel{padding:38px 24px;min-height:640px}.form-wrap{max-width:420px}}
 @media(max-width:430px){.form-panel{padding:28px 19px}.form-wrap h2{font-size:27px}.security-line{align-items:flex-start}}
+
+.reset-box{margin-top:16px;border-top:1px solid var(--line);padding-top:15px}.reset-toggle{border:0;background:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:12px;padding:0}.reset-panel{display:none;margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:10px;background:#f8fafc}.reset-panel.open{display:block}.reset-panel label{display:block;font-size:11px;font-weight:700;color:var(--ink);margin:9px 0 5px}.reset-panel input{width:100%;box-sizing:border-box;height:38px;border:1px solid var(--line);border-radius:7px;padding:0 10px;font-size:12px;outline:none}.reset-panel button{margin-top:12px;width:100%;height:40px;border:0;border-radius:8px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer}.reset-token-note{font-size:10px;color:var(--muted);line-height:1.5;margin-top:8px}.
 </style>
 </head>
 <body>
@@ -138,6 +140,22 @@ label{display:flex;align-items:center;justify-content:space-between;font-size:10
         <button id="loginBtn" class="submit-btn" type="submit">Masuk ke Sistem</button>
       </form>
 
+      <div class="reset-box">
+        <button type="button" class="reset-toggle" id="resetToggle">Reset password dengan token admin</button>
+        <div class="reset-panel" id="resetPanel">
+          <div class="reset-token-note">Gunakan token sekali pakai yang dibuat oleh Admin/Superadmin. Token berlaku 15 menit.</div>
+          <label for="resetUsername">Username</label>
+          <input id="resetUsername" type="text" autocomplete="username" placeholder="Username">
+          <label for="resetToken">Token Reset</label>
+          <input id="resetToken" type="text" autocomplete="off" placeholder="Masukkan token reset">
+          <label for="resetNewPassword">Password Baru</label>
+          <input id="resetNewPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" placeholder="Minimal 10 karakter, huruf + angka">
+          <label for="resetConfirmPassword">Konfirmasi Password Baru</label>
+          <input id="resetConfirmPassword" type="password" autocomplete="new-password" minlength="10" maxlength="128" placeholder="Ulangi password baru">
+          <button id="resetBtn" type="button">Simpan Password Baru</button>
+        </div>
+      </div>
+
       <div class="security-line">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v5c0 4.7-3 8.2-7 10-4-1.8-7-5.3-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
         <span>Akses dilindungi dan diverifikasi oleh sistem autentikasi perusahaan.</span>
@@ -151,57 +169,44 @@ label{display:flex;align-items:center;justify-content:space-between;font-size:10
 'use strict';
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
 const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
+let ERP_PUBLIC_CLIENT_ID = '';
+try { ERP_PUBLIC_CLIENT_ID = localStorage.getItem('erp_public_client_id') || ''; } catch (e) {}
 
-function showStatus(message, type) {
-  const el = document.getElementById('status');
-  el.className = 'status ' + (type || 'error');
-  el.textContent = message;
+function getPublicApiClientId(){
+  if(ERP_PUBLIC_CLIENT_ID) return Promise.resolve(ERP_PUBLIC_CLIENT_ID);
+  return fetch(API_BASE_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'apiGetPublicConfig',token:'',args:[]}),cache:'no-store'})
+    .then(function(r){return r.text().then(function(raw){let d;try{d=JSON.parse(raw)}catch(e){throw new Error('Layanan server tidak tersedia.')}if(!r.ok||!d.success||!d.data||!d.data.clientId)throw new Error('Layanan server tidak tersedia.');ERP_PUBLIC_CLIENT_ID=String(d.data.clientId);try{localStorage.setItem('erp_public_client_id',ERP_PUBLIC_CLIENT_ID)}catch(e2){}return ERP_PUBLIC_CLIENT_ID;});});
 }
-function clearStatus() {
-  const el = document.getElementById('status');
-  el.className = 'status';
-  el.textContent = '';
+function apiCall(action,args,token){
+  return getPublicApiClientId().then(function(clientId){
+    return fetch(API_BASE_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:action,token:token||'',args:Array.isArray(args)?args:[],client_id:clientId}),cache:'no-store'});
+  }).then(function(r){return r.text().then(function(raw){let d;try{d=JSON.parse(raw)}catch(e){throw new Error('Layanan server tidak tersedia.')}if(!r.ok||!d.success)throw new Error(d.error||'Permintaan tidak dapat diproses.');return d.data;});});
 }
-function apiLogin(username, password) {
-  return fetch(API_BASE_URL, {
-    method:'POST',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body:JSON.stringify({action:'apiLogin',token:'',args:[username,password]})
-  }).then(function(r){
-    return r.text().then(function(raw){
-      let d;
-      try{d=JSON.parse(raw)}catch(e){throw new Error('Respons API bukan JSON yang valid.')}
-      if(!r.ok || !d.success) throw new Error(d.error || 'Login gagal.');
-      return d.data;
-    });
-  });
-}
+function showStatus(message,type){const el=document.getElementById('status');el.className='status '+(type||'error');el.textContent=message;}
+function clearStatus(){const el=document.getElementById('status');el.className='status';el.textContent='';}
 
-document.getElementById('passwordToggle').addEventListener('click',function(){
-  const input=document.getElementById('password');
-  const visible=input.type==='text';
-  input.type=visible?'password':'text';
-  this.textContent=visible?'LIHAT':'SEMBUNYIKAN';
-  this.setAttribute('aria-label',visible?'Tampilkan password':'Sembunyikan password');
-});
+function apiLogin(username,password){return apiCall('apiLogin',[username,password],'');}
+
+document.getElementById('passwordToggle').addEventListener('click',function(){const input=document.getElementById('password');const visible=input.type==='text';input.type=visible?'password':'text';this.textContent=visible?'LIHAT':'SEMBUNYIKAN';this.setAttribute('aria-label',visible?'Tampilkan password':'Sembunyikan password');});
 
 document.getElementById('loginForm').addEventListener('submit',function(e){
-  e.preventDefault();
-  clearStatus();
-  const btn=document.getElementById('loginBtn');
-  const username=document.getElementById('username').value.trim();
-  const password=document.getElementById('password').value;
-  if(!username || !password){showStatus('Username dan password wajib diisi.','error');return;}
-  btn.disabled=true;
-  btn.textContent='Memverifikasi akses...';
-  apiLogin(username,password).then(function(res){
-    localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({token:res.token,username:res.username,role:res.role,nama:res.nama}));
-    window.location.href='index.html';
-  }).catch(function(err){
-    showStatus(err && err.message ? err.message : String(err),'error');
-    btn.disabled=false;
-    btn.textContent='Masuk ke Sistem';
-  });
+  e.preventDefault();clearStatus();
+  const btn=document.getElementById('loginBtn');const username=document.getElementById('username').value.trim();const password=document.getElementById('password').value;
+  if(!username||!password){showStatus('Username dan password wajib diisi.','error');return;}
+  btn.disabled=true;btn.textContent='Memverifikasi akses...';
+  apiLogin(username,password).then(function(res){localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({token:res.token,username:res.username,role:res.role,nama:res.nama,mustChangePassword:!!res.mustChangePassword}));window.location.href='index.html';})
+  .catch(function(err){showStatus(err&&err.message?err.message:'Login gagal.','error');btn.disabled=false;btn.textContent='Masuk ke Sistem';});
+});
+
+document.getElementById('resetToggle').addEventListener('click',function(){document.getElementById('resetPanel').classList.toggle('open');});
+document.getElementById('resetBtn').addEventListener('click',function(){
+  const btn=this;const u=document.getElementById('resetUsername').value.trim();const t=document.getElementById('resetToken').value.trim();const p=document.getElementById('resetNewPassword').value;const c=document.getElementById('resetConfirmPassword').value;
+  if(!u||!t||!p||!c){showStatus('Lengkapi data reset password.','error');return;}
+  if(p!==c){showStatus('Konfirmasi password baru tidak sama.','error');return;}
+  btn.disabled=true;btn.textContent='Memproses...';
+  apiCall('apiResetPasswordWithToken',[u,t,p],'').then(function(){showStatus('Password berhasil direset. Silakan login dengan password baru.','success');document.getElementById('resetPanel').classList.remove('open');document.getElementById('password').value='';document.getElementById('username').value=u;})
+  .catch(function(err){showStatus(err&&err.message?err.message:'Reset password gagal.','error');})
+  .finally(function(){btn.disabled=false;btn.textContent='Simpan Password Baru';});
 });
 </script>
 </body>

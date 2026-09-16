@@ -789,7 +789,7 @@ function renderMasterEntity(entity, editId) {
 
   gs('apiGetMaster', [entity], function (data) {
     gs('apiGetPlants', [], function (plants) {
-      const targetRow = editId ? data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); }) : null;
+      const targetRow = editId ? (entity === 'batch' ? data.rows.find(function (r) { return String(r.batch_id || '') + '::' + (r.kelompok || 'Material') === String(editId); }) : data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); })) : null;
       const mode = targetRow ? 'Edit' : 'Tambah';
       panel.innerHTML =
         '<div class="erp-columns">' +
@@ -803,6 +803,7 @@ function renderMasterEntity(entity, editId) {
           return '<div class="field"><label>' + esc(f.label) + '</label>' + masterFieldHTML(f, targetRow ? targetRow[f.key] : '', plants) + '</div>';
         }).join('') +
         '</div>' +
+        (entity === 'batch' && targetRow ? '<input type="hidden" id="masterOriginalBatchId" value="'+esc(targetRow.batch_id || '')+'"><input type="hidden" id="masterOriginalKelompok" value="'+esc(targetRow.kelompok || 'Material')+'">' : '') +
         '<div class="form-footer"><button class="btn-secondary" type="button" onclick="renderMasterEntity(\'' + entity + '\')">Reset</button>' +
         '<button class="btn-primary" type="submit" id="masterSaveBtn">Simpan ' + esc(data.title) + '</button></div>' +
         '</form></div></div>' +
@@ -822,7 +823,7 @@ function renderMasterEntity(entity, editId) {
       body.innerHTML = data.rows.length ? data.rows.map(function (r) {
         return '<tr>' + shownHeaders.map(function (h) { return '<td>' + (r[h] === '' || r[h] == null ? '—' : esc(r[h])) + '</td>'; }).join('') +
           '<td><div class="erp-action-row">' +
-          '<button class="erp-icon-btn" title="Edit" onclick="renderMasterEntity(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">✎</button>' +
+          '<button class="erp-icon-btn" title="Edit" onclick="renderMasterEntity(\'' + entity + '\',\'' + esc(entity === 'batch' ? String(r.batch_id || '') + '::' + (r.kelompok || 'Material') : r[data.idCol]) + '\')">✎</button>' +
           '<button class="erp-icon-btn" title="Hapus" onclick="deleteMaster(\'' + entity + '\',\'' + esc(r[data.idCol]) + '\')">🗑</button>' +
           '</div></td></tr>';
       }).join('') : '<tr><td colspan="8"><div class="erp-empty"><strong>Belum ada data</strong>Tambahkan melalui form di sebelah kiri.</div></td></tr>';
@@ -842,6 +843,10 @@ function submitMaster(event, entity) {
   const btn = $('masterSaveBtn');
   const payload = {};
   document.querySelectorAll('[data-field]').forEach(function (el) { payload[el.getAttribute('data-field')] = el.value; });
+  if (entity === 'batch') {
+    payload._original_batch_id = $('masterOriginalBatchId') ? $('masterOriginalBatchId').value : '';
+    payload._original_kelompok = $('masterOriginalKelompok') ? $('masterOriginalKelompok').value : '';
+  }
   btn.disabled = true; btn.innerText = 'Menyimpan...';
   gs('apiSaveMaster', [entity, payload], function (res) {
     alert('Data ' + MASTER_TABS[entity] + ' berhasil disimpan (' + res.mode + '). ID: ' + res.id);
@@ -2346,7 +2351,7 @@ function loadKursiSusunOptions() {
   gs('apiGetKursiSusunOptions', [], function(d){
     KURSI_SUSUN_APP.options=d;
     $('ksPlant').innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
-    $('ksBatch').innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
+    $('ksBatch').innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+' [Material '+fmt(b.material_target||b.qty_target||0)+' + Set '+fmt(b.set_target||b.qty_target||0)+']</option>';}).join('');
     $('ksOperator').innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
     $('ksBatch').addEventListener('change',refreshKursiSusunContext);
     $('ksPlant').addEventListener('change',function(){ Array.from($('ksBatch').options).forEach(function(o){if(o.value)o.hidden=o.getAttribute('data-plant')!==$('ksPlant').value;}); refreshKursiSusunContext(); });

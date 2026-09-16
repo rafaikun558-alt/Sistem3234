@@ -208,7 +208,7 @@ body{overflow-x:hidden}
 .erp-process-meta{font-size:9px;color:#8491a4;margin-top:4px}
 .erp-progress{height:6px;border-radius:10px;background:#e9edf3;overflow:hidden;margin-top:9px}
 .erp-progress span{display:block;height:100%;border-radius:10px;background:#2dbb72}
-.stage-warning{background:#fff4dc;border:1px solid #f0d48a;color:#8a6410;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.4}.stage-info{background:#eef5ff;border:1px solid #cfe0ff;color:#315783;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.5}
+.stage-warning{background:#fff4dc;border:1px solid #f0d48a;color:#8a6410;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.4}.stage-info{background:#eef5ff;border:1px solid #cfe0ff;color:#315783;font-size:9px;padding:8px 10px;border-radius:6px;line-height:1.5}.set-material-meta{margin-top:7px;font-size:9px;color:#7b899d;line-height:1.5}.set-material-meta strong{color:#34435b}.set-option-status{margin-top:10px}.field select:disabled{background:#f7f9fc;color:#8a96a8;cursor:not-allowed}
 @media(max-width:1250px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.process-grid{grid-template-columns:1fr}.bottom-grid{grid-template-columns:1fr}}
 @media(max-width:1100px){.process-layout{grid-template-columns:1fr}.process-kpi-grid{grid-template-columns:repeat(2,1fr)}.erp-columns{grid-template-columns:1fr}.erp-process-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:900px){.sidebar{width:72px;padding-left:8px;padding-right:8px}.main{margin-left:72px}.company{justify-content:center;padding:0}.company-text,.company-subtitle,.menu-section,.menu-item>span:not(.menu-icon),.submenu{display:none}.menu-item{justify-content:center}.menu-arrow{display:none}.topbar{padding:0 15px}.page-title{font-size:17px}.profile-name,.profile-role{display:none}}
@@ -1780,39 +1780,177 @@ function renderSetPage(key) {
   $('processPage').innerHTML =
     '<div class="process-page-head"><div><div class="process-page-title">'+esc(cfg.title)+'</div><div class="process-page-subtitle">2# Proses Set • '+esc(cfg.group)+'</div></div><div class="process-actions"><button class="btn-secondary" onclick="navigate(\'set-overview\')">← Proses Set</button></div></div>'+ 
     '<div class="process-kpi-grid"><div class="process-kpi"><div class="process-kpi-label">Target Batch</div><div class="process-kpi-value" id="setTarget">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Output Tersedia</div><div class="process-kpi-value" id="setAvailable">0</div><div class="process-kpi-note">PCS</div></div><div class="process-kpi"><div class="process-kpi-label">Realisasi</div><div class="process-kpi-value" id="setActual">0</div><div class="process-kpi-note">Good qty</div></div><div class="process-kpi"><div class="process-kpi-label">Reject</div><div class="process-kpi-value" id="setReject">0</div><div class="process-kpi-note">PCS</div></div></div>'+ 
-    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+
-    (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select></div>' : '')+
-    '<div class="field full" id="setSourceBox"></div>'+stockLines+
-    '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="$(\'setForm\').reset();refreshSetContext()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+
+    '<div class="process-layout"><div class="process-panel" id="setFormCard"><div class="process-panel-head"><div><div class="process-panel-title">Input '+esc(cfg.title)+'</div><div class="process-panel-caption">Data 2# Proses Set tersimpan di Transaksi_Set.</div></div></div><div class="process-panel-body"><form id="setForm" onsubmit="submitSetProcess(event,\''+key+'\')"><div class="process-form-grid"><div class="field"><label>Tanggal</label><input id="setDate" type="date" value="'+todayISO()+'" required></div><div class="field"><label>Plant</label><select id="setPlant" required></select></div><div class="field"><label>Batch</label><select id="setBatch" required></select></div><div class="field"><label>Operator</label><select id="setOperator" required></select></div>'+ 
+    (isStock ? '<div class="field full"><label>Material</label><select id="setMaterial" required></select><div id="setMaterialMeta" class="set-material-meta"></div></div>' : '')+
+    '<div class="field full" id="setSourceBox"></div><div class="field full set-option-status" id="setOptionsStatus"></div>'+stockLines+
+    '<div class="field"><label>Qty Input / Pemakaian</label><input id="setQtyInput" type="number" min="0" step="0.01" required></div><div class="field"><label>Target Produksi</label><input id="setQtyTarget" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Good / Realisasi</label><input id="setQtyGood" type="number" min="0" step="0.01" required></div><div class="field"><label>Qty Reject</label><input id="setQtyReject" type="number" min="0" step="0.01" value="0"></div><div class="field full"><label>Catatan</label><textarea id="setNote" placeholder="Keterangan proses set..."></textarea></div></div><div class="form-footer"><button class="btn-secondary" type="button" onclick="resetSetForm()">Reset</button><button class="btn-primary" id="setSaveBtn" type="submit">Simpan Proses Set</button></div></form></div></div>'+ 
     '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="setTable"></tbody></table></div></div></div></div>';
-  loadSetOptions().then(function(){ refreshSetContext(); loadSetHistory(); });
+
+  $('setOptionsStatus').innerHTML = '<div class="stage-info">Memuat pilihan Plant, Batch, Operator'+(isStock ? ', dan Material' : '')+'...</div>';
+  loadSetOptions().then(function(){ refreshSetContext(); loadSetHistory(); }).catch(function(){});
+}
+
+function materialMatchesSetGroup(material, group) {
+  const cat = String(material && material.kategori || '').trim().toLowerCase();
+  const name = String(material && material.material_name || '').trim().toLowerCase();
+  const g = String(group || '').trim().toLowerCase();
+  if (!g) return true;
+  return cat === g || name.indexOf(g) >= 0;
+}
+
+function getSetMaterialsForGroup(materials, group) {
+  const list = Array.isArray(materials) ? materials : [];
+  const matched = list.filter(function(m){ return materialMatchesSetGroup(m, group); });
+  // Jika kategori master belum konsisten, jangan mengosongkan dropdown.
+  return matched.length ? matched : list;
+}
+
+function populateSetMaterialSelect(select, materials, group) {
+  if (!select) return;
+  const list = getSetMaterialsForGroup(materials, group);
+  select.innerHTML = setStockOptionsHtml(list, group);
+  select.disabled = list.length === 0;
+}
+
+function updateSelectedSetMaterialInfo() {
+  const cfg = SET_PAGES[SET_APP.page];
+  const matSelect = $('setMaterial');
+  const meta = $('setMaterialMeta');
+  const qty = $('setQtyInput');
+  if (!cfg || !cfg.stock || !matSelect) return;
+  const items = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials : [];
+  const selected = items.find(function(m){ return String(m.material_id) === String(matSelect.value); });
+  if (!selected) {
+    if (meta) meta.innerHTML = '';
+    if (qty) qty.removeAttribute('max');
+    return;
+  }
+  const stock = Number(selected.stok || 0);
+  if (qty) qty.max = String(Math.max(stock, 0));
+  if (meta) {
+    meta.innerHTML = '<span class="stage-info"><b>Stok tersedia:</b> '+fmt(stock)+' '+esc(selected.satuan || 'PCS')+' • <b>Kategori:</b> '+esc(selected.kategori || '-')+' • <b>Plant material:</b> '+esc(selected.plant_id || '-')+'</span>';
+  }
+  const q = Number(qty && qty.value || 0);
+  if (qty && q > stock) qty.value = stock > 0 ? stock : '';
+}
+
+function applySetPlantFilter() {
+  const plant = $('setPlant'), batch = $('setBatch'), op = $('setOperator');
+  const plantId = plant ? plant.value : '';
+  if (batch) {
+    Array.from(batch.options).forEach(function(o){
+      if (!o.value) return;
+      const rowPlant = o.getAttribute('data-plant') || '';
+      o.hidden = !!plantId && rowPlant !== plantId;
+    });
+    if (batch.value) {
+      const selected = batch.options[batch.selectedIndex];
+      if (selected && selected.hidden) batch.value = '';
+    }
+  }
+  if (op) {
+    Array.from(op.options).forEach(function(o){
+      if (!o.value) return;
+      const rowPlant = o.getAttribute('data-plant') || '';
+      o.hidden = !!plantId && rowPlant && rowPlant !== plantId;
+    });
+    if (op.value) {
+      const selected = op.options[op.selectedIndex];
+      if (selected && selected.hidden) op.value = '';
+    }
+  }
 }
 
 function loadSetOptions() {
   return new Promise(function(resolve,reject){
-    gs('apiGetSetOptions', [], function(d){ SET_APP.options=d; const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
-      if(!plant) return resolve();
-      plant.innerHTML='<option value="">Pilih plant</option>'+d.plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
-      batch.innerHTML='<option value="">Pilih batch</option>'+d.batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
-      op.innerHTML='<option value="">Pilih operator</option>'+d.operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
-      if(mat) mat.innerHTML=setStockOptionsHtml(d.materials);
-      d.processes.filter(function(p){return ['SET_JOK','SET_SANDARAN','SET_TUTUPAN'].indexOf(p.code)>=0;}).forEach(function(){ });
-      if(batch) batch.addEventListener('change',refreshSetContext);
-      if(plant) plant.addEventListener('change',function(){ Array.from(batch.options).forEach(function(o){ if(o.value) o.hidden = o.getAttribute('data-plant') !== plant.value; }); refreshSetContext(); });
+    gs('apiGetSetOptions', [], function(d){
+      d = d || {};
+      SET_APP.options = d;
+      const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
+      const plants = Array.isArray(d.plants) ? d.plants : [];
+      const batches = Array.isArray(d.batches) ? d.batches : [];
+      const operators = Array.isArray(d.operators) ? d.operators : [];
+      const materials = Array.isArray(d.materials) ? d.materials : [];
+      if(!plant) { resolve(); return; }
+
+      plant.innerHTML='<option value="">Pilih plant</option>'+plants.map(function(p){return '<option value="'+esc(p.plant_id)+'">'+esc(p.plant_id)+' — '+esc(p.nama_plant||'')+'</option>';}).join('');
+      batch.innerHTML='<option value="">Pilih batch</option>'+batches.map(function(b){return '<option value="'+esc(b.batch_id)+'" data-plant="'+esc(b.plant_id||'')+'">'+esc(b.batch_id)+' — '+esc(b.produk||'')+'</option>';}).join('');
+      op.innerHTML='<option value="">Pilih operator</option>'+operators.map(function(o){return '<option value="'+esc(o.telegram_user_id)+'" data-plant="'+esc(o.plant_id||'')+'">'+esc(o.nama_operator||o.telegram_user_id)+'</option>';}).join('');
+      if(mat) populateSetMaterialSelect(mat, materials, SET_PAGES[SET_APP.page] && SET_PAGES[SET_APP.page].group);
+
+      if (APP.plant && APP.plant !== 'ALL' && plants.some(function(p){ return String(p.plant_id) === String(APP.plant); })) {
+        plant.value = APP.plant;
+      }
+      applySetPlantFilter();
+
+      if(batch) batch.onchange = function(){ refreshSetContext(); };
+      if(plant) plant.onchange = function(){
+        applySetPlantFilter();
+        refreshSetContext();
+        updateSelectedSetMaterialInfo();
+      };
+      if(op) op.onchange = function(){};
+      if(mat) mat.onchange = function(){ updateSelectedSetMaterialInfo(); };
+
+      // Isi dropdown bahan tambahan hanya pada tahap perakitan Set, tanpa mengubah logika sumber utama.
+      if ($('setMaterialLines')) {
+        Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){
+          sel.innerHTML = '<option value="">Pilih material stok</option>'+materials.map(function(m){return '<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>';}).join('');
+        });
+      }
+
+      if ($('setOptionsStatus')) {
+        const hasCore = plants.length && batches.length && operators.length;
+        const hasMaterial = !SET_PAGES[SET_APP.page].stock || materials.length;
+        $('setOptionsStatus').innerHTML = hasCore && hasMaterial
+          ? '<div class="stage-info"><b>Form siap digunakan.</b> Pilih Plant terlebih dahulu, lalu Batch, Operator, dan Material.</div>'
+          : '<div class="stage-warning"><b>Data master belum lengkap.</b> Pastikan Plant, Batch, Operator, dan stok Material sudah tersedia.</div>';
+      }
+      updateSelectedSetMaterialInfo();
       resolve();
-    }, reject);
+    }, function(e){
+      if ($('setOptionsStatus')) $('setOptionsStatus').innerHTML = '<div class="stage-warning"><b>Gagal memuat pilihan form.</b> '+esc((e && e.message) ? e.message : e)+'</div>';
+      reject(e);
+    });
   });
 }
 
 function refreshSetContext() {
-  const cfg=SET_PAGES[SET_APP.page]; if(!cfg || !$('setBatch') || !$('setBatch').value) return;
+  const cfg=SET_PAGES[SET_APP.page];
+  if(!cfg || !$('setBatch')) return;
+  if (!$('setBatch').value) {
+    if ($('setTarget')) $('setTarget').innerText='0';
+    if ($('setAvailable')) $('setAvailable').innerText='0';
+    if ($('setQtyInput')) $('setQtyInput').value='';
+    if ($('setQtyTarget')) $('setQtyTarget').value='';
+    if ($('setSourceBox')) $('setSourceBox').innerHTML='<div class="stage-info">Pilih <b>Batch</b> untuk melihat target dan sumber proses.</div>';
+    updateSelectedSetMaterialInfo();
+    return;
+  }
   gs('apiGetSetContext',[$('setBatch').value,cfg.code],function(d){
     $('setTarget').innerText=fmt(d.batchTarget); $('setAvailable').innerText=fmt(d.suggestedQtyInput);
     $('setQtyInput').value=d.suggestedQtyInput>0?d.suggestedQtyInput:''; $('setQtyTarget').value=d.suggestedQtyInput>0?d.suggestedQtyInput:d.batchTarget;
     const box=$('setSourceBox');
-    box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '';
-    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!sel.querySelector('option[value="'+m.material_id+'"]')) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
+    box.innerHTML=d.requiredSources.length ? '<div class="stage-info"><b>Sumber komponen:</b> '+d.sources.map(function(x){return esc(x.outputKey)+' = '+fmt(x.availableQty)+' PCS';}).join(' • ')+'</div>' : '<div class="stage-info"><b>Sumber proses:</b> stok material sesuai pilihan pada form.</div>';
+    if(SET_APP.options && $('setMaterialLines')) SET_APP.options.materials.forEach(function(m){ Array.from(document.querySelectorAll('#setMaterialLines select')).forEach(function(sel){ if(!sel.querySelector('option[value="'+CSS.escape(String(m.material_id))+'"]')) sel.insertAdjacentHTML('beforeend','<option value="'+esc(m.material_id)+'">'+esc(m.material_id)+' — '+esc(m.material_name)+' (stok '+fmt(m.stok)+')</option>'); }); });
+    updateSelectedSetMaterialInfo();
+  }, function(e){
+    if ($('setSourceBox')) $('setSourceBox').innerHTML='<div class="stage-warning"><b>Gagal membaca konteks batch.</b> '+esc((e && e.message) ? e.message : e)+'</div>';
   });
+}
+
+function resetSetForm() {
+  const form = $('setForm');
+  if (form) form.reset();
+  const cfg = SET_PAGES[SET_APP.page];
+  if ($('setDate')) $('setDate').value = todayISO();
+  if ($('setPlant') && APP.plant && APP.plant !== 'ALL') $('setPlant').value = APP.plant;
+  applySetPlantFilter();
+  if ($('setSourceBox')) $('setSourceBox').innerHTML = '<div class="stage-info">Pilih <b>Batch</b> untuk melihat target dan sumber proses.</div>';
+  if ($('setTarget')) $('setTarget').innerText = '0';
+  if ($('setAvailable')) $('setAvailable').innerText = '0';
+  if ($('setSaveBtn')) { $('setSaveBtn').disabled = false; $('setSaveBtn').innerText = 'Simpan Proses Set'; }
+  updateSelectedSetMaterialInfo();
 }
 
 function loadSetHistory(){ const cfg=SET_PAGES[SET_APP.page]; if(!cfg) return; gs('apiGetSetProcessPage',[cfg.code,APP.plant,''],function(d){ $('setActual').innerText=fmt(d.summary.actual); $('setReject').innerText=fmt(d.summary.reject); $('setTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status)+'</td></tr>';}).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>'; }); }
@@ -1820,14 +1958,47 @@ function loadSetHistory(){ const cfg=SET_PAGES[SET_APP.page]; if(!cfg) return; g
 function submitSetProcess(event,key){
   event.preventDefault();
   const cfg=SET_PAGES[key], btn=$('setSaveBtn');
+  const qtyInput = Number($('setQtyInput').value || 0);
+  const qtyGood = Number($('setQtyGood').value || 0);
+  const qtyReject = Number($('setQtyReject').value || 0);
+
+  if (!$('setPlant').value || !$('setBatch').value || !$('setOperator').value) {
+    alert('Plant, Batch, dan Operator wajib dipilih.');
+    return;
+  }
+  if (cfg.stock) {
+    const mat = $('setMaterial');
+    if (!mat || !mat.value) {
+      alert('Material wajib dipilih untuk tahap Pemilihan Material.');
+      return;
+    }
+    const selected = SET_APP.options && Array.isArray(SET_APP.options.materials) ? SET_APP.options.materials.find(function(m){ return String(m.material_id) === String(mat.value); }) : null;
+    const stock = Number(selected && selected.stok || 0);
+    if (qtyInput <= 0) {
+      alert('Qty Input harus lebih besar dari 0.');
+      return;
+    }
+    if (qtyInput > stock) {
+      alert('Qty Input melebihi stok material tersedia: ' + fmt(stock) + ' PCS.');
+      return;
+    }
+  }
+  if (qtyGood < 0 || qtyReject < 0 || qtyInput < 0) {
+    alert('Qty tidak boleh bernilai negatif.');
+    return;
+  }
+  if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
+    alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
+    return;
+  }
+
   const lines=[]; const selects=document.querySelectorAll('#setMaterialLines select');
   selects.forEach(function(sel,i){ if(sel.value){ lines.push({material_id:sel.value,qty:Number(($('setMatQty_'+i)||{}).value||0)}); } });
   const mat=$('setMaterial');
-  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:Number($('setQtyInput').value||0),qty_target:Number($('setQtyTarget').value||0),qty_good:Number($('setQtyGood').value||0),qty_reject:Number($('setQtyReject').value||0),material_lines:JSON.stringify(lines),catatan:$('setNote').value};
+  const payload={tanggal:$('setDate').value,plant_id:$('setPlant').value,batch_id:$('setBatch').value,operator_id:$('setOperator').value,proses_code:cfg.code,material_id:mat?mat.value:'',qty_input:qtyInput,qty_target:Number($('setQtyTarget').value||0),qty_good:qtyGood,qty_reject:qtyReject,material_lines:JSON.stringify(lines),catatan:$('setNote').value};
   btn.disabled=true; btn.innerText='Menyimpan...';
   gs('apiSaveSetTransaksi',[payload],function(res){ alert('Proses Set berhasil disimpan. ID: '+res.transaksi_id); renderSetPage(key); },function(e){ alert('Gagal menyimpan Proses Set: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Proses Set'; });
 }
-
 
 /* =====================================================================
    3# SET KURSI SUSUN — UI

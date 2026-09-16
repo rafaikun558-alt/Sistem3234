@@ -430,18 +430,27 @@ function clearSession() {
   try { localStorage.removeItem(SESSION_STORAGE_KEY); } catch (e) {}
 }
 function apiRequest(action, args, token) {
-  return fetch(API_BASE_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: Array.isArray(args) ? args : [] })
-  }).then(function (response) {
-    return response.text().then(function (raw) {
-      let data;
-      try { data = JSON.parse(raw); } catch (e) { throw new Error('Respons API bukan JSON yang valid.'); }
-      if (!response.ok || !data.success) throw new Error(data.error || 'Request API gagal.');
-      return data.data;
+  const payload = { action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: Array.isArray(args) ? args : [] };
+  function attempt(retry) {
+    return fetch(API_BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload),
+      cache: 'no-store'
+    }).then(function (response) {
+      return response.text().then(function (raw) {
+        let data;
+        try { data = JSON.parse(raw); } catch (e) {
+          if (retry < 1) return new Promise(function(resolve){ setTimeout(resolve, 500); }).then(function(){ return attempt(retry + 1); });
+          const preview = String(raw || '').replace(/\s+/g, ' ').slice(0, 140);
+          throw new Error('Respons API bukan JSON yang valid' + (preview ? ': ' + preview : '.'));
+        }
+        if (!response.ok || !data.success) throw new Error(data.error || 'Request API gagal.');
+        return data.data;
+      });
     });
-  });
+  }
+  return attempt(0);
 }
 
 /* =====================================================================
@@ -707,23 +716,15 @@ function loadDashboard() {
   setDashboardLoading(true);
   const reportDate = APP.reportDate || todayISO();
   const plantId = APP.plant || 'ALL';
-  gs('apiGetDashboard', [reportDate, plantId], function (d) {
-    renderDashboardData(d);
+  gsRead('apiGetDashboard', [reportDate, plantId], function (d) {
+    renderDashboardData(d || {});
+    setDashboardLoading(false);
   }, function (e) {
+    setDashboardLoading(false);
     const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat dashboard.');
     if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
-    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
-  });
-  gsRead('apiGetSetDashboard', [reportDate, plantId], function (d) {
-    setDashboardLoading(false);
-    const setRows = Array.isArray(d && d.set) ? d.set : [];
-    $('setTable').innerHTML = setRows.length
-      ? processSetTableRows(setRows)
-      : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data Proses Set hari ini.</td></tr>';
-  }, function (e) {
-    setDashboardLoading(false);
-    const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat Proses Set.');
     if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat Proses Set: ' + esc(msg) + '</td></tr>';
+    if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
   });
 }
 
@@ -2352,7 +2353,7 @@ function renderKursiSusunForm(name) {
     '</div><div class="form-footer"><button class="btn-secondary" type="button" onclick="document.getElementById(\'ksForm\').reset(); refreshKursiSusunContext()">Reset</button>' +
     '<button class="btn-primary" id="ksSaveBtn" type="submit">Simpan Pemasangan</button></div></form></div></div>' +
     '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(name)+'</div><div class="process-panel-caption">Data 3# Set Kursi Susun.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div>' +
-    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th></tr></thead><tbody id="ksTable"></tbody></table></div></div></div></div>';
+    '<div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="ksTable"></tbody></table></div></div></div></div>';
   loadKursiSusunOptions();
 }
 
@@ -2385,25 +2386,101 @@ function refreshKursiSusunContext() {
 
 function loadKursiSusunHistory(){
   const cfg=KURSI_SUSUN_PAGES[KURSI_SUSUN_APP.active];
-  gs('apiGetKursiSusunPage',[cfg.code,APP.plant,''],function(d){
-    if ($('ksFinish')) $('ksFinish').innerText=fmt(d.finishQty);
-    $('ksTable').innerHTML=d.rows.length?d.rows.map(function(r){return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td></tr>';}).join(''):'<tr><td colspan="6"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
+  if (!$('ksTable')) return;
+  gsRead('apiGetKursiSusunPage',[cfg.code,APP.plant,''],function(d){
+    const rows=Array.isArray(d && d.rows)?d.rows:[];
+    KURSI_SUSUN_APP.historyRows=rows;
+    if ($('ksFinish')) $('ksFinish').innerText=fmt(d && d.finishQty);
+    $('ksTable').innerHTML=rows.length?rows.map(function(r){
+      return '<tr><td>'+esc(r.tanggal)+'</td><td>'+esc(r.batch_id)+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class="erp-icon-btn" title="Edit transaksi" data-edit-ks="'+esc(r.transaksi_id)+'">✎</button><button class="erp-icon-btn" title="Hapus transaksi" data-delete-ks="'+esc(r.transaksi_id)+'">🗑</button></td></tr>';
+    }).join(''):'<tr><td colspan="7"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
+  },function(e){
+    KURSI_SUSUN_APP.historyRows=[];
+    if ($('ksTable')) $('ksTable').innerHTML='<tr><td colspan="7"><div class="empty-state">Riwayat sedang disiapkan. Coba buka panel ini kembali.</div></td></tr>';
   });
+}
+
+document.addEventListener('click', function(e){
+  const editBtn=e.target.closest ? e.target.closest('[data-edit-ks]') : null;
+  if(editBtn){ editKursiSusunTransaksi(editBtn.getAttribute('data-edit-ks')); return; }
+  const delBtn=e.target.closest ? e.target.closest('[data-delete-ks]') : null;
+  if(delBtn){ deleteKursiSusunTransaksi(delBtn.getAttribute('data-delete-ks')); }
+});
+
+function deleteKursiSusunTransaksi(id){
+  const row=(KURSI_SUSUN_APP.historyRows||[]).find(function(r){return String(r.transaksi_id)===String(id);});
+  if(!row) return;
+  if(!confirm('Yakin hapus transaksi Set Kursi Susun ini? Tindakan tidak bisa dibatalkan.')) return;
+  gs('apiDeleteKursiSusunTransaksi',[id],function(){
+    loadKursiSusunHistory();
+    refreshKursiSusunContext();
+  },function(e){
+    alert('Gagal menghapus transaksi Set Kursi Susun: '+((e&&e.message)?e.message:e));
+  });
+}
+
+function editKursiSusunTransaksi(id){
+  const row=(KURSI_SUSUN_APP.historyRows||[]).find(function(r){return String(r.transaksi_id)===String(id);});
+  if(!row) return;
+  KURSI_SUSUN_APP.editingTrxId=String(id);
+  const map={ksDate:row.tanggal,ksPlant:row.plant_id,ksBatch:row.batch_id,ksOperator:row.operator_id,ksQtyInput:row.qty_input,ksQtyTarget:row.qty_target,ksQtyGood:row.qty_good,ksQtyReject:row.qty_reject,ksNote:row.catatan||''};
+  Object.keys(map).forEach(function(k){if($(k)) $(k).value=map[k];});
+  ['ksDate','ksPlant','ksBatch','ksOperator'].forEach(function(fid){if($(fid)) $(fid).disabled=true;});
+  if($('ksSaveBtn')) { $('ksSaveBtn').innerText='Update Pemasangan'; }
+  let cancel=$('ksCancelEditBtn');
+  if(!cancel){
+    cancel=document.createElement('button'); cancel.type='button'; cancel.id='ksCancelEditBtn'; cancel.className='btn-secondary'; cancel.innerText='Batal Edit'; cancel.onclick=cancelEditKursiSusunTransaksi;
+    $('ksSaveBtn').insertAdjacentElement('beforebegin',cancel);
+  }
+  if($('ksFormCard')) $('ksFormCard').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelEditKursiSusunTransaksi(){
+  KURSI_SUSUN_APP.editingTrxId=null;
+  ['ksDate','ksPlant','ksBatch','ksOperator'].forEach(function(fid){if($(fid)) $(fid).disabled=false;});
+  if($('ksSaveBtn')) {$('ksSaveBtn').innerText='Simpan Pemasangan'; $('ksSaveBtn').disabled=false;}
+  const cancel=$('ksCancelEditBtn'); if(cancel) cancel.remove();
+  const form=$('ksForm'); if(form) form.reset();
+  if($('ksDate')) $('ksDate').value=todayISO();
+  refreshKursiSusunContext();
 }
 
 function submitKursiSusun(event,name){
   event.preventDefault();
   const cfg=KURSI_SUSUN_PAGES[name], btn=$('ksSaveBtn');
+  const qtyInput=Number($('ksQtyInput').value||0);
+  const qtyTarget=Number($('ksQtyTarget').value||0);
+  const qtyGood=Number($('ksQtyGood').value||0);
+  const qtyReject=Number($('ksQtyReject').value||0);
+  if(qtyInput<=0){alert('Qty Input harus lebih dari 0.');return;}
+  if(qtyGood<0 || qtyReject<0 || qtyTarget<0){alert('Qty tidak boleh negatif.');return;}
+  if(qtyGood+qtyReject>qtyInput){alert('Qty Good + Reject tidak boleh melebihi Qty Input.');return;}
+
+  if(KURSI_SUSUN_APP.editingTrxId){
+    const updatePayload={qty_input:qtyInput,qty_target:qtyTarget,qty_good:qtyGood,qty_reject:qtyReject,catatan:$('ksNote').value||''};
+    btn.disabled=true; btn.innerText='Menyimpan...';
+    gs('apiUpdateKursiSusunTransaksi',[KURSI_SUSUN_APP.editingTrxId,updatePayload],function(){
+      alert('Transaksi Set Kursi Susun berhasil diperbarui.');
+      cancelEditKursiSusunTransaksi();
+      loadKursiSusunHistory();
+      refreshKursiSusunContext();
+    },function(e){
+      alert('Gagal memperbarui transaksi Set Kursi Susun: '+((e&&e.message)?e.message:e));
+      btn.disabled=false; btn.innerText='Update Pemasangan';
+    });
+    return;
+  }
+
   const payload={
     tanggal:$('ksDate').value,
     plant_id:$('ksPlant').value,
     batch_id:$('ksBatch').value,
     operator_id:$('ksOperator').value,
     proses_code:cfg.code,
-    qty_input:Number($('ksQtyInput').value||0),
-    qty_target:Number($('ksQtyTarget').value||0),
-    qty_good:Number($('ksQtyGood').value||0),
-    qty_reject:Number($('ksQtyReject').value||0),
+    qty_input:qtyInput,
+    qty_target:qtyTarget,
+    qty_good:qtyGood,
+    qty_reject:qtyReject,
     catatan:$('ksNote').value
   };
   btn.disabled=true; btn.innerText='Menyimpan...';

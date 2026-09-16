@@ -744,7 +744,9 @@ function renderMasterPage() {
     '<div id="masterPanel"></div>';
 
   gs('apiGetOverview', [], function (o) {
-    $('masterStats').innerHTML = [
+    const masterStats = $('masterStats');
+    if (!masterStats) return;
+    masterStats.innerHTML = [
       ['Plant', o.plant, 'referensi lokasi produksi'],
       ['Proses', o.proses, 'alur proses terdaftar'],
       ['Batch', o.batch, 'batch produksi'],
@@ -758,7 +760,9 @@ function renderMasterPage() {
 }
 
 function renderMasterTabs() {
-  $('masterTabs').innerHTML = Object.keys(MASTER_TABS).map(function (k) {
+  const tabs = $('masterTabs');
+  if (!tabs) return;
+  tabs.innerHTML = Object.keys(MASTER_TABS).map(function (k) {
     return '<button class="erp-tab ' + (k === APP.masterEntity ? 'active' : '') + '" onclick="switchMaster(\'' + k + '\')">' + MASTER_TABS[k] + '</button>';
   }).join('');
 }
@@ -785,10 +789,12 @@ function masterFieldHTML(f, value, plants) {
 
 function renderMasterEntity(entity, editId) {
   const panel = $('masterPanel');
+  if (!panel || !MASTER_TABS[entity]) return;
   panel.innerHTML = '<div class="erp-card"><div class="erp-card-body"><div class="erp-empty">Memuat ' + esc(MASTER_TABS[entity]) + '...</div></div></div>';
 
   gs('apiGetMaster', [entity], function (data) {
     gs('apiGetPlants', [], function (plants) {
+      if (!panel || !document.body.contains(panel)) return;
       const targetRow = editId ? (entity === 'batch' ? data.rows.find(function (r) { return String(r.batch_id || '') + '::' + (r.kelompok || 'Material') === String(editId); }) : data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); })) : null;
       const mode = targetRow ? 'Edit' : 'Tambah';
       panel.innerHTML =
@@ -817,9 +823,12 @@ function renderMasterEntity(entity, editId) {
         '</div></div></div>';
 
       const shownHeaders = (data.headers || []).filter(Boolean).slice(0, 7);
-      document.querySelector('#masterTable thead tr').innerHTML =
+      const masterHead = document.querySelector('#masterTable thead tr');
+      if (!masterHead) return;
+      masterHead.innerHTML =
         shownHeaders.map(function (h) { return '<th>' + esc(h) + '</th>'; }).join('') + '<th>Aksi</th>';
       const body = $('masterTableBody');
+      if (!body) return;
       body.innerHTML = data.rows.length ? data.rows.map(function (r) {
         return '<tr>' + shownHeaders.map(function (h) { return '<td>' + (r[h] === '' || r[h] == null ? '—' : esc(r[h])) + '</td>'; }).join('') +
           '<td><div class="erp-action-row">' +

@@ -162,6 +162,21 @@ function clearStatus() {
   el.className = 'status';
   el.textContent = '';
 }
+function persistSession(data, fallbackUsername) {
+  if (!data || !data.token) throw new Error('Login berhasil tetapi token sesi tidak diterima dari server.');
+  const session = {token:data.token,username:data.username || fallbackUsername || '',role:data.role || '',nama:data.nama || data.username || fallbackUsername || ''};
+  const raw = JSON.stringify(session);
+  let localOk = false;
+  try { localStorage.setItem(SESSION_STORAGE_KEY, raw); localOk = localStorage.getItem(SESSION_STORAGE_KEY) === raw; } catch (e) {}
+  try { sessionStorage.setItem(SESSION_STORAGE_KEY, raw); } catch (e) {}
+  if (!localOk) {
+    try {
+      if (sessionStorage.getItem(SESSION_STORAGE_KEY) !== raw) throw new Error('Penyimpanan sesi browser gagal.');
+    } catch (e) { throw new Error('Browser tidak mengizinkan penyimpanan sesi.'); }
+  }
+  return session;
+}
+
 function apiLogin(username, password) {
   return fetch(API_BASE_URL, {
     method:'POST',
@@ -195,8 +210,8 @@ document.getElementById('loginForm').addEventListener('submit',function(e){
   btn.disabled=true;
   btn.textContent='Memverifikasi akses...';
   apiLogin(username,password).then(function(res){
-    localStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({token:res.token,username:res.username,role:res.role,nama:res.nama}));
-    window.location.href='index.html';
+    persistSession(res, username);
+    window.location.replace('index.html?v=' + Date.now());
   }).catch(function(err){
     showStatus(err && err.message ? err.message : String(err),'error');
     btn.disabled=false;

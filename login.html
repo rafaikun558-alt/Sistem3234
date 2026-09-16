@@ -172,7 +172,8 @@ const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
 let ERP_PUBLIC_CLIENT_ID = '';
 try { ERP_PUBLIC_CLIENT_ID = localStorage.getItem('erp_public_client_id') || ''; } catch (e) {}
 
-function getPublicApiClientId(){
+function getPublicApiClientId(forceRefresh){
+  if(forceRefresh){ ERP_PUBLIC_CLIENT_ID=''; try{localStorage.removeItem('erp_public_client_id')}catch(e){} }
   if(ERP_PUBLIC_CLIENT_ID) return Promise.resolve(ERP_PUBLIC_CLIENT_ID);
   return fetch(API_BASE_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'apiGetPublicConfig',token:'',args:[]}),cache:'no-store'})
     .then(function(r){return r.text().then(function(raw){let d;try{d=JSON.parse(raw)}catch(e){throw new Error('Layanan server tidak tersedia.')}if(!r.ok||!d.success||!d.data||!d.data.clientId)throw new Error('Layanan server tidak tersedia.');ERP_PUBLIC_CLIENT_ID=String(d.data.clientId);try{localStorage.setItem('erp_public_client_id',ERP_PUBLIC_CLIENT_ID)}catch(e2){}return ERP_PUBLIC_CLIENT_ID;});});

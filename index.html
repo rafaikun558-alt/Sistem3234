@@ -368,6 +368,15 @@ body{overflow-x:hidden}
             <tbody id="materialTable"></tbody>
           </table>
         </div>
+
+        <div class="dashboard-card process-card">
+          <div class="card-title">PROSES SET</div>
+          <div class="flow" id="setFlow"></div>
+          <table class="process-table">
+            <thead><tr><th>PROSES</th><th>TARGET RANGKA</th><th>OUTPUT</th><th>PENCAPAIAN</th></tr></thead>
+            <tbody id="setTable"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="bottom-grid">
@@ -559,8 +568,29 @@ function renderDashboardFlows() {
     flowItemHTML('pink', 'total', 'Perakitan', 'perakitan') + '<div class="flow-arrow">→</div>' +
     flowItemHTML('orange', 'chemical', 'Chemical: Coating / Nickel', 'coating') + '<div class="flow-arrow">→</div>' +
     flowItemHTML('green', 'total', 'Dop', 'dop');
-  var setFlow = $('setFlow');
-  if (setFlow) setFlow.innerHTML = '';
+
+  const setFlow = $('setFlow');
+  if (setFlow) {
+    setFlow.innerHTML =
+      flowItemHTML('blue', 'total', 'Pemilihan Material', 'set-overview') + '<div class="flow-arrow">→</div>' +
+      flowItemHTML('orange', 'chemical', 'Set', 'set-jok') + '<div class="flow-arrow">→</div>' +
+      flowItemHTML('green', 'total', 'Hasil Set', 'set-jok-siap');
+  }
+}
+
+function processSetTableRows(rows) {
+  let html = '';
+  (rows || []).forEach(function (it) {
+    const p = pct(it.target, it.actual);
+    html += '<tr><td title="' + esc(it.name) + '">' + esc(it.name) + '</td>' +
+      '<td>' + fmt(it.target) + '</td><td>' + fmt(it.actual) + '</td>' +
+      '<td><div class="achievement"><span class="achievement-value">' + p.toFixed(1) + '%</span>' +
+      '<span class="small-progress"><span class="small-progress-fill" style="width:' + Math.min(p, 100) + '%"></span></span></div></td></tr>';
+  });
+  const complete = Number(rows && rows.length ? Math.min.apply(null, rows.map(function(x){ return Number(x.actual || 0); })) : 0);
+  const target = Number(rows && rows.length ? Math.min.apply(null, rows.map(function(x){ return Number(x.target || 0); })) : 0);
+  html += '<tr class="total-row"><td>KAPASITAS SET LENGKAP</td><td>' + fmt(target) + '</td><td>' + fmt(complete) + '</td><td>' + pct(target, complete).toFixed(1) + '%</td></tr>';
+  return html;
 }
 
 function processTableRows(rows, totalLabel) {
@@ -615,6 +645,7 @@ function setDashboardLoading(isLoading) {
   if (isLoading) {
     ids.forEach(function (id) { if ($(id)) $(id).innerText = '...'; });
     if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat data dashboard...</td></tr>';
+    if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Memuat Proses Set...</td></tr>';
     if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px">Memuat ringkasan efisiensi...</div>';
   }
 }
@@ -631,6 +662,11 @@ function renderDashboardData(d) {
   $('materialTable').innerHTML = materialRows.length
     ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL')
     : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data produksi hari ini.</td></tr>';
+
+  const setRows = Array.isArray(d.set) ? d.set : [];
+  $('setTable').innerHTML = setRows.length
+    ? processSetTableRows(setRows)
+    : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data Proses Set hari ini.</td></tr>';
 
   const t2 = $('materialTable2');
   if (t2) t2.innerHTML = materialRows.length ? processTableRows(materialRows, 'TOTAL PRODUKSI MATERIAL') : '';
@@ -655,13 +691,22 @@ function loadDashboard() {
   const reportDate = APP.reportDate || todayISO();
   const plantId = APP.plant || 'ALL';
   gs('apiGetDashboard', [reportDate, plantId], function (d) {
-    setDashboardLoading(false);
     renderDashboardData(d);
   }, function (e) {
-    setDashboardLoading(false);
     const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat dashboard.');
     if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
     if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
+  });
+  gs('apiGetSetDashboard', [reportDate, plantId], function (d) {
+    setDashboardLoading(false);
+    const setRows = Array.isArray(d && d.set) ? d.set : [];
+    $('setTable').innerHTML = setRows.length
+      ? processSetTableRows(setRows)
+      : '<tr><td colspan="4" style="text-align:center;padding:18px;color:#8995a7">Belum ada data Proses Set hari ini.</td></tr>';
+  }, function (e) {
+    setDashboardLoading(false);
+    const msg = (e && e.message) ? e.message : String(e || 'Gagal memuat Proses Set.');
+    if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat Proses Set: ' + esc(msg) + '</td></tr>';
   });
 }
 

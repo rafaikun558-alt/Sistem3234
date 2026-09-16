@@ -211,7 +211,7 @@ document.getElementById('loginForm').addEventListener('submit',function(e){
   btn.textContent='Memverifikasi akses...';
   apiLogin(username,password).then(function(res){
     persistSession(res, username);
-    window.location.replace('index.html?v=' + Date.now());
+    window.location.replace('index.html#session=' + encodeURIComponent(res.token));
   }).catch(function(err){
     showStatus(err && err.message ? err.message : String(err),'error');
     btn.disabled=false;

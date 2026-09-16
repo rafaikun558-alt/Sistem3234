@@ -416,6 +416,7 @@ body{overflow-x:hidden}
   <div class="menu-item" data-route="master"><span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>Master Data</span><span class="menu-arrow">›</span></div>
   <div class="menu-item" data-route="stock"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v10l8 4 8-4V7"/><path d="M12 11v10"/></svg></span><span>Stok Material</span><span class="menu-arrow">›</span></div>
   <div class="menu-item" data-route="input-produksi"><span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><span>Input Produksi</span></div>
+  <div class="menu-item" data-route="change-password"><span class="menu-icon">🔒</span><span>Keamanan & Password</span></div>
 
   <div class="menu-section" data-route="material-overview">1# Proses Material</div>
   <div class="menu-item" data-menu-toggle="cutting" data-route="cutting"><span class="menu-icon">✂</span><span>Cutting Proses</span><span class="menu-arrow menu-arrow-toggle">›</span></div>
@@ -604,6 +605,8 @@ body{overflow-x:hidden}
 const API_BASE_URL = 'https://script.google.com/macros/s/AKfycbz46NNkDXdvr1Y6jks48R-nL__xBtMZx1YlDmfz19oOKAkU3FX3MwmmiDI_0qqzHlkQ/exec';
 const SESSION_STORAGE_KEY = 'erp_manufaktur_session';
 let ERP_SESSION = loadSession();
+let ERP_PUBLIC_CLIENT_ID = '';
+try { ERP_PUBLIC_CLIENT_ID = localStorage.getItem('erp_public_client_id') || ''; } catch (e) {}
 const SESSION_TOKEN = ERP_SESSION ? ERP_SESSION.token : '';
 const SESSION_ROLE = ERP_SESSION ? ERP_SESSION.role : '';
 const SESSION_NAME = ERP_SESSION ? ERP_SESSION.nama : '';
@@ -619,29 +622,51 @@ function clearSession() {
   ERP_SESSION = null;
   try { localStorage.removeItem(SESSION_STORAGE_KEY); } catch (e) {}
 }
+function getPublicApiClientId_() {
+  if (ERP_PUBLIC_CLIENT_ID) return Promise.resolve(ERP_PUBLIC_CLIENT_ID);
+  return fetch(API_BASE_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'apiGetPublicConfig', token: '', args: [] }),
+    cache: 'no-store'
+  }).then(function (response) {
+    return response.text().then(function (raw) {
+      let data;
+      try { data = JSON.parse(raw); } catch (e) { throw new Error('Layanan server tidak tersedia.'); }
+      if (!response.ok || !data.success || !data.data || !data.data.clientId) throw new Error('Layanan server tidak tersedia.');
+      ERP_PUBLIC_CLIENT_ID = String(data.data.clientId);
+      try { localStorage.setItem('erp_public_client_id', ERP_PUBLIC_CLIENT_ID); } catch (e2) {}
+      return ERP_PUBLIC_CLIENT_ID;
+    });
+  });
+}
+
 function apiRequest(action, args, token) {
-  const payload = { action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: Array.isArray(args) ? args : [] };
+  const normalizedArgs = Array.isArray(args) ? args : [];
   function attempt(retry) {
-    return fetch(API_BASE_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload),
-      cache: 'no-store'
-    }).then(function (response) {
-      return response.text().then(function (raw) {
-        let data;
-        try { data = JSON.parse(raw); } catch (e) {
-          if (retry < 1) return new Promise(function(resolve){ setTimeout(resolve, 500); }).then(function(){ return attempt(retry + 1); });
-          const preview = String(raw || '').replace(/\s+/g, ' ').slice(0, 140);
-          throw new Error('Respons API bukan JSON yang valid' + (preview ? ': ' + preview : '.'));
-        }
-        if (!response.ok || !data.success) throw new Error(data.error || 'Request API gagal.');
-        return data.data;
+    return getPublicApiClientId_().then(function (clientId) {
+      const payload = { action: action, token: token || (ERP_SESSION && ERP_SESSION.token) || '', args: normalizedArgs, client_id: clientId };
+      return fetch(API_BASE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        cache: 'no-store'
+      }).then(function (response) {
+        return response.text().then(function (raw) {
+          let data;
+          try { data = JSON.parse(raw); } catch (e) {
+            if (retry < 1) return new Promise(function(resolve){ setTimeout(resolve, 500); }).then(function(){ return attempt(retry + 1); });
+            throw new Error('Layanan server tidak tersedia.');
+          }
+          if (!response.ok || !data.success) throw new Error(data.error || 'Permintaan tidak dapat diproses.');
+          return data.data;
+        });
       });
     });
   }
   return attempt(0);
 }
+
 
 /* =====================================================================
    HELPER DASAR
@@ -740,6 +765,7 @@ function renderRoute() {
 
   if (APP.route === 'master') return renderMasterPage();
   if (APP.route === 'stock') return renderStockPage();
+  if (APP.route === 'change-password') return renderPasswordSecurityPage();
   if (APP.route === 'material-overview') return renderMaterialHub();
   if (APP.route === 'input-produksi') return renderInputHub();
   if (APP.route === 'total-material') return renderTotalMaterialPage();
@@ -939,6 +965,62 @@ function loadDashboard() {
     if ($('materialTable')) $('materialTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat dashboard: ' + esc(msg) + '</td></tr>';
     if ($('setTable')) $('setTable').innerHTML = '<tr><td colspan="4" style="text-align:center;padding:18px;color:#c04c55">Gagal memuat Proses Set: ' + esc(msg) + '</td></tr>';
     if ($('efficiencyList')) $('efficiencyList').innerHTML = '<div class="empty-state" style="padding:20px;color:#c04c55">Gagal membaca data dashboard.</div>';
+  });
+}
+
+/* =====================================================================
+   KEAMANAN & PASSWORD
+===================================================================== */
+function renderPasswordSecurityPage() {
+  $('pageTitle').innerText = 'KEAMANAN & PASSWORD';
+  const isAdmin = ERP_SESSION && ['admin','superadmin'].indexOf(String(ERP_SESSION.role)) >= 0;
+  $('processPage').innerHTML =
+    '<div class="process-page-head"><div><div class="process-page-title">Keamanan & Password</div>' +
+    '<div class="process-page-subtitle">Kelola password akun dan reset akses pengguna secara aman.</div></div>' +
+    '<div class="process-actions"><button class="btn-secondary" onclick="navigate(\'dashboard\')">← Dashboard</button></div></div>' +
+    '<div class="erp-columns">' +
+    '<div class="erp-card"><div class="erp-card-head"><div><div class="erp-card-title">Ganti Password Saya</div><div class="erp-card-caption">Password minimal 10 karakter dan harus mengandung huruf serta angka.</div></div></div>' +
+    '<div class="erp-card-body"><form id="changePasswordForm" onsubmit="submitChangePassword(event)">' +
+    '<div class="erp-form-grid">' +
+    '<div class="field full"><label>Password Lama</label><input id="cpCurrent" type="password" autocomplete="current-password" required></div>' +
+    '<div class="field"><label>Password Baru</label><input id="cpNew" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>' +
+    '<div class="field"><label>Konfirmasi Password</label><input id="cpConfirm" type="password" autocomplete="new-password" minlength="10" maxlength="128" required></div>' +
+    '</div><div class="form-footer"><button class="btn-primary" id="cpSaveBtn" type="submit">Simpan Password</button></div></form></div></div>' +
+    (isAdmin ? '<div class="erp-card"><div class="erp-card-head"><div><div class="erp-card-title">Reset Password Pengguna</div><div class="erp-card-caption">Admin membuat token sekali pakai yang berlaku 15 menit. Sampaikan token kepada pengguna melalui kanal internal.</div></div></div><div class="erp-card-body"><form id="resetAdminForm" onsubmit="generateAdminReset(event)"><div class="erp-form-grid"><div class="field full"><label>Username Pengguna</label><input id="rpUsername" type="text" autocomplete="off" required></div></div><div class="form-footer"><button class="btn-secondary" id="rpBtn" type="submit">Buat Token Reset</button></div><div id="rpResult" class="stage-info" style="display:none;margin-top:12px"></div></form></div></div>' : '') +
+    '</div>';
+}
+
+function submitChangePassword(event) {
+  event.preventDefault();
+  const btn = $('cpSaveBtn');
+  const current = $('cpCurrent').value;
+  const next = $('cpNew').value;
+  const confirmNext = $('cpConfirm').value;
+  if (next !== confirmNext) { alert('Konfirmasi password baru tidak sama.'); return; }
+  btn.disabled = true; btn.innerText = 'Menyimpan...';
+  gs('apiChangePassword', [current, next], function (res) {
+    alert('Password berhasil diubah. Silakan login kembali.');
+    clearSession();
+    window.location.href = 'login.html';
+  }, function (e) {
+    alert('Gagal mengubah password: ' + ((e && e.message) ? e.message : 'Permintaan ditolak.'));
+    btn.disabled = false; btn.innerText = 'Simpan Password';
+  });
+}
+
+function generateAdminReset(event) {
+  event.preventDefault();
+  const btn = $('rpBtn');
+  const username = $('rpUsername').value.trim();
+  const result = $('rpResult');
+  btn.disabled = true; btn.innerText = 'Membuat token...';
+  gs('apiAdminCreatePasswordReset', [username], function (res) {
+    result.style.display = 'block';
+    result.innerHTML = '<strong>Token reset dibuat.</strong><br>Username: ' + esc(res.username) + '<br>Berlaku sampai: ' + esc(res.expiresAt) + '<br><strong>Token (tampilkan hanya sekali):</strong><br><span style="font-family:monospace;word-break:break-all">' + esc(res.resetToken) + '</span>';
+    btn.disabled = false; btn.innerText = 'Buat Token Reset';
+  }, function (e) {
+    alert('Gagal membuat token reset: ' + ((e && e.message) ? e.message : 'Permintaan ditolak.'));
+    btn.disabled = false; btn.innerText = 'Buat Token Reset';
   });
 }
 

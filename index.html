@@ -34,11 +34,20 @@ body{overflow-x:hidden}
 .top-right{display:flex;align-items:center;gap:13px}
 .filter-box{height:36px;min-width:145px;padding:0 11px;background:#fff;border:1px solid #dce2eb;border-radius:6px;display:flex;align-items:center;gap:8px;color:#34435b;font-size:12px}
 .filter-box select{width:100%;border:0;outline:none;background:transparent;color:#34435b;font-size:12px;cursor:pointer}.report-date-box{min-width:190px}.report-date-label{font-size:10px;color:#78869b;font-weight:700;text-transform:uppercase;white-space:nowrap}.report-date-box input{border:0;outline:none;background:transparent;color:#34435b;font-size:11px;font-family:inherit;width:130px;cursor:pointer}
-.profile{display:flex;align-items:center;gap:9px;margin-left:8px}
-.profile-circle{width:29px;height:29px;border-radius:50%;background:#1b355a;display:flex;align-items:center;justify-content:center;color:#fff}
+.profile{position:relative;display:flex;align-items:center;margin-left:8px}
+.profile-trigger{display:flex;align-items:center;gap:9px;padding:5px 7px;border:1px solid transparent;border-radius:8px;background:transparent;cursor:pointer;color:inherit;font:inherit;text-align:left}
+.profile-trigger:hover,.profile-trigger[aria-expanded="true"]{background:#f5f7fb;border-color:#e3e8f0}
+.profile-circle{width:29px;height:29px;border-radius:50%;background:#1b355a;display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 29px}
 .profile-circle svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6}
-.profile-name{font-size:12px;font-weight:700;color:#1e2d46;line-height:1.2}
-.profile-role{font-size:10px;color:#7c899c;margin-top:2px}
+.profile-name{font-size:12px;font-weight:700;color:#1e2d46;line-height:1.2;white-space:nowrap;max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.profile-role{font-size:10px;color:#7c899c;margin-top:2px;white-space:nowrap}
+.profile-more{font-size:20px;line-height:1;color:#65748c;padding:0 2px;margin-left:2px}
+.profile-menu{position:absolute;right:0;top:calc(100% + 7px);width:190px;background:#fff;border:1px solid #e0e6ee;border-radius:9px;box-shadow:0 12px 28px rgba(26,43,72,.14);padding:6px;display:none;z-index:7000}
+.profile-menu.open{display:block}
+.profile-menu-item{width:100%;display:flex;align-items:center;gap:9px;border:0;background:transparent;color:#33435d;font:inherit;font-size:12px;font-weight:600;text-align:left;padding:10px 11px;border-radius:7px;cursor:pointer}
+.profile-menu-item:hover{background:#f4f7fb}
+.profile-menu-item.danger{color:#b74a54}
+.profile-menu-sep{height:1px;background:#edf0f4;margin:4px 5px}
 .content{padding:12px 20px 20px}
 .app-page.hidden{display:none!important}
 .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
@@ -524,14 +533,21 @@ body{overflow-x:hidden}
       <div class="filter-box">
         <select id="plantFilter"><option value="ALL">Semua Plant</option></select>
       </div>
-      <div class="profile">
-        <div class="profile-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg></div>
-        <div>
-          <div class="profile-name" id="profileName">Memuat...</div>
-          <div class="profile-role" id="profileRole">-</div>
+      <div class="profile" id="profileMenuWrap">
+        <button type="button" class="profile-trigger" id="profileTrigger" aria-haspopup="true" aria-expanded="false" onclick="toggleProfileMenu(event)">
+          <div class="profile-circle"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-5 4-7 8-7s7 2 8 7"/></svg></div>
+          <div>
+            <div class="profile-name" id="profileName">Memuat...</div>
+            <div class="profile-role" id="profileRole">-</div>
+          </div>
+          <span class="profile-more" aria-hidden="true">⋮</span>
+        </button>
+        <div class="profile-menu" id="profileMenu" role="menu">
+          <button type="button" class="profile-menu-item" role="menuitem" onclick="openProfileItem('profile')">Profil</button>
+          <button type="button" class="profile-menu-item" role="menuitem" onclick="openProfileItem('password')">Ganti Password</button>
+          <div class="profile-menu-sep"></div>
+          <button type="button" class="profile-menu-item danger" role="menuitem" onclick="openProfileItem('logout')">Keluar</button>
         </div>
-        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px;margin-left:10px" onclick="openPasswordModal()">Ganti Password</button>
-        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px" onclick="doLogout()">Keluar</button>
       </div>
     </div>
   </header>
@@ -2766,6 +2782,43 @@ function submitKursiSusun(event,name){
   gs('apiSaveKursiSusunTransaksi',[payload],function(res){alert('Pemasangan berhasil disimpan. ID: '+res.transaksi_id); renderKursiSusunPage();},function(e){alert('Gagal menyimpan: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Pemasangan';});
 }
 
+
+function toggleProfileMenu(event) {
+  if (event) event.stopPropagation();
+  const menu = $('profileMenu');
+  const trigger = $('profileTrigger');
+  if (!menu || !trigger) return;
+  const willOpen = !menu.classList.contains('open');
+  menu.classList.toggle('open', willOpen);
+  trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+}
+
+function closeProfileMenu() {
+  const menu = $('profileMenu');
+  const trigger = $('profileTrigger');
+  if (menu) menu.classList.remove('open');
+  if (trigger) trigger.setAttribute('aria-expanded', 'false');
+}
+
+function openProfileItem(action) {
+  closeProfileMenu();
+  if (action === 'password') { openPasswordModal(); return; }
+  if (action === 'logout') { doLogout(); return; }
+  if (action === 'profile') {
+    const name = ($('profileName') && $('profileName').innerText) || '-';
+    const role = ($('profileRole') && $('profileRole').innerText) || '-';
+    alert('Profil\n\nNama: ' + name + '\nRole: ' + role);
+  }
+}
+
+document.addEventListener('click', function(event) {
+  const wrap = $('profileMenuWrap');
+  if (wrap && !wrap.contains(event.target)) closeProfileMenu();
+});
+
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') closeProfileMenu();
+});
 
 /* =====================================================================
    GANTI PASSWORD

@@ -1,6 +1,3 @@
-GITHUB HTML
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -399,6 +396,27 @@ body{overflow-x:hidden}
   .sidebar,.submenu,.menu-item,.erp-process-card{transition:none!important}
 }
 
+
+/* ================= PASSWORD CHANGE MODAL ================= */
+.password-modal{position:fixed;inset:0;background:rgba(14,27,49,.46);display:none;align-items:center;justify-content:center;padding:18px;z-index:5000}
+.password-modal.open{display:flex}
+.password-dialog{width:min(430px,100%);background:#fff;border:1px solid #e3e8f0;border-radius:12px;box-shadow:0 22px 60px rgba(22,36,62,.22);padding:22px}
+.password-dialog-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.password-dialog-title{font-size:17px;font-weight:800;color:#162540}
+.password-dialog-sub{font-size:11px;color:#7b8799;margin-top:4px;line-height:1.5}
+.password-close{width:30px;height:30px;border:1px solid #dce2eb;border-radius:7px;background:#fff;color:#60708a;cursor:pointer;font-size:18px;line-height:1}
+.password-close:hover{background:#f5f7fb}
+.password-field{margin-bottom:13px}
+.password-field label{display:block;font-size:10px;font-weight:700;color:#59677e;text-transform:uppercase;margin-bottom:6px}
+.password-input-wrap{position:relative}
+.password-input-wrap input{width:100%;height:40px;border:1px solid #dce2eb;border-radius:7px;padding:0 78px 0 11px;font-size:12px;color:#34435b;outline:none;font-family:inherit;background:#fff}
+.password-input-wrap input:focus{border-color:#6f8de4;box-shadow:0 0 0 3px rgba(46,91,215,.08)}
+.password-eye{position:absolute;right:7px;top:5px;height:30px;padding:0 9px;border:0;border-radius:6px;background:#f3f5f9;color:#5c6d86;font-size:9px;font-weight:700;cursor:pointer}
+.password-status{min-height:18px;margin:4px 0 10px;font-size:11px;line-height:1.4}
+.password-status.error{color:#bd4a54}.password-status.success{color:#2d8a5d}
+.password-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.password-actions .btn-secondary,.password-actions .btn-primary{min-width:110px}
+@media(max-width:650px){.password-dialog{padding:18px}.password-actions{flex-direction:column-reverse}.password-actions .btn-secondary,.password-actions .btn-primary{width:100%}}
 </style>
 </head>
 <body>
@@ -512,10 +530,54 @@ body{overflow-x:hidden}
           <div class="profile-name" id="profileName">Memuat...</div>
           <div class="profile-role" id="profileRole">-</div>
         </div>
-        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px;margin-left:10px" onclick="doLogout()">Keluar</button>
+        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px;margin-left:10px" onclick="openPasswordModal()">Ganti Password</button>
+        <button class="btn-secondary" style="height:28px;padding:0 10px;font-size:10px" onclick="doLogout()">Keluar</button>
       </div>
     </div>
   </header>
+
+
+  <div class="password-modal" id="passwordModal" role="dialog" aria-modal="true" aria-labelledby="passwordModalTitle" onclick="if(event.target===this)closePasswordModal()">
+    <div class="password-dialog">
+      <div class="password-dialog-head">
+        <div>
+          <div class="password-dialog-title" id="passwordModalTitle">Ganti Password</div>
+          <div class="password-dialog-sub">Ubah password akun yang sedang digunakan. Setelah berhasil, Anda perlu login kembali.</div>
+        </div>
+        <button type="button" class="password-close" aria-label="Tutup" onclick="closePasswordModal()">×</button>
+      </div>
+
+      <div class="password-field">
+        <label for="cpCurrentPassword">Password Lama</label>
+        <div class="password-input-wrap">
+          <input id="cpCurrentPassword" type="password" autocomplete="current-password" maxlength="128">
+          <button type="button" class="password-eye" onclick="togglePasswordField('cpCurrentPassword',this)">LIHAT</button>
+        </div>
+      </div>
+
+      <div class="password-field">
+        <label for="cpNewPassword">Password Baru</label>
+        <div class="password-input-wrap">
+          <input id="cpNewPassword" type="password" autocomplete="new-password" maxlength="128">
+          <button type="button" class="password-eye" onclick="togglePasswordField('cpNewPassword',this)">LIHAT</button>
+        </div>
+      </div>
+
+      <div class="password-field">
+        <label for="cpConfirmPassword">Konfirmasi Password Baru</label>
+        <div class="password-input-wrap">
+          <input id="cpConfirmPassword" type="password" autocomplete="new-password" maxlength="128" onkeydown="if(event.key==='Enter')submitPasswordChange()">
+          <button type="button" class="password-eye" onclick="togglePasswordField('cpConfirmPassword',this)">LIHAT</button>
+        </div>
+      </div>
+
+      <div class="password-status" id="cpStatus" role="alert" aria-live="polite"></div>
+      <div class="password-actions">
+        <button type="button" class="btn-secondary" onclick="closePasswordModal()">Batal</button>
+        <button type="button" class="btn-primary" id="cpSaveBtn" onclick="submitPasswordChange()">Simpan Password</button>
+      </div>
+    </div>
+  </div>
 
   <section class="content">
     <!-- ============ DASHBOARD ============ -->
@@ -2703,6 +2765,74 @@ function submitKursiSusun(event,name){
   btn.disabled=true; btn.innerText='Menyimpan...';
   gs('apiSaveKursiSusunTransaksi',[payload],function(res){alert('Pemasangan berhasil disimpan. ID: '+res.transaksi_id); renderKursiSusunPage();},function(e){alert('Gagal menyimpan: '+((e&&e.message)?e.message:e)); btn.disabled=false; btn.innerText='Simpan Pemasangan';});
 }
+
+
+/* =====================================================================
+   GANTI PASSWORD
+===================================================================== */
+function openPasswordModal() {
+  const modal = $('passwordModal');
+  if (!modal) return;
+  ['cpCurrentPassword','cpNewPassword','cpConfirmPassword'].forEach(function(id){ if ($(id)) $(id).value=''; });
+  const status = $('cpStatus');
+  if (status) { status.className='password-status'; status.innerText=''; }
+  const btn = $('cpSaveBtn');
+  if (btn) { btn.disabled=false; btn.innerText='Simpan Password'; }
+  modal.classList.add('open');
+  setTimeout(function(){ if ($('cpCurrentPassword')) $('cpCurrentPassword').focus(); }, 0);
+}
+
+function closePasswordModal() {
+  const modal = $('passwordModal');
+  if (modal) modal.classList.remove('open');
+}
+
+function togglePasswordField(id, btn) {
+  const input = $(id);
+  if (!input) return;
+  const visible = input.type === 'text';
+  input.type = visible ? 'password' : 'text';
+  if (btn) btn.innerText = visible ? 'LIHAT' : 'SEMBUNYIKAN';
+}
+
+function setPasswordStatus(message, type) {
+  const el = $('cpStatus');
+  if (!el) return;
+  el.className = 'password-status ' + (type || '');
+  el.innerText = message || '';
+}
+
+function submitPasswordChange() {
+  const currentPassword = $('cpCurrentPassword') ? $('cpCurrentPassword').value : '';
+  const newPassword = $('cpNewPassword') ? $('cpNewPassword').value : '';
+  const confirmPassword = $('cpConfirmPassword') ? $('cpConfirmPassword').value : '';
+  const btn = $('cpSaveBtn');
+
+  if (!currentPassword) { setPasswordStatus('Password lama wajib diisi.','error'); return; }
+  if (!newPassword) { setPasswordStatus('Password baru wajib diisi.','error'); return; }
+  if (newPassword.length < 6) { setPasswordStatus('Password baru minimal 6 karakter.','error'); return; }
+  if (newPassword.length > 128) { setPasswordStatus('Password baru maksimal 128 karakter.','error'); return; }
+  if (newPassword === currentPassword) { setPasswordStatus('Password baru harus berbeda dari password lama.','error'); return; }
+  if (newPassword !== confirmPassword) { setPasswordStatus('Konfirmasi password baru tidak cocok.','error'); return; }
+
+  if (btn) { btn.disabled=true; btn.innerText='Menyimpan...'; }
+  setPasswordStatus('Memproses perubahan password...','');
+
+  gs('apiChangePassword',[currentPassword,newPassword],function(res){
+    setPasswordStatus('Password berhasil diubah. Mengarahkan ke halaman login...','success');
+    setTimeout(function(){
+      try { clearSession(); } catch (e) {}
+      window.location.href='login.html?password_changed=1';
+    },900);
+  },function(e){
+    setPasswordStatus((e&&e.message)?e.message:'Gagal mengubah password.','error');
+    if (btn) { btn.disabled=false; btn.innerText='Simpan Password'; }
+  });
+}
+
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closePasswordModal();
+});
 
 /* =====================================================================
    INIT

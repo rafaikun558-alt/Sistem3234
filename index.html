@@ -791,7 +791,7 @@ const PROCESS_PAGES = {
 const ACCENTS = { green: '#2bad68', orange: '#ee9a1c', blue: '#297cdf', cyan: '#23b8c7', purple: '#8059d8', pink: '#c85f8c' };
 const MATERIAL_ACCENT = { CUTTING: 'green', BENDING: 'orange', KUPINGAN: 'cyan', LAS: 'blue', PERAKITAN_RANGKA: 'pink', COATING: 'orange', PEMASANGAN_DOP: 'green' };
 
-const APP = { route: 'dashboard', sub: '', plant: 'ALL', reportDate: todayISO(), masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [] };
+const APP = { route: 'dashboard', sub: '', plant: 'ALL', reportDate: todayISO(), masterEntity: 'plant', procKey: null, stockCache: null, reportType: 'material', editingTrxId: null, processRowsCache: [], plantsCache: [] };
 
 /* =====================================================================
    ROUTER — SATU-SATUNYA PINTU NAVIGASI
@@ -954,6 +954,7 @@ function renderDashboardData(d) {
   // sehingga startup tidak perlu request apiGetPlants() terpisah.
   const dashboardPlants = Array.isArray(d.plants) ? d.plants : null;
   if (dashboardPlants) {
+    APP.plantsCache = dashboardPlants.slice();
     const plantSelect = $('plantFilter');
     if (plantSelect) {
       const wantedPlant = APP.plant || 'ALL';
@@ -1105,7 +1106,8 @@ function renderMasterEntity(entity, editId) {
   panel.innerHTML = '<div class="erp-card"><div class="erp-card-body"><div class="erp-empty">Memuat ' + esc(MASTER_TABS[entity]) + '...</div></div></div>';
 
   gs('apiGetMaster', [entity], function (data) {
-    gs('apiGetPlants', [], function (plants) {
+    const plants = APP.plantsCache && APP.plantsCache.length ? APP.plantsCache : (Array.isArray(data.plants) ? data.plants : []);
+    const continueRender = function() {
       if (!panel || !document.body.contains(panel)) return;
       const targetRow = editId ? (entity === 'batch' ? data.rows.find(function (r) { return String(r.batch_id || '') + '::' + (r.kelompok || 'Material') === String(editId); }) : data.rows.find(function (r) { return String(r[data.idCol]) === String(editId); })) : null;
       const mode = targetRow ? 'Edit' : 'Tambah';
@@ -1155,7 +1157,15 @@ function renderMasterEntity(entity, editId) {
           tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
         });
       };
-    });
+    };
+    if (plants.length) {
+      continueRender();
+    } else {
+      gs('apiGetPlants', [], function(fallbackPlants) {
+        APP.plantsCache = Array.isArray(fallbackPlants) ? fallbackPlants.slice() : [];
+        continueRender();
+      }, function() { continueRender(); });
+    }
   });
 }
 
@@ -1488,8 +1498,7 @@ function renderProcessPage(key) {
     '<div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>OPERATOR</th><th>SUB</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead>' +
     '<tbody id="ppTable"></tbody></table></div></div></div></div>';
 
-  loadProcessOptions(key);
-  loadProcessData(key);
+  loadProcessOptions(key, true);
 }
 
 function resetProcessForm() {
@@ -1501,9 +1510,9 @@ function resetProcessForm() {
   if ($('ppSaveBtn')) $('ppSaveBtn').disabled = APP.procKey === 'kupingan';
 }
 
-function loadProcessOptions(key) {
+function loadProcessOptions(key, includePage) {
   const cfg = PROCESS_PAGES[key];
-  gs('apiGetProcessOptions', [cfg.code], function (d) {
+  gs('apiGetProcessOptions', [cfg.code, APP.plant, APP.sub, !!includePage], function (d) {
     const plantSel = $('ppPlant');
     const allPlants = d.plants || [];
     plantSel.innerHTML = '<option value="">Pilih plant</option>' + allPlants.map(function (p) {
@@ -1597,6 +1606,7 @@ function loadProcessOptions(key) {
     renderBatchOptions();
     renderMaterialOptions(false);
     if (APP.sub && $('ppSub')) $('ppSub').value = APP.sub;
+    if (includePage && d.page) renderProcessDataPayload_(key, d.page);
   }, function (e) {
     const st = $('ppStatus');
     if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Master data gagal dimuat'; }
@@ -1838,221 +1848,39 @@ function refreshProcessContext() {
   });
 }
 
+function renderProcessDataPayload_(key, d) {
+  d = d || {};
+  const summary = d.summary || {};
+  if ($('ppTarget')) $('ppTarget').innerText = fmt(summary.target);
+  if ($('ppActual')) $('ppActual').innerText = fmt(summary.actual);
+  if ($('ppReject')) $('ppReject').innerText = fmt(summary.reject);
+  if ($('ppAchievement')) $('ppAchievement').innerText = Number(summary.achievement || 0).toFixed(1) + '%';
+  APP.processRowsCache = d.rows || [];
+  const body = $('ppTable');
+  if (!body) return;
+  body.innerHTML = (d.rows || []).map(function (x) {
+    return '<tr><td>' + esc(x.tanggal || '-') + '</td><td><b>' + esc(x.batch_id || '-') + '</b></td>' +
+      '<td>' + esc(x.operator_name || '-') + '</td><td>' + esc(x.sub_proses || '—') + '</td>' +
+      '<td>' + fmt(x.qty_input) + '</td><td>' + fmt(x.qty_good) + '</td><td>' + fmt(x.qty_reject) + '</td>' +
+      '<td><span class="status-pill ' + (x.status === 'Selesai' ? 'status-good' : 'status-warn') + '"><span class="status-dot"></span>' + esc(x.status) + '</span></td>' +
+      '<td><div class="erp-action-row"><button class="erp-icon-btn" title="Edit" onclick="editTransaksi(\'' + esc(x.transaksi_id) + '\')">✎</button>' +
+      '<button class="erp-icon-btn" title="Hapus" onclick="deleteTransaksi(\'' + esc(x.transaksi_id) + '\')">🗑</button></div></td></tr>';
+  }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✓</div>Belum ada transaksi.</div></td></tr>';
+  $('ppSearch').oninput = function () {
+    const q = this.value.toLowerCase();
+    Array.from(body.querySelectorAll('tr')).forEach(function (tr) { tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none'; });
+  };
+}
+
 function loadProcessData(key) {
   const cfg = PROCESS_PAGES[key];
   gs('apiGetProcessPage', [cfg.code, APP.plant, APP.sub], function (d) {
-    $('ppTarget').innerText = fmt(d.summary.target);
-    $('ppActual').innerText = fmt(d.summary.actual);
-    $('ppReject').innerText = fmt(d.summary.reject);
-    $('ppAchievement').innerText = Number(d.summary.achievement).toFixed(1) + '%';
-    APP.processRowsCache = d.rows || [];
-    const body = $('ppTable');
-    body.innerHTML = (d.rows || []).map(function (x) {
-      return '<tr><td>' + esc(x.tanggal || '-') + '</td><td><b>' + esc(x.batch_id || '-') + '</b></td>' +
-        '<td>' + esc(x.operator_name || '-') + '</td><td>' + esc(x.sub_proses || '—') + '</td>' +
-        '<td>' + fmt(x.qty_input) + '</td><td>' + fmt(x.qty_good) + '</td><td>' + fmt(x.qty_reject) + '</td>' +
-        '<td><span class="status-pill ' + (x.status === 'Selesai' ? 'status-good' : 'status-warn') + '"><span class="status-dot"></span>' + esc(x.status) + '</span></td>' +
-        '<td><div class="erp-action-row"><button class="erp-icon-btn" title="Edit" onclick="editTransaksi(\'' + esc(x.transaksi_id) + '\')">✎</button>' +
-        '<button class="erp-icon-btn" title="Hapus" onclick="deleteTransaksi(\'' + esc(x.transaksi_id) + '\')">🗑</button></div></td></tr>';
-    }).join('') || '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">✓</div>Belum ada transaksi.</div></td></tr>';
-    $('ppSearch').oninput = function () {
-      const q = this.value.toLowerCase();
-      Array.from(body.querySelectorAll('tr')).forEach(function (tr) {
-        tr.style.display = tr.innerText.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
-      });
-    };
+    renderProcessDataPayload_(key, d);
   }, function (e) {
     const st = $('ppStatus');
-    if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Gagal membaca data'; }
+    if (st) { st.className = 'status-pill status-bad'; st.innerHTML = '<span class="status-dot"></span>Data proses gagal dimuat'; }
   });
 }
-
-function editTransaksi(id) {
-  const row = (APP.processRowsCache || []).find(function (r) { return String(r.transaksi_id) === String(id); });
-  if (!row) return;
-  APP.editingTrxId = id;
-  $('ppQtyInput').value = row.qty_input;
-  $('ppQtyTarget').value = row.qty_target;
-  $('ppQtyGood').value = row.qty_good;
-  $('ppQtyReject').value = row.qty_reject;
-  $('ppNote').value = row.catatan || '';
-  const sub = $('ppSub');
-  if (sub) sub.value = row.sub_proses || '';
-  ['ppPlant', 'ppBatch', 'ppOperator'].forEach(function (fid) { const el = $(fid); if (el) el.disabled = true; });
-  $('ppSaveBtn').innerText = 'Update Transaksi';
-  if (!$('ppCancelEditBtn')) {
-    const cancelBtn = document.createElement('button');
-    cancelBtn.type = 'button';
-    cancelBtn.id = 'ppCancelEditBtn';
-    cancelBtn.className = 'btn-secondary';
-    cancelBtn.innerText = 'Batal Edit';
-    cancelBtn.onclick = cancelEditTransaksi;
-    $('ppSaveBtn').insertAdjacentElement('beforebegin', cancelBtn);
-  }
-  $('ppFormCard').scrollIntoView({ behavior: 'smooth' });
-}
-
-function cancelEditTransaksi() {
-  APP.editingTrxId = null;
-  ['ppPlant', 'ppBatch', 'ppOperator'].forEach(function (fid) { const el = $(fid); if (el) el.disabled = false; });
-  $('ppSaveBtn').innerText = 'Simpan Produksi';
-  const cancelBtn = $('ppCancelEditBtn');
-  if (cancelBtn) cancelBtn.remove();
-  resetProcessForm();
-}
-
-function deleteTransaksi(id) {
-  if (!confirm('Yakin hapus transaksi ini? Tindakan tidak bisa dibatalkan.')) return;
-  gs('apiDeleteTransaksi', [id], function () {
-    loadProcessData(APP.procKey);
-  }, function (e) {
-    alert('Gagal menghapus: ' + ((e && e.message) ? e.message : e));
-  });
-}
-
-function submitProcess(event, key) {
-  event.preventDefault();
-  const cfg = PROCESS_PAGES[key];
-  const btn = $('ppSaveBtn');
-  const sub = $('ppSub');
-  const qtyInput = Number($('ppQtyInput').value || 0);
-  const qtyGood = Number($('ppQtyGood').value || 0);
-  const qtyReject = Number($('ppQtyReject').value || 0);
-  if (key === 'bending' && $('ppQtyInput').max) {
-    const maxInput = Number($('ppQtyInput').max || 0);
-    if (maxInput > 0 && qtyInput > maxInput) {
-      alert('Qty Input Bending melebihi output Cutting yang tersedia: ' + fmt(maxInput) + ' PCS.');
-      return;
-    }
-  }
-  if (key === 'kupingan') {
-    const selectedMaterial = $('ppMaterial') ? $('ppMaterial').value : '';
-    if (!selectedMaterial) {
-      alert('Material stok wajib dipilih untuk proses Kupingan.');
-      return;
-    }
-    if ($('ppQtyInput').max) {
-      const maxStock = Number($('ppQtyInput').max || 0);
-      if (maxStock > 0 && qtyInput > maxStock) {
-        alert('Qty Input Kupingan melebihi stok material yang tersedia: ' + fmt(maxStock) + ' PCS.');
-        return;
-      }
-    }
-  }
-  if ((key === 'coating' || key === 'nickel') && $('ppQtyInput').max) {
-    const maxChemical = Number($('ppQtyInput').max || 0);
-    if (maxChemical > 0 && qtyInput > maxChemical) {
-      alert('Qty Input Chemical melebihi Rangka Jadi yang tersedia: ' + fmt(maxChemical) + ' PCS.');
-      return;
-    }
-  }
-  if (key === 'perakitan' && $('ppQtyInput').max) {
-    const maxAssembly = Number($('ppQtyInput').max || 0);
-    if (maxAssembly > 0 && qtyInput > maxAssembly) {
-      alert('Qty Input Perakitan melebihi Rangka Jadi tersedia (MIN 5 komponen): ' + fmt(maxAssembly) + ' PCS.');
-      return;
-    }
-  }
-  if (qtyInput > 0 && qtyGood + qtyReject > qtyInput) {
-    alert('Qty Good + Reject tidak boleh melebihi Qty Input.');
-    return;
-  }
-
-  if (APP.editingTrxId) {
-    const updatePayload = {
-      qty_input: qtyInput,
-      qty_target: Number($('ppQtyTarget').value || 0),
-      qty_good: qtyGood,
-      qty_reject: qtyReject,
-      catatan: $('ppNote').value || '',
-      sub_proses: sub ? (sub.value || '') : ''
-    };
-    btn.disabled = true; btn.innerText = 'Menyimpan...';
-    gs('apiUpdateTransaksi', [APP.editingTrxId, updatePayload], function () {
-      alert('Transaksi berhasil diperbarui.');
-      cancelEditTransaksi();
-      loadProcessData(key);
-    }, function (e) {
-      alert('Gagal memperbarui: ' + ((e && e.message) ? e.message : e));
-      btn.disabled = false; btn.innerText = 'Update Transaksi';
-    });
-    return;
-  }
-
-  const payload = {
-    tanggal: $('ppDate').value,
-    plant_id: $('ppPlant').value,
-    batch_id: $('ppBatch').value,
-    operator_id: $('ppOperator').value,
-    proses_code: cfg.code,
-    material_id: $('ppMaterial') ? $('ppMaterial').value : '',
-    qty_input: qtyInput,
-    qty_target: Number($('ppQtyTarget').value || 0),
-    qty_good: qtyGood,
-    qty_reject: qtyReject,
-    status: 'Selesai',
-    catatan: $('ppNote').value || ''
-  };
-  if (sub) payload.sub_proses = sub.value || '';
-  btn.disabled = true; btn.innerText = 'Menyimpan...';
-  gs('apiSaveTransaksi', [payload], function (res) {
-    alert('Transaksi berhasil disimpan. ID: ' + res.transaksi_id);
-    resetProcessForm();
-    if (sub) sub.value = payload.sub_proses;
-    loadProcessData(key);
-  }, function (e) {
-    alert('Gagal menyimpan: ' + ((e && e.message) ? e.message : e));
-    btn.disabled = false; btn.innerText = 'Simpan Produksi';
-  });
-}
-
-function applySubmenuState(name, open) {
-  const menu = document.querySelector('[data-menu-toggle="' + name + '"]');
-  const submenu = document.querySelector('[data-submenu="' + name + '"]');
-  if (!menu || !submenu) return;
-  menu.classList.toggle('collapsed', !open);
-  if (open) {
-    submenu.classList.remove('collapsed');
-    submenu.style.maxHeight = submenu.scrollHeight + 'px';
-  } else {
-    submenu.style.maxHeight = '0px';
-    submenu.classList.add('collapsed');
-  }
-  try { localStorage.setItem('erp_submenu_' + name, open ? '1' : '0'); } catch (err) {}
-}
-
-function toggleSubmenu(name) {
-  const submenu = document.querySelector('[data-submenu="' + name + '"]');
-  const open = submenu ? !submenu.classList.contains('collapsed') : true;
-  applySubmenuState(name, !open);
-}
-
-function setupSidebarCollapsibles() {
-  document.querySelectorAll('[data-menu-toggle]').forEach(function (menu) {
-    const name = menu.getAttribute('data-menu-toggle');
-    menu.classList.add('has-submenu');
-    let open = true;
-    try {
-      const saved = localStorage.getItem('erp_submenu_' + name);
-      if (saved !== null) open = saved === '1';
-    } catch (err) {}
-    applySubmenuState(name, open);
-  });
-  document.querySelectorAll('.submenu').forEach(function (submenu) {
-    if (!submenu.hasAttribute('data-submenu')) {
-      const key = 'legacy_' + Array.prototype.indexOf.call(document.querySelectorAll('.submenu'), submenu);
-      const trigger = submenu.previousElementSibling;
-      if (trigger && trigger.classList.contains('menu-item')) {
-        trigger.classList.add('has-submenu');
-        trigger.setAttribute('data-menu-toggle', key);
-        submenu.setAttribute('data-submenu', key);
-        applySubmenuState(key, true);
-      }
-    }
-  });
-}
-
-
 
 /* =====================================================================
    2# PROSES SET — UI
@@ -2212,8 +2040,7 @@ function renderSetPage(key) {
     '<div class="process-panel"><div class="process-panel-head"><div><div class="process-panel-title">Riwayat '+esc(cfg.title)+'</div><div class="process-panel-caption">100 transaksi terakhir.</div></div><span class="status-pill status-good"><span class="status-dot"></span>Terhubung</span></div><div class="process-panel-body"><div class="table-wrap"><table class="data-table"><thead><tr><th>TANGGAL</th><th>BATCH</th><th>MATERIAL</th><th>INPUT</th><th>GOOD</th><th>REJECT</th><th>STATUS</th><th>AKSI</th></tr></thead><tbody id="setHistoryTable"></tbody></table></div></div></div></div>';
 
   $('setOptionsStatus').innerHTML = '<div class="stage-info">Menyiapkan pilihan form...</div>';
-  loadSetHistory();
-  loadSetOptions().then(function(){ refreshSetContext(); }).catch(function(){});
+  loadSetOptions(true).then(function(){ refreshSetContext(); }).catch(function(){});
 }
 
 function materialMatchesSetGroup(material, group) {
@@ -2329,9 +2156,9 @@ function updateSetOperatorHint() {
     : '<div class="stage-warning">Belum ada operator dengan Plant ID <b>'+esc(plantId)+'</b>. Operator aktif tetap ditampilkan. Periksa Plant ID pada Master Operator agar validasi penyimpanan sesuai.</div>';
 }
 
-function loadSetOptions() {
+function loadSetOptions(includeHistory) {
   return new Promise(function(resolve,reject){
-    gsRead('apiGetSetOptions', [], function(d){
+    gsRead('apiGetSetOptions', [!!includeHistory, APP.plant, ''], function(d){
       d = d || {};
       SET_APP.options = d;
       const plant=$('setPlant'), batch=$('setBatch'), op=$('setOperator'), mat=$('setMaterial');
@@ -2415,6 +2242,15 @@ function loadSetOptions() {
         $('setOptionsStatus').innerHTML = hasCore && hasMaterial
           ? '<div class="stage-info"><b>Form siap digunakan.</b> Pilih Plant → Batch → Operator'+(cfg && cfg.stock ? ' → Material' : '')+' → isi Qty → Simpan.</div>'
           : '<div class="stage-warning"><b>Data master belum lengkap.</b> Pastikan Plant, Batch, Operator, dan stok material sesuai plant sudah tersedia.</div>';
+      }
+      if (includeHistory && d.history) {
+        const h = d.history; const hs = h.summary || {}; const hrows = Array.isArray(h.rows) ? h.rows : [];
+        SET_APP.historyRows = hrows;
+        if ($('setActual')) $('setActual').innerText = fmt(hs.actual);
+        if ($('setReject')) $('setReject').innerText = fmt(hs.reject);
+        if ($('setHistoryTable')) $('setHistoryTable').innerHTML = hrows.length ? hrows.map(function(r){
+          return '<tr><td>'+esc(r.tanggal||'')+'</td><td>'+esc(r.batch_id||'')+'</td><td>'+esc(r.material_name||'-')+'</td><td>'+fmt(r.qty_input)+'</td><td>'+fmt(r.qty_good)+'</td><td>'+fmt(r.qty_reject)+'</td><td>'+esc(r.status||'Selesai')+'</td><td><button class="erp-icon-btn" title="Edit transaksi" data-edit-set="'+esc(r.transaksi_id)+'">✎</button><button class="erp-icon-btn" title="Hapus transaksi" data-delete-set="'+esc(r.transaksi_id)+'">🗑</button></td></tr>';
+        }).join('') : '<tr><td colspan="8"><div class="empty-state">Belum ada transaksi.</div></td></tr>';
       }
 
       resolve();

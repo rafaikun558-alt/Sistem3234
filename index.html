@@ -949,6 +949,22 @@ function setDashboardLoading(isLoading) {
 
 function renderDashboardData(d) {
   d = d || {};
+
+  // Performance: daftar plant dikirim bersamaan dengan payload dashboard,
+  // sehingga startup tidak perlu request apiGetPlants() terpisah.
+  const dashboardPlants = Array.isArray(d.plants) ? d.plants : null;
+  if (dashboardPlants) {
+    const plantSelect = $('plantFilter');
+    if (plantSelect) {
+      const wantedPlant = APP.plant || 'ALL';
+      plantSelect.innerHTML = '<option value="ALL">Semua Plant</option>' + dashboardPlants.map(function (p) {
+        return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
+      }).join('');
+      plantSelect.value = dashboardPlants.some(function (p) { return String(p.plant_id) === String(wantedPlant); }) ? wantedPlant : 'ALL';
+      APP.plant = plantSelect.value;
+    }
+  }
+
   const efficiency = Number(d.efficiency || 0);
   const averageEfficiency = Number(d.averageEfficiency !== undefined ? d.averageEfficiency : efficiency);
   $('kpiStock').innerText = fmt(d.stockMaterial);
@@ -2939,11 +2955,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   $('reportDateFilter').value = APP.reportDate;
 
-  gs('apiGetPlants', [], function (plants) {
-    $('plantFilter').innerHTML = '<option value="ALL">Semua Plant</option>' + plants.map(function (p) {
-      return '<option value="' + esc(p.plant_id) + '">' + esc(p.plant_id) + (p.nama_plant ? ' — ' + esc(p.nama_plant) : '') + '</option>';
-    }).join('');
-  });
   $('plantFilter').addEventListener('change', function () {
     APP.plant = this.value;
     renderRoute();
